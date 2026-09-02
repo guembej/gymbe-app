@@ -188,16 +188,19 @@ function pintarDetalle() {
     const li = document.createElement("li");
     li.className = "tarjeta item-rutina";
     li.innerHTML = `
-      <div class="tarjeta-cuerpo">
-        <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>
+      <span class="item-num">${indice + 1}</span>
+      <div class="item-contenido">
+        <div class="item-fila-top">
+          <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>
+          <div class="tarjeta-acciones">
+            <button class="icono-boton" data-accion="subir" title="Subir">▲</button>
+            <button class="icono-boton" data-accion="bajar" title="Bajar">▼</button>
+            <button class="icono-boton" data-accion="editar" title="Editar">✏️</button>
+            <button class="icono-boton" data-accion="borrar" title="Quitar">🗑️</button>
+          </div>
+        </div>
         <span class="tarjeta-nota">${escaparHtml(resumen)}</span>
         ${item.nota ? `<span class="tarjeta-nota">📝 ${escaparHtml(item.nota)}</span>` : ""}
-      </div>
-      <div class="tarjeta-acciones">
-        <button class="icono-boton" data-accion="subir" title="Subir">▲</button>
-        <button class="icono-boton" data-accion="bajar" title="Bajar">▼</button>
-        <button class="icono-boton" data-accion="editar" title="Editar">✏️</button>
-        <button class="icono-boton" data-accion="borrar" title="Quitar">🗑️</button>
       </div>
     `;
     li.querySelector('[data-accion="subir"]').addEventListener("click", () => {

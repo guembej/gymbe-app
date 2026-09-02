@@ -30,6 +30,14 @@ body {
   padding-top: max(14px, env(safe-area-inset-top));
 }
 .marca { display: flex; align-items: center; gap: 12px; }
+.logo-boton {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  cursor: pointer;
+  flex-shrink: 0;
+}
 .marca .iso { width: 44px; height: 17px; color: #f2f4f7; flex-shrink: 0; }
 .cabecera h1 { font-size: 20px; font-weight: 600; }
 
@@ -167,15 +175,27 @@ body {
 .tarjeta-nota { font-size: 13px; color: var(--texto-suave); }
 .tarjeta-acciones { display: flex; flex-shrink: 0; }
 
-/* Ejercicios dentro de una rutina: nombre arriba, acciones en su propia fila */
-.item-rutina { flex-direction: column; align-items: stretch; }
-.item-rutina .tarjeta-acciones {
-  justify-content: flex-end;
-  gap: 2px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--borde);
+/* Ejercicios dentro de una rutina: lista numerada; nombre y acciones en la misma línea */
+.item-rutina { align-items: flex-start; gap: 10px; }
+.item-num {
+  flex-shrink: 0;
+  min-width: 18px;
+  text-align: center;
+  padding-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto-suave);
 }
+.item-contenido { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.item-fila-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+.item-fila-top .tarjeta-titulo { min-width: 0; }
+.item-fila-top .tarjeta-acciones { flex-shrink: 0; }
+.item-rutina .icono-boton { font-size: 15px; padding: 3px 4px; }
 
 .etiqueta {
   align-self: flex-start;

@@ -43,5 +43,10 @@ document.querySelectorAll(".conmutador-boton").forEach((btn) => {
   });
 });
 
+// Pulsar el logo Gymbe: recargar la app (vuelve al inicio y refresca todo)
+document.getElementById("btn-inicio").addEventListener("click", () => {
+  location.reload();
+});
+
 // Arrancar en "Rutinas"
 irA("rutinas");

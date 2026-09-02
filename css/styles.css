@@ -353,6 +353,13 @@ body {
 }
 .acciones-entreno button { flex: 1; }
 
+/* ---- Historial ---- */
+#sesion-fecha { margin-top: 4px; }
+#sesion-meta { margin-bottom: 4px; }
+.serie-linea { font-size: 14px; color: var(--texto-suave); margin: 3px 0; }
+.serie-linea b { color: var(--texto); font-weight: 600; }
+#btn-borrar-sesion { margin-top: 16px; }
+
 /* ---- Ajustes ---- */
 .ajustes-grupo { display: flex; flex-direction: column; gap: 10px; }
 .ajustes-grupo h2 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }

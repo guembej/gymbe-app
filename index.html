@@ -108,7 +108,30 @@
     </section>
 
     <section class="seccion oculta" data-seccion="historial">
-      <p class="vacio">Aquí verás la lista de tus últimos entrenamientos.<br />Fase 4.</p>
+      <!-- Lista de entrenamientos -->
+      <div id="historial-lista">
+        <ul id="lista-sesiones" class="lista"></ul>
+      </div>
+
+      <!-- Detalle de un entrenamiento -->
+      <div id="historial-detalle" class="oculta">
+        <button id="btn-volver-historial" class="boton-enlace">&larr; Historial</button>
+
+        <div class="detalle-cabecera">
+          <div class="detalle-titulo">
+            <h2 id="sesion-rutina"></h2>
+            <span id="sesion-division" class="etiqueta etiqueta-division"></span>
+          </div>
+        </div>
+        <p id="sesion-fecha" class="tarjeta-nota"></p>
+        <p id="sesion-meta" class="objetivo"></p>
+
+        <div id="sesion-ejercicios"></div>
+
+        <button id="btn-borrar-sesion" class="boton-secundario ancho-completo btn-peligro">
+          Borrar este entrenamiento
+        </button>
+      </div>
     </section>
 
     <section class="seccion oculta" data-seccion="progreso">
@@ -270,6 +293,7 @@
   <script src="js/ejercicios.js"></script>
   <script src="js/rutinas.js"></script>
   <script src="js/entrenar.js"></script>
+  <script src="js/historial.js"></script>
   <script src="js/ajustes.js"></script>
   <script src="js/app.js"></script>
 </body>

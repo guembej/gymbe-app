@@ -322,3 +322,12 @@ function terminarSesion() {
 function listarSesiones() {
   return [...DATOS.sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
 }
+
+function obtenerSesion(id) {
+  return DATOS.sesiones.find((s) => s.id === id) || null;
+}
+
+function borrarSesion(id) {
+  DATOS.sesiones = DATOS.sesiones.filter((s) => s.id !== id);
+  guardar();
+}

@@ -215,6 +215,20 @@ prueba("listarSesiones ordena de más reciente a más antigua", () => {
   igual(listarSesiones().map((s) => s.id), ["b", "c", "a"]);
 });
 
+prueba("obtenerSesion y borrarSesion funcionan sobre el historial", () => {
+  const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 2, reps: "10", peso: 50 });
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0].hecha = true;
+  const guardada = terminarSesion();
+
+  esVerdad(obtenerSesion(guardada.id), "la sesión debería existir en el historial");
+  borrarSesion(guardada.id);
+  igual(obtenerSesion(guardada.id), null);
+  igual(listarSesiones().length, 0);
+});
+
 // ---- Datos de ejemplo ----
 
 prueba("cargarDatosEjemplo crea las rutinas de ejemplo con sus ejercicios", () => {

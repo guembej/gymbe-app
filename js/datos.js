@@ -65,8 +65,11 @@ function _reiniciarDatos() {
 }
 
 // Borra TODO (rutinas, ejercicios, historial, entreno en curso). Botón en Ajustes.
+// Deja el almacenamiento como recién instalado: al recargar se vuelven a cargar
+// los datos de ejemplo.
 function borrarTodosLosDatos() {
-  _reiniciarDatos();
+  DATOS = datosVacios();
+  localStorage.removeItem(CLAVE_ALMACEN);
 }
 
 // Identificador único para cada ejercicio / rutina / sesión.

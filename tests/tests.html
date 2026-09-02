@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pruebas · Gymbe App</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #111827;
+      color: #f9fafb;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+      line-height: 1.5;
+    }
+    h1 { font-size: 20px; }
+    p.intro { color: #9ca3af; font-size: 14px; }
+    #resumen {
+      font-size: 16px;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 12px 0;
+    }
+    #resumen.ok { background: #14532d; color: #bbf7d0; }
+    #resumen.fallo { background: #7f1d1d; color: #fecaca; }
+    ul { list-style: none; padding: 0; }
+    li {
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      font-size: 14px;
+      background: #1f2937;
+    }
+    li.fallo { background: #3f1d1d; color: #fecaca; }
+    a { color: #ff5722; }
+  </style>
+</head>
+<body>
+  <h1>Pruebas de Gymbe App</h1>
+  <p class="intro">
+    Comprueban la lógica de datos (crear/editar/borrar ejercicios y rutinas, guardado).
+    Usan un almacenamiento aparte: <strong>no tocan tus datos reales</strong>.
+    <br />Volver a la app: <a href="../index.html">index.html</a>
+  </p>
+
+  <div id="resumen">ejecutando…</div>
+  <ul id="resultados"></ul>
+
+  <!-- Clave de almacenamiento separada para las pruebas -->
+  <script>window.GYM_CLAVE_ALMACEN = "gymbe.pruebas";</script>
+
+  <!-- La lógica real que queremos probar -->
+  <script src="../js/datos.js"></script>
+
+  <!-- El runner y las pruebas -->
+  <script src="mini-test.js"></script>
+  <script src="tests.js"></script>
+</body>
+</html>

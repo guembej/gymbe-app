@@ -33,6 +33,8 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 
 - Vamos **por fases**. No pasamos a la siguiente hasta que la actual funciona y la entiendes.
 - Al final de cada fase: **la probamos en el PC** y, de vez en cuando, en el móvil.
+- Hay **pruebas automáticas** en `tests/tests.html`: cada paso que toque la lógica de datos
+  añade sus pruebas y todas deben seguir en verde antes de continuar.
 - En cada fase te explico *qué* hacemos y *por qué*, con lenguaje llano.
 - Si algo no se entiende, paramos y lo aclaramos antes de seguir.
 - El código lo escribo yo, pero tú decides y revisas.

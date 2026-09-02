@@ -33,9 +33,15 @@ assets/            Iconos, librerías locales
 - `sesiones`: [{ id, routineId, fecha, sets: [{ exerciseId, serie, pesoReal, repsReal }] }]
 
 ## Cómo probar
-Abrir `index.html` en el navegador (doble clic) o servir la carpeta con `npx serve`.
+- App: `node server.js` y abrir http://localhost:5173
+- Pruebas: abrir http://localhost:5173/tests/tests.html — deben pasar todas (verde).
+  Runner casero sin dependencias (`tests/mini-test.js`); las pruebas están en `tests/tests.js`.
+  Usan la clave `gymbe.pruebas` (vía `window.GYM_CLAVE_ALMACEN`), no tocan datos reales.
+  `_reiniciarDatos()` en datos.js deja los datos a cero entre pruebas.
 
 ## Convenciones
 - Comentarios en español, breves.
 - Nombres de variables en español o inglés simple, coherentes con el archivo.
 - Un commit por cada paso con sentido; mensajes en español.
+- **Cada cambio en la lógica de datos añade o actualiza pruebas en `tests/tests.js`.**
+  Ejecutar tests.html antes de dar un paso por terminado.

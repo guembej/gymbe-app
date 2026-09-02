@@ -6,7 +6,9 @@
 
 // Nombre bajo el que se guarda todo. La "v1" nos permite cambiar
 // el formato en el futuro sin pisar datos viejos.
-const CLAVE_ALMACEN = "gym.datos.v1";
+// La página de pruebas define otra clave para no tocar tus datos reales.
+const CLAVE_ALMACEN =
+  (typeof window !== "undefined" && window.GYM_CLAVE_ALMACEN) || "gym.datos.v1";
 
 // Grupos musculares disponibles (lista fija)
 const GRUPOS_MUSCULARES = [
@@ -45,6 +47,12 @@ function cargar() {
 // Escribe la libretita del navegador
 function guardar() {
   localStorage.setItem(CLAVE_ALMACEN, JSON.stringify(DATOS));
+}
+
+// Deja los datos a cero. Lo usa la página de pruebas antes de cada prueba.
+function _reiniciarDatos() {
+  DATOS = datosVacios();
+  guardar();
 }
 
 // Identificador único para cada ejercicio / rutina / sesión

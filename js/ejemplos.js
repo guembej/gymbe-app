@@ -93,3 +93,11 @@ function cargarDatosEjemplo() {
 
   return { rutinasAñadidas, ejerciciosAñadidos };
 }
+
+// La primera vez que se abre la app en este dispositivo, cargamos datos de ejemplo
+// para no empezar con la pantalla en blanco. Después, si borras todo desde Ajustes,
+// ya no se vuelven a cargar solos.
+// (En la página de pruebas no se hace: usa su propia clave de almacenamiento.)
+if (typeof ES_PRIMERA_VEZ !== "undefined" && ES_PRIMERA_VEZ && !window.GYM_CLAVE_ALMACEN) {
+  cargarDatosEjemplo();
+}

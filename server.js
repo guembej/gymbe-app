@@ -38,7 +38,8 @@ const servidor = http.createServer((req, res) => {
       return res.end("No encontrado: " + ruta);
     }
     const tipo = TIPOS[path.extname(archivo).toLowerCase()] || "application/octet-stream";
-    res.writeHead(200, { "Content-Type": tipo });
+    // Sin caché: durante el desarrollo, el navegador siempre coge la última versión.
+    res.writeHead(200, { "Content-Type": tipo, "Cache-Control": "no-store" });
     res.end(datos);
   });
 });

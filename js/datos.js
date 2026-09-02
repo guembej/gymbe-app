@@ -32,6 +32,10 @@ function datosVacios() {
   };
 }
 
+// ¿Es la primera vez que se abre la app en este dispositivo?
+// (null = nunca se ha guardado nada todavía)
+const ES_PRIMERA_VEZ = localStorage.getItem(CLAVE_ALMACEN) === null;
+
 // Copia en memoria mientras la app está abierta
 let DATOS = cargar();
 

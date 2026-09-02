@@ -200,7 +200,6 @@ function pintarDetalle() {
           </div>
         </div>
         <span class="tarjeta-nota">${escaparHtml(resumen)}</span>
-        ${item.nota ? `<span class="tarjeta-nota">📝 ${escaparHtml(item.nota)}</span>` : ""}
       </div>
     `;
     li.querySelector('[data-accion="subir"]').addEventListener("click", () => {

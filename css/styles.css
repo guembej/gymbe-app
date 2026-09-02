@@ -344,7 +344,35 @@ body {
 .serie-hecha input[type="number"],
 .serie-hecha input[type="text"] { border-color: var(--acento); }
 
-.bloque-ejercicio .boton-enlace { margin: 4px 0 0; }
+.bloque-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+.bloque-pie .boton-enlace { margin: 0; }
+.btn-descansar { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+
+/* Píldora flotante del temporizador */
+.pildora-descanso {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--alto-menu) + env(safe-area-inset-bottom) + 12px);
+  background: var(--acento);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  z-index: 50;
+  cursor: pointer;
+}
+.pildora-descanso.pildora-fin { background: var(--fondo-2); border: 1px solid var(--acento); color: var(--acento); }
 
 .acciones-entreno {
   display: flex;

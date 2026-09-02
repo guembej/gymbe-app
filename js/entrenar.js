@@ -161,11 +161,22 @@ function pintarSesionActiva() {
       bloque.appendChild(crearFilaSerie(ejIndice, filaIndice, fila));
     });
 
+    const pie = document.createElement("div");
+    pie.className = "bloque-pie";
+
     const anadir = document.createElement("button");
     anadir.className = "boton-enlace";
     anadir.textContent = "+ serie";
     anadir.dataset.anadirFila = ejIndice;
-    bloque.appendChild(anadir);
+
+    const descansar = document.createElement("button");
+    descansar.className = "boton-secundario btn-descansar";
+    const seg = obj.descansoSeg || 90;
+    descansar.textContent = `⏱ Descansar ${formatearCuentaAtras(seg)}`;
+    descansar.dataset.descanso = seg;
+
+    pie.append(anadir, descansar);
+    bloque.appendChild(pie);
 
     activoEjerciciosEl.appendChild(bloque);
   });
@@ -201,6 +212,12 @@ activoEjerciciosEl.addEventListener("change", (evento) => {
 activoEjerciciosEl.addEventListener("click", (evento) => {
   const sesion = sesionActiva();
   if (!sesion) return;
+
+  const descansar = evento.target.closest("[data-descanso]");
+  if (descansar) {
+    iniciarDescanso(Number(descansar.dataset.descanso));
+    return;
+  }
 
   const anadir = evento.target.closest("[data-anadir-fila]");
   if (anadir) {

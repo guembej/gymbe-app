@@ -13,6 +13,10 @@ const descToggle = document.getElementById("desc-toggle");
 const descReset = document.getElementById("desc-reset");
 const descAviso = document.getElementById("desc-aviso");
 
+const pildora = document.getElementById("pildora-descanso");
+const pildoraTexto = document.getElementById("pildora-texto");
+const seccionTiempo = document.querySelector('.seccion[data-seccion="cronometro"]');
+
 // ---- Estado ----
 let crono = { corriendo: false, acumuladoMs: 0, inicioMs: 0 };
 let desc = { corriendo: false, duracionSeg: 90, baseSeg: 90, finMs: 0, avisado: false };
@@ -77,8 +81,44 @@ function pintarTiempo() {
     pitido();
     vibrar();
   }
+
+  pintarPildora(restante);
 }
 setInterval(pintarTiempo, 100);
+
+// Píldora flotante: solo fuera de la pestaña Tiempo, mientras corre el descanso
+// (y unos segundos después, para avisar de que ha terminado).
+function pintarPildora(restante) {
+  const enTiempo = !seccionTiempo.classList.contains("oculta");
+  if (enTiempo) {
+    pildora.classList.add("oculta");
+    return;
+  }
+  if (desc.corriendo) {
+    pildora.classList.remove("oculta");
+    pildora.classList.remove("pildora-fin");
+    pildoraTexto.textContent = "descanso " + formatearCuentaAtras(restante);
+  } else if (desc.avisado && Date.now() - desc.finMs < 6000) {
+    pildora.classList.remove("oculta");
+    pildora.classList.add("pildora-fin");
+    pildoraTexto.textContent = "¡A darle!";
+  } else {
+    pildora.classList.add("oculta");
+  }
+}
+
+pildora.addEventListener("click", () => irA("cronometro"));
+
+// Arranca el temporizador de descanso con una duración dada (lo usa "Entrenar")
+function iniciarDescanso(segundos) {
+  ponerDescanso(segundos);
+  desc.finMs = Date.now() + desc.duracionSeg * 1000;
+  desc.corriendo = true;
+  desc.avisado = false;
+  descAviso.classList.add("oculta");
+  descToggle.textContent = "Pausar";
+  pintarTiempo();
+}
 
 // ---- Cronómetro ----
 

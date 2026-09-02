@@ -70,3 +70,119 @@ body {
 }
 .menu-boton.activo { color: var(--acento); }
 .menu-icono { font-size: 20px; line-height: 1; }
+
+/* ---- Conmutador Rutinas / Ejercicios ---- */
+.conmutador {
+  display: flex;
+  gap: 4px;
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+.conmutador-boton {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--texto-suave);
+  font-size: 14px;
+  cursor: pointer;
+}
+.conmutador-boton.activo {
+  background: var(--acento);
+  color: #052e12;
+  font-weight: 600;
+}
+
+.vista.oculta { display: none; }
+
+/* ---- Botones ---- */
+.boton-primario,
+.boton-secundario {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 15px;
+  cursor: pointer;
+}
+.boton-primario { background: var(--acento); color: #052e12; font-weight: 600; }
+.boton-secundario { background: none; color: var(--texto); border-color: var(--borde); }
+.ancho-completo { width: 100%; }
+
+.icono-boton {
+  background: none;
+  border: none;
+  font-size: 18px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+/* ---- Listas de tarjetas ---- */
+.lista { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.tarjeta-cuerpo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tarjeta-titulo { font-size: 16px; font-weight: 600; }
+.tarjeta-nota { font-size: 13px; color: var(--texto-suave); }
+.tarjeta-acciones { display: flex; flex-shrink: 0; }
+
+.etiqueta {
+  align-self: flex-start;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--texto-suave);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+/* ---- Formulario en ventana emergente ---- */
+.dialogo {
+  margin: auto; /* centrar: el reset de arriba quita el margin:auto por defecto */
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  background: var(--fondo-2);
+  color: var(--texto);
+  padding: 20px;
+  width: min(420px, calc(100vw - 32px));
+}
+.dialogo::backdrop { background: rgba(0, 0, 0, 0.6); }
+
+.formulario { display: flex; flex-direction: column; gap: 14px; }
+.formulario h2 { font-size: 18px; }
+.formulario label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+.formulario input,
+.formulario select,
+.formulario textarea {
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--texto);
+  font-size: 15px;
+  font-family: inherit;
+}
+.formulario textarea { resize: vertical; }
+
+.form-acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+.form-acciones .boton-primario,
+.form-acciones .boton-secundario { flex: 1; }

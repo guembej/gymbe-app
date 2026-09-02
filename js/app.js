@@ -1,6 +1,5 @@
 // ==========================================================
-//  Gym App — lógica principal
-//  Fase 1: navegación entre secciones
+//  Gym App — navegación general
 // ==========================================================
 
 // Títulos que se muestran en la cabecera según la sección
@@ -13,27 +12,35 @@ const TITULOS = {
   ajustes: "Ajustes",
 };
 
-// Cambia la sección visible
+// Cambia la sección visible (menú inferior)
 function irA(nombreSeccion) {
-  // Mostrar solo la sección elegida
   document.querySelectorAll(".seccion").forEach((sec) => {
-    const esLaElegida = sec.dataset.seccion === nombreSeccion;
-    sec.classList.toggle("oculta", !esLaElegida);
+    sec.classList.toggle("oculta", sec.dataset.seccion !== nombreSeccion);
   });
 
-  // Marcar el botón activo en el menú
   document.querySelectorAll(".menu-boton").forEach((btn) => {
     btn.classList.toggle("activo", btn.dataset.ir === nombreSeccion);
   });
 
-  // Actualizar el título de la cabecera
   document.getElementById("titulo-seccion").textContent =
     TITULOS[nombreSeccion] || "Gym App";
 }
 
-// Conectar cada botón del menú con su sección
 document.querySelectorAll(".menu-boton").forEach((btn) => {
   btn.addEventListener("click", () => irA(btn.dataset.ir));
+});
+
+// Conmutador Rutinas / Ejercicios (dentro de la pestaña "Rutinas")
+document.querySelectorAll(".conmutador-boton").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const vista = btn.dataset.vista;
+    document.querySelectorAll(".conmutador-boton").forEach((b) => {
+      b.classList.toggle("activo", b === btn);
+    });
+    document.querySelectorAll(".vista").forEach((v) => {
+      v.classList.toggle("oculta", v.dataset.vista !== vista);
+    });
+  });
 });
 
 // Arrancar en "Rutinas"

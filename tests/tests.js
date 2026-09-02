@@ -215,6 +215,38 @@ prueba("listarSesiones ordena de más reciente a más antigua", () => {
   igual(listarSesiones().map((s) => s.id), ["b", "c", "a"]);
 });
 
+// ---- Datos de ejemplo ----
+
+prueba("cargarDatosEjemplo crea las rutinas de ejemplo con sus ejercicios", () => {
+  const r = cargarDatosEjemplo();
+  esVerdad(r.rutinasAñadidas >= 3, "debería añadir al menos 3 rutinas");
+  igual(listarRutinas().length, r.rutinasAñadidas);
+  const empuje = listarRutinas().find((x) => x.nombre === "Empuje");
+  esVerdad(empuje, "debería existir la rutina Empuje");
+  igual(empuje.division, "Push");
+  esVerdad(empuje.items.length >= 4, "Empuje debería tener varios ejercicios");
+  esVerdad(obtenerEjercicio(empuje.items[0].exerciseId), "el item apunta a un ejercicio real");
+});
+
+prueba("cargarDatosEjemplo no duplica si se llama otra vez", () => {
+  cargarDatosEjemplo();
+  const rutinasAntes = listarRutinas().length;
+  const ejerciciosAntes = listarEjercicios().length;
+  const r2 = cargarDatosEjemplo();
+  igual(r2.rutinasAñadidas, 0);
+  igual(listarRutinas().length, rutinasAntes);
+  igual(listarEjercicios().length, ejerciciosAntes);
+});
+
+prueba("borrarTodosLosDatos deja todo vacío", () => {
+  cargarDatosEjemplo();
+  borrarTodosLosDatos();
+  igual(listarRutinas().length, 0);
+  igual(listarEjercicios().length, 0);
+  igual(listarSesiones().length, 0);
+  igual(sesionActiva(), null);
+});
+
 // ---- Utilidades ----
 
 prueba("escaparHtml neutraliza etiquetas HTML", () => {

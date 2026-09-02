@@ -118,7 +118,16 @@
     </section>
 
     <section class="seccion oculta" data-seccion="ajustes">
-      <p class="vacio">Aquí podrás exportar e importar tus datos.<br />Fase 7.</p>
+      <div class="ajustes-grupo">
+        <h2>Datos</h2>
+        <button id="btn-cargar-ejemplo" class="boton-secundario ancho-completo">
+          Cargar datos de ejemplo
+        </button>
+        <button id="btn-borrar-todo" class="boton-secundario ancho-completo btn-peligro">
+          Borrar todos mis datos
+        </button>
+        <p class="ayuda">Exportar e importar tus datos llegará en la Fase 7.</p>
+      </div>
 
       <div class="pie-marca">
         <div class="lockup">
@@ -258,9 +267,11 @@
   </dialog>
 
   <script src="js/datos.js"></script>
+  <script src="js/ejemplos.js"></script>
   <script src="js/ejercicios.js"></script>
   <script src="js/rutinas.js"></script>
   <script src="js/entrenar.js"></script>
+  <script src="js/ajustes.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -332,3 +332,8 @@ body {
   margin-top: 20px;
 }
 .acciones-entreno button { flex: 1; }
+
+/* ---- Ajustes ---- */
+.ajustes-grupo { display: flex; flex-direction: column; gap: 10px; }
+.ajustes-grupo h2 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+.btn-peligro { color: #f87171; border-color: #7f1d1d; }

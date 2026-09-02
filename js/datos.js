@@ -60,6 +60,11 @@ function _reiniciarDatos() {
   guardar();
 }
 
+// Borra TODO (rutinas, ejercicios, historial, entreno en curso). Botón en Ajustes.
+function borrarTodosLosDatos() {
+  _reiniciarDatos();
+}
+
 // Identificador único para cada ejercicio / rutina / sesión.
 // crypto.randomUUID solo existe en contexto seguro (localhost o https); en el móvil
 // por red local (http://192.168...) no está, así que hay un plan B sin colisiones.

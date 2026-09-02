@@ -3,15 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#1f2937" />
-  <title>Gym App</title>
+  <meta name="theme-color" content="#0d1b2a" />
+  <title>Gymbe App</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
+  <!-- Isotipo de Gymbe App: se define una vez y se reutiliza con <use>.
+       Las partes en "currentColor" toman el color del texto donde se coloque. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="gymbe-iso" viewBox="78 118 356 124">
+      <rect x="90" y="184" width="82" height="12" rx="6" fill="currentColor" />
+      <rect x="125" y="145" width="20" height="90" rx="10" fill="currentColor" />
+      <rect x="340" y="184" width="82" height="12" rx="6" fill="currentColor" />
+      <rect x="367" y="145" width="20" height="90" rx="10" fill="currentColor" />
+      <rect x="100" y="160" width="12" height="60" rx="6" fill="#ff5722" />
+      <rect x="400" y="160" width="12" height="60" rx="6" fill="#ff5722" />
+      <path d="M 256 125 A 65 65 0 1 0 312 223" fill="none" stroke="currentColor" stroke-width="22" />
+      <circle cx="312" cy="223" r="11" fill="currentColor" />
+      <path d="M 260 190 L 321 190 A 65 65 0 0 0 256 125" fill="none" stroke="#ff5722" stroke-width="22" stroke-linejoin="round" />
+      <circle cx="260" cy="190" r="11" fill="#ff5722" />
+    </symbol>
+  </svg>
+
   <!-- Cabecera -->
   <header class="cabecera">
-    <h1 id="titulo-seccion">Rutinas</h1>
+    <div class="marca">
+      <svg class="iso" aria-hidden="true"><use href="#gymbe-iso" /></svg>
+      <h1 id="titulo-seccion">Rutinas</h1>
+    </div>
   </header>
 
   <!-- Contenido: una sección visible cada vez -->
@@ -53,6 +73,14 @@
 
     <section class="seccion oculta" data-seccion="ajustes">
       <p class="vacio">Aquí podrás exportar e importar tus datos.<br />Fase 7.</p>
+
+      <div class="pie-marca">
+        <div class="lockup">
+          <svg class="iso" aria-hidden="true"><use href="#gymbe-iso" /></svg>
+          <span class="lockup-texto"><b>Gymbe</b> <span>App</span></span>
+        </div>
+        <p class="pie-version">versión 0.1 · funciona sin conexión</p>
+      </div>
     </section>
 
   </main>

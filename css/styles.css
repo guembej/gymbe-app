@@ -6,7 +6,9 @@
   --fondo-2: #1f2937;
   --texto: #f9fafb;
   --texto-suave: #9ca3af;
-  --acento: #22c55e;
+  --acento: #ff5722;        /* naranja de marca Gymbe */
+  --sobre-acento: #2b0d00;  /* texto sobre fondos naranja */
+  --marca-marino: #0d1b2a;  /* azul marino de marca (logo) */
   --borde: #374151;
   --alto-menu: 64px;
 }
@@ -22,12 +24,36 @@ body {
 .cabecera {
   position: sticky;
   top: 0;
-  background: var(--fondo-2);
+  background: var(--marca-marino);
   border-bottom: 1px solid var(--borde);
-  padding: 16px;
-  padding-top: max(16px, env(safe-area-inset-top));
+  padding: 14px 16px;
+  padding-top: max(14px, env(safe-area-inset-top));
 }
+.marca { display: flex; align-items: center; gap: 12px; }
+.marca .iso { width: 44px; height: 17px; color: #f2f4f7; flex-shrink: 0; }
 .cabecera h1 { font-size: 20px; font-weight: 600; }
+
+/* ---- Logo (isotipo reutilizable vía <use>) ---- */
+.iso { display: block; }
+
+/* ---- Marca en Ajustes ---- */
+.pie-marca {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--borde);
+  text-align: center;
+}
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.lockup .iso { width: 56px; height: 21px; color: var(--texto); }
+.lockup-texto { font-size: 20px; letter-spacing: 0.5px; }
+.lockup-texto b { font-weight: 600; }
+.lockup-texto span { color: var(--acento); }
+.pie-version { font-size: 12px; color: var(--texto-suave); }
 
 /* ---- Contenido ---- */
 #contenido {
@@ -93,7 +119,7 @@ body {
 }
 .conmutador-boton.activo {
   background: var(--acento);
-  color: #052e12;
+  color: var(--sobre-acento);
   font-weight: 600;
 }
 
@@ -108,7 +134,7 @@ body {
   font-size: 15px;
   cursor: pointer;
 }
-.boton-primario { background: var(--acento); color: #052e12; font-weight: 600; }
+.boton-primario { background: var(--acento); color: #fff; font-weight: 600; }
 .boton-secundario { background: none; color: var(--texto); border-color: var(--borde); }
 .ancho-completo { width: 100%; }
 

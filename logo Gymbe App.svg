@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Barra izquierda y sus discos -->
+  <rect x="90" y="184" width="82" height="12" rx="6" fill="#0D1B2A" />
+  <rect x="100" y="160" width="12" height="60" rx="6" fill="#FF5722" />
+  <rect x="125" y="145" width="20" height="90" rx="10" fill="#0D1B2A" />
+
+  <!-- Barra derecha y sus discos -->
+  <rect x="340" y="184" width="82" height="12" rx="6" fill="#0D1B2A" />
+  <rect x="367" y="145" width="20" height="90" rx="10" fill="#0D1B2A" />
+  <rect x="400" y="160" width="12" height="60" rx="6" fill="#FF5722" />
+
+  <!-- Trazo exterior de la 'G' (Azul Marino) -->
+  <path d="M 256 125 A 65 65 0 1 0 312 223" fill="none" stroke="#0D1B2A" stroke-width="22" stroke-linecap="butt" />
+  <circle cx="312" cy="223" r="11" fill="#0D1B2A" /> <!-- Remate redondeado inferior -->
+
+  <!-- Trazo interior y superior de la 'G' (Naranja) -->
+  <path d="M 260 190 L 321 190 A 65 65 0 0 0 256 125" fill="none" stroke="#FF5722" stroke-width="22" stroke-linecap="butt" stroke-linejoin="round" />
+  <circle cx="260" cy="190" r="11" fill="#FF5722" /> <!-- Remate redondeado central -->
+
+  <!-- Texto del logotipo -->
+  <text x="256" y="340" font-family="'Montserrat', 'Arial Black', sans-serif" font-weight="900" font-size="64" fill="#0D1B2A" text-anchor="middle" letter-spacing="1">GYMBE</text>
+  <text x="256" y="400" font-family="'Montserrat', 'Arial', sans-serif" font-weight="400" font-size="42" fill="#FF5722" text-anchor="middle" letter-spacing="1">App</text>
+</svg>

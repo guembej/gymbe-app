@@ -24,7 +24,12 @@ const DIVISIONES = [
 
 // Cómo son los datos cuando no hay nada guardado todavía
 function datosVacios() {
-  return { ejercicios: [], rutinas: [], sesiones: [] };
+  return {
+    ejercicios: [],
+    rutinas: [],
+    sesiones: [],       // entrenamientos ya terminados
+    sesionActiva: null, // entrenamiento en curso (o null si no hay ninguno)
+  };
 }
 
 // Copia en memoria mientras la app está abierta
@@ -202,4 +207,100 @@ function moverItemRutina(rutinaId, indice, delta) {
   const [item] = rutina.items.splice(indice, 1);
   rutina.items.splice(destino, 0, item);
   guardar();
+}
+
+// ----------------------------------------------------------
+//  Entrenamientos
+//  - sesionActiva: el que se está haciendo ahora (se puede cerrar la app y seguir)
+//  - sesiones: los ya terminados, con su fecha
+// ----------------------------------------------------------
+
+function sesionActiva() {
+  return DATOS.sesionActiva;
+}
+
+// Crea la sesión en curso a partir de una rutina, con las casillas prellenadas
+// con el objetivo de cada ejercicio.
+function empezarSesion(routineId) {
+  const rutina = obtenerRutina(routineId);
+  if (!rutina) return null;
+
+  DATOS.sesionActiva = {
+    routineId: rutina.id,
+    routineNombre: rutina.nombre, // copia, por si luego se edita/borra la rutina
+    division: rutina.division,
+    inicio: new Date().toISOString(),
+    ejercicios: rutina.items.map((item) => {
+      const ej = obtenerEjercicio(item.exerciseId);
+      const filas = [];
+      for (let i = 0; i < item.series; i++) {
+        filas.push({ pesoReal: String(item.peso || ""), repsReal: item.reps, hecha: false });
+      }
+      return {
+        exerciseId: item.exerciseId,
+        exerciseNombre: ej ? ej.nombre : "(ejercicio eliminado)",
+        objetivo: {
+          series: item.series,
+          reps: item.reps,
+          peso: item.peso,
+          descansoSeg: item.descansoSeg,
+        },
+        filas,
+      };
+    }),
+  };
+  guardar();
+  return DATOS.sesionActiva;
+}
+
+// Guarda cambios en la sesión en curso (lo que se va marcando durante el entreno)
+function guardarSesionActiva() {
+  guardar();
+}
+
+// Abandona la sesión en curso sin registrarla
+function descartarSesionActiva() {
+  DATOS.sesionActiva = null;
+  guardar();
+}
+
+// Cierra la sesión en curso y la registra en el historial.
+// Solo se guardan las series marcadas como "hecha".
+function terminarSesion() {
+  const s = DATOS.sesionActiva;
+  if (!s) return null;
+
+  const sets = [];
+  s.ejercicios.forEach((ej) => {
+    ej.filas.forEach((fila, indice) => {
+      if (!fila.hecha) return;
+      sets.push({
+        exerciseId: ej.exerciseId,
+        exerciseNombre: ej.exerciseNombre,
+        serie: indice + 1,
+        pesoReal: _num(fila.pesoReal, 0, 0),
+        repsReal: (fila.repsReal || "").trim(),
+      });
+    });
+  });
+
+  const sesion = {
+    id: nuevoId(),
+    routineId: s.routineId,
+    routineNombre: s.routineNombre,
+    division: s.division,
+    inicio: s.inicio,
+    fecha: new Date().toISOString(),
+    sets,
+  };
+
+  DATOS.sesiones.push(sesion);
+  DATOS.sesionActiva = null;
+  guardar();
+  return sesion;
+}
+
+// Entrenamientos terminados, del más reciente al más antiguo
+function listarSesiones() {
+  return [...DATOS.sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
 }

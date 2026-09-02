@@ -257,3 +257,62 @@ body {
 
 .tarjeta-pulsable .tarjeta-cuerpo { cursor: pointer; flex: 1; }
 .chevron { font-size: 22px; color: var(--texto-suave); cursor: pointer; padding: 0 4px; }
+
+/* ---- Entrenar ---- */
+.ayuda { color: var(--texto-suave); font-size: 14px; margin-bottom: 12px; }
+
+.bloque-ejercicio {
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.bloque-ejercicio h3 { font-size: 16px; font-weight: 600; }
+.objetivo { font-size: 12px; color: var(--texto-suave); margin: 4px 0 12px; }
+
+.serie-fila {
+  display: grid;
+  grid-template-columns: 24px 1fr 1fr 28px 28px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.serie-cabecera {
+  font-size: 11px;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.serie-cabecera span { text-align: center; }
+.serie-num { text-align: center; color: var(--texto-suave); font-size: 13px; }
+
+.serie-fila input[type="number"],
+.serie-fila input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 8px;
+  color: var(--texto);
+  font-size: 15px;
+  text-align: center;
+}
+.serie-fila input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  justify-self: center;
+  accent-color: var(--acento);
+}
+.serie-hecha input[type="number"],
+.serie-hecha input[type="text"] { border-color: var(--acento); }
+
+.bloque-ejercicio .boton-enlace { margin: 4px 0 0; }
+
+.acciones-entreno {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+.acciones-entreno button { flex: 1; }

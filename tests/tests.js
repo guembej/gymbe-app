@@ -136,6 +136,77 @@ prueba("lo creado sigue en el almacenamiento (sobrevive a una recarga)", () => {
   igual(enDisco.rutinas[0].division, "Full Body");
 });
 
+// ---- Entrenamientos ----
+
+prueba("empezar una sesión la crea con las filas prellenadas del objetivo", () => {
+  const e = crearEjercicio({ nombre: "Sentadilla", grupo: "Pierna" });
+  const r = crearRutina({ nombre: "Día 1", division: "Pierna" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 3, reps: "8-10", peso: 80, descansoSeg: 120 });
+  empezarSesion(r.id);
+  const s = sesionActiva();
+  esVerdad(s, "debería haber una sesión activa");
+  igual(s.routineNombre, "Día 1");
+  igual(s.division, "Pierna");
+  igual(s.ejercicios[0].filas.length, 3);
+  igual(s.ejercicios[0].filas[0].pesoReal, "80");
+  igual(s.ejercicios[0].filas[0].repsReal, "8-10");
+  igual(s.ejercicios[0].filas[0].hecha, false);
+});
+
+prueba("la sesión en curso se guarda en el almacenamiento", () => {
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: "x", series: 1 });
+  empezarSesion(r.id);
+  const enDisco = JSON.parse(localStorage.getItem(window.GYM_CLAVE_ALMACEN));
+  igual(enDisco.sesionActiva.routineId, r.id);
+});
+
+prueba("descartar la sesión la deja en null", () => {
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: "x", series: 1 });
+  empezarSesion(r.id);
+  descartarSesionActiva();
+  igual(sesionActiva(), null);
+});
+
+prueba("terminar guarda solo las series marcadas como hechas y limpia la activa", () => {
+  const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 3, reps: "10", peso: 50 });
+  empezarSesion(r.id);
+  const s = sesionActiva();
+  s.ejercicios[0].filas[0].hecha = true;
+  s.ejercicios[0].filas[0].pesoReal = "52.5";
+  s.ejercicios[0].filas[0].repsReal = "9";
+  s.ejercicios[0].filas[2].hecha = true;
+  const guardada = terminarSesion();
+  igual(guardada.sets.length, 2);
+  igual(guardada.sets[0].pesoReal, 52.5);
+  igual(guardada.sets[0].repsReal, "9");
+  igual(guardada.sets[0].serie, 1);
+  igual(guardada.sets[1].serie, 3);
+  igual(sesionActiva(), null);
+  igual(listarSesiones().length, 1);
+});
+
+prueba("la sesión guardada conserva nombre y división aunque se borre la rutina", () => {
+  const r = crearRutina({ nombre: "Día X", division: "Push" });
+  añadirItemRutina(r.id, { exerciseId: "x", series: 1 });
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0].hecha = true;
+  terminarSesion();
+  borrarRutina(r.id);
+  igual(listarSesiones()[0].routineNombre, "Día X");
+  igual(listarSesiones()[0].division, "Push");
+});
+
+prueba("listarSesiones ordena de más reciente a más antigua", () => {
+  DATOS.sesiones.push({ id: "a", fecha: "2026-01-01T10:00:00.000Z", sets: [] });
+  DATOS.sesiones.push({ id: "b", fecha: "2026-03-01T10:00:00.000Z", sets: [] });
+  DATOS.sesiones.push({ id: "c", fecha: "2026-02-01T10:00:00.000Z", sets: [] });
+  igual(listarSesiones().map((s) => s.id), ["b", "c", "a"]);
+});
+
 // ---- Utilidades ----
 
 prueba("escaparHtml neutraliza etiquetas HTML", () => {

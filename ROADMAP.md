@@ -113,6 +113,8 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - Icono, nombre, color de tema.
 - "Service worker" para que cargue sin internet.
 - Repaso de detalles visuales y de uso.
+- Sustituir los avisos del navegador (`confirm`/`alert`) por mensajes dentro de la app.
+- Versión pequeña y más simple del icono para tamaños diminutos (favicon, cabecera).
 - **Aprendes:** qué es exactamente una PWA.
 
 ### Fase 9 — Rutinas pregrabadas y uso real
@@ -127,7 +129,7 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 0 — Preparación
 - [x] Fase 1 — Esqueleto y navegación
 - [x] Fase 2 — Ejercicios y rutinas
-- [ ] Fase 3 — Registrar entrenamiento
+- [x] Fase 3 — Registrar entrenamiento
 - [ ] Fase 4 — Historial
 - [ ] Fase 5 — Cronómetro y temporizador
 - [ ] Fase 6 — Progreso y gráficas

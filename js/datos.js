@@ -145,3 +145,61 @@ function borrarRutina(id) {
   DATOS.rutinas = DATOS.rutinas.filter((r) => r.id !== id);
   guardar();
 }
+
+// ----------------------------------------------------------
+//  Ejercicios dentro de una rutina (items)
+//  Cada item: { exerciseId, series, reps, peso, descansoSeg, nota }
+//  - series / descansoSeg: números enteros
+//  - peso: número (kg), admite decimales
+//  - reps: texto corto, "10" o un rango "8-12"
+// ----------------------------------------------------------
+
+// Convierte a número; si no vale, usa el valor por defecto. Nunca por debajo de 'min'.
+function _num(valor, min, porDefecto) {
+  const n = parseFloat(valor);
+  if (isNaN(n)) return porDefecto;
+  return n < min ? min : n;
+}
+
+function _normalizarItem({ exerciseId, series, reps, peso, descansoSeg, nota }) {
+  return {
+    exerciseId: exerciseId || "",
+    series: Math.round(_num(series, 1, 3)),
+    reps: (reps || "").trim(),
+    peso: _num(peso, 0, 0),
+    descansoSeg: Math.round(_num(descansoSeg, 0, 0)),
+    nota: (nota || "").trim(),
+  };
+}
+
+function añadirItemRutina(rutinaId, datosItem) {
+  const rutina = obtenerRutina(rutinaId);
+  if (!rutina) return;
+  rutina.items.push(_normalizarItem(datosItem));
+  guardar();
+}
+
+function editarItemRutina(rutinaId, indice, datosItem) {
+  const rutina = obtenerRutina(rutinaId);
+  if (!rutina || !rutina.items[indice]) return;
+  rutina.items[indice] = _normalizarItem(datosItem);
+  guardar();
+}
+
+function quitarItemRutina(rutinaId, indice) {
+  const rutina = obtenerRutina(rutinaId);
+  if (!rutina) return;
+  rutina.items.splice(indice, 1);
+  guardar();
+}
+
+// Mueve un item una posición arriba (delta -1) o abajo (delta +1)
+function moverItemRutina(rutinaId, indice, delta) {
+  const rutina = obtenerRutina(rutinaId);
+  if (!rutina) return;
+  const destino = indice + delta;
+  if (destino < 0 || destino >= rutina.items.length) return;
+  const [item] = rutina.items.splice(indice, 1);
+  rutina.items.splice(destino, 0, item);
+  guardar();
+}

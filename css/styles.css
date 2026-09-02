@@ -60,7 +60,7 @@ body {
   padding: 16px;
   padding-bottom: calc(var(--alto-menu) + 24px);
 }
-.seccion.oculta { display: none; }
+.oculta { display: none; }
 
 .vacio {
   color: var(--texto-suave);
@@ -123,7 +123,6 @@ body {
   font-weight: 600;
 }
 
-.vista.oculta { display: none; }
 
 /* ---- Botones ---- */
 .boton-primario,
@@ -204,6 +203,8 @@ body {
 .formulario input,
 .formulario select,
 .formulario textarea {
+  width: 100%;
+  min-width: 0;
   background: var(--fondo);
   border: 1px solid var(--borde);
   border-radius: 8px;
@@ -217,3 +218,42 @@ body {
 .form-acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
 .form-acciones .boton-primario,
 .form-acciones .boton-secundario { flex: 1; }
+
+.fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fila-2 label { min-width: 0; }
+
+/* Botones rápidos (chips) */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; }
+.chips button {
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  color: var(--texto-suave);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.chips button:active { border-color: var(--acento); color: var(--acento); }
+
+/* ---- Detalle de una rutina ---- */
+.boton-enlace {
+  background: none;
+  border: none;
+  color: var(--acento);
+  font-size: 14px;
+  padding: 4px 0;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+.detalle-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.detalle-titulo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.detalle-titulo h2 { font-size: 18px; font-weight: 600; }
+
+.tarjeta-pulsable .tarjeta-cuerpo { cursor: pointer; flex: 1; }
+.chevron { font-size: 22px; color: var(--texto-suave); cursor: pointer; padding: 0 4px; }

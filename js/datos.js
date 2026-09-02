@@ -29,6 +29,7 @@ function datosVacios() {
     rutinas: [],
     sesiones: [],       // entrenamientos ya terminados
     sesionActiva: null, // entrenamiento en curso (o null si no hay ninguno)
+    ejemplosHistorialHecho: false, // marca interna: ya se metió el historial de ejemplo
   };
 }
 

@@ -242,6 +242,21 @@ prueba("cargarDatosEjemplo crea las rutinas de ejemplo con sus ejercicios", () =
   esVerdad(obtenerEjercicio(empuje.items[0].exerciseId), "el item apunta a un ejercicio real");
 });
 
+prueba("cargarDatosEjemplo también crea un historial de ejemplo", () => {
+  const r = cargarDatosEjemplo();
+  esVerdad(r.sesionesAñadidas >= 2, "debería añadir varias sesiones");
+  igual(listarSesiones().length, r.sesionesAñadidas);
+  const s = listarSesiones()[0];
+  esVerdad(s.sets.length > 0 && s.routineNombre, "la sesión tiene series y nombre de rutina");
+});
+
+prueba("crearSesionesEjemplo no vuelve a añadir si ya hay historial", () => {
+  cargarDatosEjemplo();
+  const antes = listarSesiones().length;
+  igual(crearSesionesEjemplo(), 0);
+  igual(listarSesiones().length, antes);
+});
+
 prueba("cargarDatosEjemplo no duplica si se llama otra vez", () => {
   cargarDatosEjemplo();
   const rutinasAntes = listarRutinas().length;

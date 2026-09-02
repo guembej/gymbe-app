@@ -56,7 +56,66 @@ const EJEMPLO_RUTINAS = [
   },
 ];
 
-// Devuelve { rutinasAñadidas, ejerciciosAñadidos }
+// De un rango "8-12" saca un número representativo (10); "5" -> 5; "45 s" -> "45 s"
+function _repsRepresentativas(reps) {
+  const m = /^(\d+)\s*-\s*(\d+)$/.exec(reps || "");
+  if (m) return Math.round((Number(m[1]) + Number(m[2])) / 2);
+  return reps || "";
+}
+
+// Construye una sesión ya terminada a partir de una rutina y una fecha pasada
+function _sesionEjemplo(rutinaNombre, haceDias, ajustePeso) {
+  const rutina = listarRutinas().find((r) => r.nombre === rutinaNombre);
+  if (!rutina) return null;
+
+  const fecha = new Date(Date.now() - haceDias * 86400000);
+  fecha.setHours(18, 10 + (haceDias % 25), 0, 0); // entreno por la tarde-noche
+  const inicio = new Date(fecha.getTime() - 50 * 60000); // ~50 min de entreno
+
+  const sets = [];
+  rutina.items.forEach((item) => {
+    const ej = obtenerEjercicio(item.exerciseId);
+    for (let i = 0; i < item.series; i++) {
+      sets.push({
+        exerciseId: item.exerciseId,
+        exerciseNombre: ej ? ej.nombre : "(ejercicio)",
+        serie: i + 1,
+        pesoReal: Math.max(0, item.peso + (ajustePeso || 0)),
+        repsReal: String(_repsRepresentativas(item.reps)),
+      });
+    }
+  });
+
+  return {
+    id: nuevoId(),
+    routineId: rutina.id,
+    routineNombre: rutina.nombre,
+    division: rutina.division,
+    inicio: inicio.toISOString(),
+    fecha: fecha.toISOString(),
+    sets,
+  };
+}
+
+// Mete un pequeño historial de ejemplo (solo si no hay ninguno todavía).
+// Devuelve cuántas sesiones se añadieron.
+function crearSesionesEjemplo() {
+  if (DATOS.sesiones.length > 0 || DATOS.ejemplosHistorialHecho) return 0;
+
+  const sesiones = [
+    _sesionEjemplo("Empuje", 12, -2.5),  // press banca a 57,5 kg
+    _sesionEjemplo("Pierna", 9, 0),
+    _sesionEjemplo("Tirón", 5, 0),
+    _sesionEjemplo("Empuje", 2, 0),      // press banca a 60 kg -> progresión
+  ].filter(Boolean);
+
+  DATOS.sesiones.push(...sesiones);
+  DATOS.ejemplosHistorialHecho = true;
+  guardar();
+  return sesiones.length;
+}
+
+// Devuelve { rutinasAñadidas, ejerciciosAñadidos, sesionesAñadidas }
 function cargarDatosEjemplo() {
   const idPorNombre = {};
   let ejerciciosAñadidos = 0;
@@ -91,13 +150,21 @@ function cargarDatosEjemplo() {
     rutinasAñadidas++;
   });
 
-  return { rutinasAñadidas, ejerciciosAñadidos };
+  // 3) Un pequeño historial de ejemplo
+  const sesionesAñadidas = crearSesionesEjemplo();
+
+  return { rutinasAñadidas, ejerciciosAñadidos, sesionesAñadidas };
 }
 
 // La primera vez que se abre la app en este dispositivo, cargamos datos de ejemplo
 // para no empezar con la pantalla en blanco. Después, si borras todo desde Ajustes,
 // ya no se vuelven a cargar solos.
 // (En la página de pruebas no se hace: usa su propia clave de almacenamiento.)
-if (typeof ES_PRIMERA_VEZ !== "undefined" && ES_PRIMERA_VEZ && !window.GYM_CLAVE_ALMACEN) {
-  cargarDatosEjemplo();
+if (typeof ES_PRIMERA_VEZ !== "undefined" && !window.GYM_CLAVE_ALMACEN) {
+  if (ES_PRIMERA_VEZ) {
+    cargarDatosEjemplo();
+  } else if (DATOS.rutinas.length > 0 && !DATOS.ejemplosHistorialHecho && DATOS.sesiones.length === 0) {
+    // Instalación que ya tenía rutinas de ejemplo pero aún sin historial de ejemplo
+    crearSesionesEjemplo();
+  }
 }

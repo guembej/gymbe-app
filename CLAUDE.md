@@ -45,3 +45,6 @@ assets/            Iconos, librerías locales
 - Un commit por cada paso con sentido; mensajes en español.
 - **Cada cambio en la lógica de datos añade o actualiza pruebas en `tests/tests.js`.**
   Ejecutar tests.html antes de dar un paso por terminado.
+- **Cada fase nueva amplía `js/ejemplos.js`** con un par de ejemplos de esa función,
+  para poder ver cómo queda. Se cargan solos en la primera apertura (o tras "Borrar
+  todos mis datos" + recargar). Guardar con flag propio para no duplicar.

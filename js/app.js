@@ -7,6 +7,7 @@
 const TITULOS = {
   rutinas: "Rutinas",
   entrenar: "Entrenar",
+  historial: "Historial",
   progreso: "Progreso",
   cronometro: "Cronómetro y descanso",
   ajustes: "Ajustes",

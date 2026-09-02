@@ -16,6 +16,7 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - Visualmente sencilla. Funciona en Android; se prueba también en el PC.
 - **Offline** y **sin nube**. Los datos viven en el propio dispositivo.
 - **Exportar / importar** toda la base de datos con un archivo, de forma fácil.
+- **Modo oscuro y modo diurno**, elegibles desde Ajustes.
 
 ## Decisiones técnicas (ya tomadas)
 
@@ -98,11 +99,14 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - Una gráfica sencilla.
 - **Aprendes:** agrupar y resumir datos; usar una librería de gráficas.
 
-### Fase 7 — Exportar / importar
-**Objetivo:** copias de seguridad y mover datos entre dispositivos.
+### Fase 7 — Ajustes: exportar / importar y tema
+**Objetivo:** copias de seguridad, mover datos entre dispositivos y elegir el aspecto.
 - Botón **Exportar**: descarga un `.json` con absolutamente todo.
 - Botón **Importar**: cargar ese archivo (con aviso antes de sobrescribir).
-- **Aprendes:** leer y escribir archivos desde el navegador.
+- **Modo oscuro / modo diurno**: interruptor en Ajustes para cambiar entre tema oscuro
+  (el actual) y tema claro. Se recuerda la elección en el dispositivo. Opción "según el
+  sistema" para seguir la preferencia del móvil.
+- **Aprendes:** leer y escribir archivos desde el navegador; variables de color y temas.
 
 ### Fase 8 — Hacerla instalable (PWA) y pulir
 **Objetivo:** que se instale en Android y funcione 100% offline.
@@ -127,6 +131,6 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [ ] Fase 4 — Historial
 - [ ] Fase 5 — Cronómetro y temporizador
 - [ ] Fase 6 — Progreso y gráficas
-- [ ] Fase 7 — Exportar / importar
+- [ ] Fase 7 — Ajustes: exportar / importar y tema (claro/oscuro)
 - [ ] Fase 8 — PWA y pulido
 - [ ] Fase 9 — Rutinas pregrabadas y uso real

@@ -60,9 +60,12 @@ function _reiniciarDatos() {
   guardar();
 }
 
-// Identificador único para cada ejercicio / rutina / sesión
+// Identificador único para cada ejercicio / rutina / sesión.
+// crypto.randomUUID solo existe en contexto seguro (localhost o https); en el móvil
+// por red local (http://192.168...) no está, así que hay un plan B sin colisiones.
 function nuevoId() {
-  return (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
 }
 
 // Evita que un texto con < > & rompa el HTML donde lo insertemos
@@ -166,10 +169,13 @@ function _num(valor, min, porDefecto) {
   return n < min ? min : n;
 }
 
+// Tope de series por ejercicio (evita, p. ej., generar 999 filas al entrenar)
+const MAX_SERIES = 30;
+
 function _normalizarItem({ exerciseId, series, reps, peso, descansoSeg, nota }) {
   return {
     exerciseId: exerciseId || "",
-    series: Math.round(_num(series, 1, 3)),
+    series: Math.min(MAX_SERIES, Math.round(_num(series, 1, 3))),
     reps: (reps || "").trim(),
     peso: _num(peso, 0, 0),
     descansoSeg: Math.round(_num(descansoSeg, 0, 0)),

@@ -97,13 +97,13 @@ function pintarRutinas() {
     li.className = "tarjeta tarjeta-pulsable";
     li.innerHTML = `
       <div class="tarjeta-cuerpo">
-        <span class="tarjeta-titulo">${escaparHtml(rutina.nombre)}</span>
-        ${rutina.division
-          ? `<span class="etiqueta etiqueta-division">${escaparHtml(rutina.division)}</span>`
-          : ""}
-        <span class="tarjeta-nota">
-          ${numEjercicios === 1 ? "1 ejercicio" : numEjercicios + " ejercicios"}
-        </span>
+        <div class="tarjeta-encabezado">
+          <span class="tarjeta-titulo">${escaparHtml(rutina.nombre)}</span>
+          ${rutina.division
+            ? `<span class="etiqueta etiqueta-division">${escaparHtml(rutina.division)}</span>`
+            : ""}
+        </div>
+        <span class="tarjeta-nota">${numEjercicios === 1 ? "1 ejercicio" : numEjercicios + " ejercicios"}</span>
       </div>
       <div class="tarjeta-acciones">
         <span class="chevron">›</span>
@@ -186,7 +186,7 @@ function pintarDetalle() {
     ].filter(Boolean).join(" · ");
 
     const li = document.createElement("li");
-    li.className = "tarjeta";
+    li.className = "tarjeta item-rutina";
     li.innerHTML = `
       <div class="tarjeta-cuerpo">
         <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>

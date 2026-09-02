@@ -52,10 +52,12 @@ function pintarListaEmpezar() {
     li.className = "tarjeta";
     li.innerHTML = `
       <div class="tarjeta-cuerpo">
-        <span class="tarjeta-titulo">${escaparHtml(rutina.nombre)}</span>
-        ${rutina.division
-          ? `<span class="etiqueta etiqueta-division">${escaparHtml(rutina.division)}</span>`
-          : ""}
+        <div class="tarjeta-encabezado">
+          <span class="tarjeta-titulo">${escaparHtml(rutina.nombre)}</span>
+          ${rutina.division
+            ? `<span class="etiqueta etiqueta-division">${escaparHtml(rutina.division)}</span>`
+            : ""}
+        </div>
         <span class="tarjeta-nota">${n === 1 ? "1 ejercicio" : n + " ejercicios"}</span>
       </div>
     `;
@@ -186,8 +188,14 @@ function alEditarCasilla(evento) {
   guardarSesionActiva();
 }
 
-activoEjerciciosEl.addEventListener("input", alEditarCasilla);
-activoEjerciciosEl.addEventListener("change", alEditarCasilla);
+// Texto y números: al escribir. Casillas de verificación: al cambiar.
+// (Así no se guarda dos veces por el mismo cambio.)
+activoEjerciciosEl.addEventListener("input", (evento) => {
+  if (evento.target.type !== "checkbox") alEditarCasilla(evento);
+});
+activoEjerciciosEl.addEventListener("change", (evento) => {
+  if (evento.target.type === "checkbox") alEditarCasilla(evento);
+});
 
 // Añadir / quitar series (sí repinta)
 activoEjerciciosEl.addEventListener("click", (evento) => {

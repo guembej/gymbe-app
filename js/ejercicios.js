@@ -87,8 +87,10 @@ function pintarEjercicios() {
     li.className = "tarjeta";
     li.innerHTML = `
       <div class="tarjeta-cuerpo">
-        <span class="tarjeta-titulo">${escaparHtml(ej.nombre)}</span>
-        <span class="etiqueta">${escaparHtml(ej.grupo)}</span>
+        <div class="tarjeta-encabezado">
+          <span class="tarjeta-titulo">${escaparHtml(ej.nombre)}</span>
+          <span class="etiqueta">${escaparHtml(ej.grupo)}</span>
+        </div>
         ${ej.nota ? `<span class="tarjeta-nota">${escaparHtml(ej.nota)}</span>` : ""}
       </div>
       <div class="tarjeta-acciones">

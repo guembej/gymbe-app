@@ -135,14 +135,17 @@ body {
 }
 .boton-primario { background: var(--acento); color: #fff; font-weight: 600; }
 .boton-secundario { background: none; color: var(--texto); border-color: var(--borde); }
+.boton-primario:disabled,
+.boton-secundario:disabled { opacity: 0.45; cursor: default; }
 .ancho-completo { width: 100%; }
 
 .icono-boton {
   background: none;
   border: none;
-  font-size: 18px;
-  padding: 6px;
+  font-size: 17px;
+  padding: 6px 8px;
   cursor: pointer;
+  color: var(--texto);
 }
 
 /* ---- Listas de tarjetas ---- */
@@ -156,12 +159,23 @@ body {
   background: var(--fondo-2);
   border: 1px solid var(--borde);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
-.tarjeta-cuerpo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.tarjeta-titulo { font-size: 16px; font-weight: 600; }
+.tarjeta-cuerpo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tarjeta-encabezado { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tarjeta-titulo { font-size: 15px; font-weight: 600; }
 .tarjeta-nota { font-size: 13px; color: var(--texto-suave); }
 .tarjeta-acciones { display: flex; flex-shrink: 0; }
+
+/* Ejercicios dentro de una rutina: nombre arriba, acciones en su propia fila */
+.item-rutina { flex-direction: column; align-items: stretch; }
+.item-rutina .tarjeta-acciones {
+  justify-content: flex-end;
+  gap: 2px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--borde);
+}
 
 .etiqueta {
   align-self: flex-start;
@@ -172,7 +186,9 @@ body {
   border: 1px solid var(--borde);
   border-radius: 999px;
   padding: 2px 8px;
+  white-space: nowrap;
 }
+.tarjeta-encabezado .etiqueta { align-self: center; }
 .etiqueta-division {
   color: var(--acento);
   border-color: var(--acento);

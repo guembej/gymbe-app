@@ -89,13 +89,21 @@ prueba("añadir un ejercicio a una rutina lo guarda con sus datos", () => {
   igual(item.nota, "profundo");
 });
 
-prueba("los números del item se normalizan (series ≥ 1, peso ≥ 0)", () => {
+prueba("los números del item se normalizan (series entre 1 y 30, peso ≥ 0)", () => {
   const r = crearRutina({ nombre: "D" });
   añadirItemRutina(r.id, { exerciseId: "x", series: 0, peso: -5, descansoSeg: "abc" });
   const item = obtenerRutina(r.id).items[0];
   igual(item.series, 1);
   igual(item.peso, 0);
   igual(item.descansoSeg, 0);
+  añadirItemRutina(r.id, { exerciseId: "x", series: 999 });
+  igual(obtenerRutina(r.id).items[1].series, 30);
+});
+
+prueba("nuevoId no repite aunque se llame muchas veces seguidas", () => {
+  const ids = new Set();
+  for (let i = 0; i < 500; i++) ids.add(nuevoId());
+  igual(ids.size, 500);
 });
 
 prueba("editar un item cambia sus datos", () => {

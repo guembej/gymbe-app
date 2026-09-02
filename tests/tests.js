@@ -281,3 +281,30 @@ prueba("borrarTodosLosDatos deja todo vacío", () => {
 prueba("escaparHtml neutraliza etiquetas HTML", () => {
   igual(escaparHtml("<b>hola</b>"), "&lt;b&gt;hola&lt;/b&gt;");
 });
+
+// ---- Tiempo y preferencias ----
+
+prueba("formatearCronometro: MM:SS y, con décimas, MM:SS.d", () => {
+  igual(formatearCronometro(0, false), "00:00");
+  igual(formatearCronometro(65000, false), "01:05");
+  igual(formatearCronometro(65400, true), "01:05.4");
+  igual(formatearCronometro(600000, false), "10:00");
+});
+
+prueba("formatearCuentaAtras redondea hacia arriba y no baja de 0", () => {
+  igual(formatearCuentaAtras(90), "1:30");
+  igual(formatearCuentaAtras(5.2), "0:06");
+  igual(formatearCuentaAtras(0), "0:00");
+  igual(formatearCuentaAtras(-3), "0:00");
+});
+
+prueba("las preferencias se guardan sin perder las demás", () => {
+  igual(obtenerPref("sonido"), true);
+  igual(obtenerPref("cronDecimas"), false);
+  guardarPref("sonido", false);
+  igual(obtenerPref("sonido"), false);
+  igual(obtenerPref("vibracion"), true);
+  // se conserva al releer del almacenamiento
+  const enDisco = JSON.parse(localStorage.getItem(window.GYM_CLAVE_ALMACEN));
+  igual(enDisco.prefs.sonido, false);
+});

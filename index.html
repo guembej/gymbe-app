@@ -139,10 +139,56 @@
     </section>
 
     <section class="seccion oculta" data-seccion="cronometro">
-      <p class="vacio">Aquí tendrás el cronómetro y el temporizador de descanso.<br />Fase 5.</p>
+      <!-- Cronómetro (cuenta hacia arriba) -->
+      <div class="bloque-tiempo">
+        <h2>Cronómetro</h2>
+        <p class="tiempo-display" id="crono-display">00:00</p>
+        <div class="tiempo-acciones">
+          <button id="crono-toggle" class="boton-primario">Empezar</button>
+          <button id="crono-reset" class="boton-secundario">Reiniciar</button>
+        </div>
+      </div>
+
+      <!-- Temporizador de descanso (cuenta atrás) -->
+      <div class="bloque-tiempo">
+        <h2>Descanso</h2>
+        <p class="tiempo-display" id="desc-display">1:30</p>
+        <div class="chips" id="chips-descanso-tiempo">
+          <button type="button" data-seg="30">30 s</button>
+          <button type="button" data-seg="60">60 s</button>
+          <button type="button" data-seg="90">90 s</button>
+          <button type="button" data-seg="120">2 min</button>
+          <button type="button" data-seg="180">3 min</button>
+        </div>
+        <div class="tiempo-ajuste">
+          <button type="button" id="desc-menos" class="boton-secundario">−15 s</button>
+          <button type="button" id="desc-mas" class="boton-secundario">+15 s</button>
+        </div>
+        <div class="tiempo-acciones">
+          <button id="desc-toggle" class="boton-primario">Empezar</button>
+          <button id="desc-reset" class="boton-secundario">Reiniciar</button>
+        </div>
+        <p class="tiempo-aviso oculta" id="desc-aviso">¡Descanso terminado!</p>
+      </div>
     </section>
 
     <section class="seccion oculta" data-seccion="ajustes">
+      <div class="ajustes-grupo">
+        <h2>Opciones</h2>
+        <label class="opcion">
+          <input type="checkbox" id="pref-crondecimas" />
+          Cronómetro con décimas de segundo
+        </label>
+        <label class="opcion">
+          <input type="checkbox" id="pref-sonido" />
+          Sonido al terminar el descanso
+        </label>
+        <label class="opcion">
+          <input type="checkbox" id="pref-vibracion" />
+          Vibración al terminar el descanso
+        </label>
+      </div>
+
       <div class="ajustes-grupo">
         <h2>Datos</h2>
         <button id="btn-borrar-todo" class="boton-secundario ancho-completo btn-peligro">
@@ -294,6 +340,7 @@
   <script src="js/rutinas.js"></script>
   <script src="js/entrenar.js"></script>
   <script src="js/historial.js"></script>
+  <script src="js/tiempo.js"></script>
   <script src="js/ajustes.js"></script>
   <script src="js/app.js"></script>
 </body>

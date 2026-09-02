@@ -353,6 +353,48 @@ body {
 }
 .acciones-entreno button { flex: 1; }
 
+/* ---- Tiempo (cronómetro y descanso) ---- */
+.bloque-tiempo {
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 20px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.bloque-tiempo h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.tiempo-display {
+  font-size: 54px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+  margin: 6px 0 16px;
+}
+.tiempo-acciones { display: flex; gap: 8px; }
+.tiempo-acciones button { flex: 1; }
+.tiempo-ajuste { display: flex; gap: 8px; margin-bottom: 10px; }
+.tiempo-ajuste button { flex: 1; padding: 8px; font-size: 14px; }
+.bloque-tiempo .chips { justify-content: center; margin: 0 0 12px; }
+.tiempo-aviso { color: var(--acento); font-weight: 600; margin-top: 14px; }
+
+/* ---- Opciones (Ajustes) ---- */
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--texto);
+  cursor: pointer;
+}
+.opcion input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--acento); }
+
 /* ---- Historial ---- */
 #sesion-fecha { margin-top: 4px; }
 #sesion-meta { margin-bottom: 4px; }
@@ -362,5 +404,6 @@ body {
 
 /* ---- Ajustes ---- */
 .ajustes-grupo { display: flex; flex-direction: column; gap: 10px; }
+.ajustes-grupo + .ajustes-grupo { margin-top: 28px; }
 .ajustes-grupo h2 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
 .btn-peligro { color: #f87171; border-color: #7f1d1d; }

@@ -30,6 +30,11 @@ function datosVacios() {
     sesiones: [],       // entrenamientos ya terminados
     sesionActiva: null, // entrenamiento en curso (o null si no hay ninguno)
     ejemplosHistorialHecho: false, // marca interna: ya se metió el historial de ejemplo
+    prefs: {
+      cronDecimas: false, // cronómetro con décimas de segundo
+      sonido: true,       // pitido al terminar el descanso
+      vibracion: true,    // vibración al terminar el descanso
+    },
   };
 }
 
@@ -47,7 +52,10 @@ function cargar() {
     if (!texto) return datosVacios();
     // Object.assign se asegura de que existan ejercicios/rutinas/sesiones
     // aunque el guardado sea de una versión antigua.
-    return Object.assign(datosVacios(), JSON.parse(texto));
+    const cargado = Object.assign(datosVacios(), JSON.parse(texto));
+    // prefs es un objeto anidado: mezclamos para no perder opciones nuevas
+    cargado.prefs = Object.assign(datosVacios().prefs, cargado.prefs || {});
+    return cargado;
   } catch (e) {
     console.error("No se pudieron leer los datos; empiezo de cero.", e);
     return datosVacios();
@@ -86,6 +94,35 @@ function escaparHtml(texto) {
   const d = document.createElement("div");
   d.textContent = texto == null ? "" : String(texto);
   return d.innerHTML;
+}
+
+// ---- Preferencias (opciones de Ajustes) ----
+
+function obtenerPref(clave) {
+  return DATOS.prefs[clave];
+}
+
+function guardarPref(clave, valor) {
+  DATOS.prefs[clave] = valor;
+  guardar();
+}
+
+// ---- Formato de tiempo ----
+
+// milisegundos -> "MM:SS" (o "MM:SS.d" con décimas)
+function formatearCronometro(ms, conDecimas) {
+  const totalSeg = Math.floor(ms / 1000);
+  const m = Math.floor(totalSeg / 60);
+  const s = totalSeg % 60;
+  const base = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  if (!conDecimas) return base;
+  return `${base}.${Math.floor((ms % 1000) / 100)}`;
+}
+
+// segundos restantes -> "M:SS" (redondea hacia arriba, nunca por debajo de 0)
+function formatearCuentaAtras(seg) {
+  const s = Math.max(0, Math.ceil(seg));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
 // ----------------------------------------------------------

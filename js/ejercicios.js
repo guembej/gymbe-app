@@ -109,12 +109,5 @@ function pintarEjercicios() {
   });
 }
 
-// Evita que un nombre con < > & rompa el HTML de la tarjeta
-function escaparHtml(texto) {
-  const d = document.createElement("div");
-  d.textContent = texto;
-  return d.innerHTML;
-}
-
 // Pintar al arrancar
 pintarEjercicios();

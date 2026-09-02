@@ -148,6 +148,11 @@ body {
   border-radius: 999px;
   padding: 2px 8px;
 }
+.etiqueta-division {
+  color: var(--acento);
+  border-color: var(--acento);
+  font-weight: 600;
+}
 
 /* ---- Formulario en ventana emergente ---- */
 .dialogo {

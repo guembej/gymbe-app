@@ -14,6 +14,12 @@ const GRUPOS_MUSCULARES = [
   "Bíceps", "Tríceps", "Core", "Otro",
 ];
 
+// Divisiones de rutina disponibles (lista fija). "" = sin división.
+const DIVISIONES = [
+  "Full Body", "Push", "Pull", "Pierna",
+  "Torso", "Superior", "Inferior", "Otro",
+];
+
 // Cómo son los datos cuando no hay nada guardado todavía
 function datosVacios() {
   return { ejercicios: [], rutinas: [], sesiones: [] };
@@ -44,6 +50,13 @@ function guardar() {
 // Identificador único para cada ejercicio / rutina / sesión
 function nuevoId() {
   return (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
+}
+
+// Evita que un texto con < > & rompa el HTML donde lo insertemos
+function escaparHtml(texto) {
+  const d = document.createElement("div");
+  d.textContent = texto == null ? "" : String(texto);
+  return d.innerHTML;
 }
 
 // ----------------------------------------------------------
@@ -84,5 +97,43 @@ function editarEjercicio(id, { nombre, grupo, nota }) {
 
 function borrarEjercicio(id) {
   DATOS.ejercicios = DATOS.ejercicios.filter((e) => e.id !== id);
+  guardar();
+}
+
+// ----------------------------------------------------------
+//  Rutinas
+// ----------------------------------------------------------
+
+// Rutinas en el orden en que se crearon
+function listarRutinas() {
+  return [...DATOS.rutinas];
+}
+
+function obtenerRutina(id) {
+  return DATOS.rutinas.find((r) => r.id === id) || null;
+}
+
+function crearRutina({ nombre, division }) {
+  const rutina = {
+    id: nuevoId(),
+    nombre: (nombre || "").trim(),
+    division: division || "",
+    items: [], // los ejercicios de la rutina se añaden en el paso siguiente
+  };
+  DATOS.rutinas.push(rutina);
+  guardar();
+  return rutina;
+}
+
+function editarRutina(id, { nombre, division }) {
+  const rutina = obtenerRutina(id);
+  if (!rutina) return;
+  rutina.nombre = (nombre || "").trim();
+  rutina.division = division || "";
+  guardar();
+}
+
+function borrarRutina(id) {
+  DATOS.rutinas = DATOS.rutinas.filter((r) => r.id !== id);
   guardar();
 }

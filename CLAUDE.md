@@ -24,10 +24,13 @@ js/app.js          Lógica principal
 assets/            Iconos, librerías locales
 ```
 
-## Modelo de datos (borrador, evoluciona con las fases)
-- `exercises`: [{ id, nombre, notas }]
-- `routines`: [{ id, nombre, items: [{ exerciseId, series, repsMin, repsMax, peso, descansoSeg, nota }] }]
-- `sessions`: [{ id, routineId, fecha, sets: [{ exerciseId, serie, pesoReal, repsReal }] }]
+## Modelo de datos (real, clave localStorage `gym.datos.v1`)
+- `ejercicios`: [{ id, nombre, grupo, nota }]
+  - `grupo` de lista fija `GRUPOS_MUSCULARES` (Pecho, Espalda, Pierna, Hombro, Bíceps, Tríceps, Core, Otro)
+- `rutinas`: [{ id, nombre, division, items: [{ exerciseId, series, reps, peso, descansoSeg, nota }] }]
+  - `division` opcional, lista fija `DIVISIONES` (Full Body, Push, Pull, Pierna, Torso, Superior, Inferior, Otro); "" = sin división
+  - `reps` es texto libre corto: "10" o rango "8-12"
+- `sesiones`: [{ id, routineId, fecha, sets: [{ exerciseId, serie, pesoReal, repsReal }] }]
 
 ## Cómo probar
 Abrir `index.html` en el navegador (doble clic) o servir la carpeta con `npx serve`.

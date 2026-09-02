@@ -10,6 +10,7 @@ App personal para registrar y seguir mi progreso en el gimnasio.
   nº de repeticiones o rango de repeticiones, peso, y una nota de texto libre.
 - Registrar cada entrenamiento y ver la **evolución** (peso y repeticiones a lo largo del tiempo).
 - **Historial**: una pestaña para consultar los últimos entrenamientos realizados.
+- Cada rutina tiene una **división** (Full Body, Push, Pull, Pierna, Torso…) visible en la app.
 - **Cronómetro** (cuenta hacia arriba) para medir cuánto dura un ejercicio.
 - **Temporizador** (cuenta atrás) para los descansos, con aviso.
 - Visualmente sencilla. Funciona en Android; se prueba también en el PC.
@@ -57,9 +58,13 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 
 ### Fase 2 — Ejercicios y rutinas
 **Objetivo:** poder crear mi biblioteca de ejercicios y mis rutinas.
-- Pantalla para crear / editar / borrar **ejercicios** (solo nombre y, opcional, notas o grupo muscular).
+- Pantalla para crear / editar / borrar **ejercicios**: nombre, grupo muscular (lista fija) y nota opcional.
 - Pantalla para crear **rutinas** y añadirles ejercicios.
-- Por cada ejercicio dentro de una rutina: series, repeticiones o rango, peso objetivo, descanso, nota.
+- Cada rutina tiene una **división** opcional (lista fija: Full Body, Push, Pull, Pierna,
+  Torso, Superior, Inferior, Otro), que se muestra visiblemente en la rutina.
+- Por cada ejercicio dentro de una rutina: series, repeticiones o rango (`10` o `8-12`),
+  peso objetivo (kg), descanso en segundos (con botones rápidos), nota.
+- Poder reordenar y quitar ejercicios de una rutina.
 - Todo se guarda en el dispositivo (sigue ahí al cerrar y abrir).
 - **Aprendes:** cómo se representan y guardan los datos (listas y fichas de información).
 

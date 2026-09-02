@@ -298,6 +298,27 @@ prueba("formatearCuentaAtras redondea hacia arriba y no baja de 0", () => {
   igual(formatearCuentaAtras(-3), "0:00");
 });
 
+prueba("construirSegmentos: prep + (serie, descanso) x N, sin el último descanso", () => {
+  const s = construirSegmentos({ prepSeg: 10, serieSeg: 30, descansoSeg: 90, numSeries: 3 });
+  igual(s.map((x) => x.fase), ["prep", "serie", "descanso", "serie", "descanso", "serie"]);
+  igual(s[0].seg, 10);
+  igual(s[2].seg, 90);
+  igual(s[s.length - 1].serie, 3);
+});
+
+prueba("construirSegmentos: sin preparación y con 1 serie es solo la serie", () => {
+  const s = construirSegmentos({ prepSeg: 0, serieSeg: 30, descansoSeg: 90, numSeries: 1 });
+  igual(s.map((x) => x.fase), ["serie"]);
+});
+
+prueba("obtenerTempConfig / guardarTempConfig conservan las demás claves", () => {
+  igual(obtenerTempConfig().numSeries, 4);
+  guardarTempConfig({ numSeries: 6, descansoSeg: 120 });
+  igual(obtenerTempConfig().numSeries, 6);
+  igual(obtenerTempConfig().descansoSeg, 120);
+  igual(obtenerTempConfig().prepSeg, 10);
+});
+
 prueba("las preferencias se guardan sin perder las demás", () => {
   igual(obtenerPref("sonido"), true);
   igual(obtenerPref("cronDecimas"), false);

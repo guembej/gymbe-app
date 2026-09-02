@@ -169,13 +169,15 @@ function pintarSesionActiva() {
     anadir.textContent = "+ serie";
     anadir.dataset.anadirFila = ejIndice;
 
-    const descansar = document.createElement("button");
-    descansar.className = "boton-secundario btn-descansar";
-    const seg = obj.descansoSeg || 90;
-    descansar.textContent = `⏱ Descansar ${formatearCuentaAtras(seg)}`;
-    descansar.dataset.descanso = seg;
+    const temporizador = document.createElement("button");
+    temporizador.className = "boton-secundario btn-temporizador";
+    temporizador.textContent = "⏱ Temporizador";
+    temporizador.dataset.temp = JSON.stringify({
+      numSeries: obj.series,
+      descansoSeg: obj.descansoSeg || 90,
+    });
 
-    pie.append(anadir, descansar);
+    pie.append(anadir, temporizador);
     bloque.appendChild(pie);
 
     activoEjerciciosEl.appendChild(bloque);
@@ -213,9 +215,10 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
   const sesion = sesionActiva();
   if (!sesion) return;
 
-  const descansar = evento.target.closest("[data-descanso]");
-  if (descansar) {
-    iniciarDescanso(Number(descansar.dataset.descanso));
+  const temporizador = evento.target.closest("[data-temp]");
+  if (temporizador) {
+    configurarTemporizador(JSON.parse(temporizador.dataset.temp));
+    irA("cronometro");
     return;
   }
 

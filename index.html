@@ -149,26 +149,63 @@
         </div>
       </div>
 
-      <!-- Temporizador de descanso (cuenta atrás) -->
-      <div class="bloque-tiempo">
-        <h2>Descanso</h2>
-        <p class="tiempo-display" id="desc-display">1:30</p>
-        <div class="chips" id="chips-descanso-tiempo">
-          <button type="button" data-seg="30">30 s</button>
-          <button type="button" data-seg="60">60 s</button>
-          <button type="button" data-seg="90">90 s</button>
-          <button type="button" data-seg="120">2 min</button>
-          <button type="button" data-seg="180">3 min</button>
+      <!-- Temporizador de series (prepárate -> serie / descanso x N) -->
+      <div class="bloque-tiempo" id="bloque-temporizador">
+
+        <!-- Configuración -->
+        <div id="temp-config">
+          <h2>Temporizador de series</h2>
+          <div class="temp-campos">
+            <div class="temp-campo">
+              <span>Preparación</span>
+              <div class="temp-stepper">
+                <button type="button" data-campo="prepSeg" data-paso="-5">−</button>
+                <b id="temp-prep">10 s</b>
+                <button type="button" data-campo="prepSeg" data-paso="5">+</button>
+              </div>
+            </div>
+            <div class="temp-campo">
+              <span>Serie</span>
+              <div class="temp-stepper">
+                <button type="button" data-campo="serieSeg" data-paso="-5">−</button>
+                <b id="temp-serie">30 s</b>
+                <button type="button" data-campo="serieSeg" data-paso="5">+</button>
+              </div>
+            </div>
+            <div class="temp-campo">
+              <span>Descanso</span>
+              <div class="temp-stepper">
+                <button type="button" data-campo="descansoSeg" data-paso="-15">−</button>
+                <b id="temp-descanso">1:30</b>
+                <button type="button" data-campo="descansoSeg" data-paso="15">+</button>
+              </div>
+            </div>
+            <div class="temp-campo">
+              <span>Nº de series</span>
+              <div class="temp-stepper">
+                <button type="button" data-campo="numSeries" data-paso="-1">−</button>
+                <b id="temp-numseries">4</b>
+                <button type="button" data-campo="numSeries" data-paso="1">+</button>
+              </div>
+            </div>
+          </div>
+          <p class="objetivo" id="temp-total">Duración total: —</p>
+          <button id="temp-empezar" class="boton-primario ancho-completo">Empezar</button>
         </div>
-        <div class="tiempo-ajuste">
-          <button type="button" id="desc-menos" class="boton-secundario">−15 s</button>
-          <button type="button" id="desc-mas" class="boton-secundario">+15 s</button>
+
+        <!-- En marcha -->
+        <div id="temp-marcha" class="oculta">
+          <h2 id="temp-fase">PREPÁRATE</h2>
+          <p class="tiempo-display" id="temp-display">0:10</p>
+          <p class="objetivo" id="temp-siguiente"></p>
+          <p class="objetivo" id="temp-restantes"></p>
+          <div class="tiempo-acciones">
+            <button id="temp-toggle" class="boton-primario">Pausar</button>
+            <button id="temp-saltar" class="boton-secundario">Saltar</button>
+          </div>
+          <button id="temp-reiniciar" class="boton-enlace">Reiniciar</button>
         </div>
-        <div class="tiempo-acciones">
-          <button id="desc-toggle" class="boton-primario">Empezar</button>
-          <button id="desc-reset" class="boton-secundario">Reiniciar</button>
-        </div>
-        <p class="tiempo-aviso oculta" id="desc-aviso">¡Descanso terminado!</p>
+
       </div>
     </section>
 

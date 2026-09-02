@@ -352,7 +352,7 @@ body {
   margin-top: 6px;
 }
 .bloque-pie .boton-enlace { margin: 0; }
-.btn-descansar { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+.btn-temporizador { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
 
 /* Píldora flotante del temporizador */
 .pildora-descanso {
@@ -407,10 +407,51 @@ body {
 }
 .tiempo-acciones { display: flex; gap: 8px; }
 .tiempo-acciones button { flex: 1; }
-.tiempo-ajuste { display: flex; gap: 8px; margin-bottom: 10px; }
-.tiempo-ajuste button { flex: 1; padding: 8px; font-size: 14px; }
-.bloque-tiempo .chips { justify-content: center; margin: 0 0 12px; }
-.tiempo-aviso { color: var(--acento); font-weight: 600; margin-top: 14px; }
+
+/* Configuración del temporizador de series */
+.temp-campos { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.temp-campo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.temp-campo > span { font-size: 14px; color: var(--texto-suave); }
+.temp-stepper { display: flex; align-items: center; gap: 10px; }
+.temp-stepper b {
+  min-width: 56px;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.temp-stepper button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  color: var(--texto);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+#temp-total { margin-bottom: 14px; }
+
+/* Temporizador en marcha */
+#temp-fase {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+#temp-siguiente, #temp-restantes { margin: 2px 0; }
+#temp-reiniciar { display: block; margin: 12px auto 0; }
+
+/* Color de fondo según la fase */
+#bloque-temporizador[data-fase="prep"] { border-color: #d97706; background: #3a2a12; }
+#bloque-temporizador[data-fase="serie"] { border-color: #16a34a; background: #12331f; }
+#bloque-temporizador[data-fase="descanso"] { border-color: var(--acento); background: #3a1e12; }
+#bloque-temporizador[data-fase="fin"] { border-color: var(--acento); }
 
 /* ---- Opciones (Ajustes) ---- */
 .opcion {

@@ -35,6 +35,12 @@ function datosVacios() {
       sonido: true,       // pitido al terminar el descanso
       vibracion: true,    // vibración al terminar el descanso
     },
+    temporizador: {       // última configuración del temporizador de series
+      prepSeg: 10,        // cuenta atrás de "prepárate"
+      serieSeg: 30,       // duración de cada serie
+      descansoSeg: 90,    // descanso entre series
+      numSeries: 4,       // número de series
+    },
   };
 }
 
@@ -53,8 +59,9 @@ function cargar() {
     // Object.assign se asegura de que existan ejercicios/rutinas/sesiones
     // aunque el guardado sea de una versión antigua.
     const cargado = Object.assign(datosVacios(), JSON.parse(texto));
-    // prefs es un objeto anidado: mezclamos para no perder opciones nuevas
+    // objetos anidados: mezclamos para no perder claves nuevas
     cargado.prefs = Object.assign(datosVacios().prefs, cargado.prefs || {});
+    cargado.temporizador = Object.assign(datosVacios().temporizador, cargado.temporizador || {});
     return cargado;
   } catch (e) {
     console.error("No se pudieron leer los datos; empiezo de cero.", e);
@@ -123,6 +130,32 @@ function formatearCronometro(ms, conDecimas) {
 function formatearCuentaAtras(seg) {
   const s = Math.max(0, Math.ceil(seg));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+// ---- Temporizador de series ----
+
+function obtenerTempConfig() {
+  return { ...DATOS.temporizador };
+}
+
+// Guarda solo las claves que se pasen (mezcla con lo que ya hay)
+function guardarTempConfig(parcial) {
+  DATOS.temporizador = Object.assign(DATOS.temporizador, parcial);
+  guardar();
+}
+
+// Construye la lista de tramos: prep + (serie, descanso) x numSeries.
+// El último descanso se omite. Devuelve [{ fase, seg, serie }].
+function construirSegmentos({ prepSeg, serieSeg, descansoSeg, numSeries }) {
+  const segmentos = [];
+  if (prepSeg > 0) segmentos.push({ fase: "prep", seg: prepSeg, serie: 0 });
+  for (let i = 1; i <= numSeries; i++) {
+    segmentos.push({ fase: "serie", seg: serieSeg, serie: i });
+    if (i < numSeries && descansoSeg > 0) {
+      segmentos.push({ fase: "descanso", seg: descansoSeg, serie: i });
+    }
+  }
+  return segmentos;
 }
 
 // ----------------------------------------------------------

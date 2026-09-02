@@ -8,7 +8,7 @@ const TITULOS = {
   entrenar: "Entrenar",
   historial: "Historial",
   progreso: "Progreso",
-  cronometro: "Cronómetro y descanso",
+  cronometro: "Tiempo",
   ajustes: "Ajustes",
 };
 

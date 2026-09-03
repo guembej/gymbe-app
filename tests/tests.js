@@ -248,6 +248,24 @@ prueba("progresoDeEjercicio devuelve vacío si el ejercicio no tiene historial",
   igual(progresoDeEjercicio(e.id).length, 0);
 });
 
+prueba("marcasEjeY: 5+ marcas enteras con paso bonito (rango pequeño)", () => {
+  const eje = marcasEjeY(52.5, 60);
+  esVerdad(eje.marcas.length >= 5, "al menos 5 marcas");
+  eje.marcas.forEach((v) => igual(v, Math.round(v)));
+  esVerdad(eje.marcas[0] <= 52.5 && eje.marcas[eje.marcas.length - 1] >= 60, "cubre los datos");
+  const paso = eje.marcas[1] - eje.marcas[0];
+  esVerdad([1, 2, 5, 10, 20, 25, 50].includes(paso), "paso bonito: " + paso);
+});
+
+prueba("marcasEjeY: valores iguales y rango grande no rompen", () => {
+  const a = marcasEjeY(60, 60);
+  esVerdad(a.marcas.length >= 5 && a.max > a.min);
+
+  const b = marcasEjeY(1470, 1680);
+  esVerdad(b.marcas.length >= 5);
+  b.marcas.forEach((v) => igual(v, Math.round(v)));
+});
+
 prueba("obtenerSesion y borrarSesion funcionan sobre el historial", () => {
   const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
   const r = crearRutina({ nombre: "D" });

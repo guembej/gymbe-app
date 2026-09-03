@@ -75,15 +75,18 @@ function generarGrafica(puntos) {
   const ih = H - m.t - m.b;
 
   const vals = puntos.map((p) => p[progresoMetrica]);
-  let min = Math.min(...vals);
-  let max = Math.max(...vals);
-  if (min === max) { min -= 1; max += 1; }
-  const pad = (max - min) * 0.12;
-  min -= pad;
-  max += pad;
+  const eje = marcasEjeY(Math.min(...vals), Math.max(...vals));
 
   const x = (i) => (puntos.length === 1 ? m.l + iw / 2 : m.l + (i / (puntos.length - 1)) * iw);
-  const y = (v) => m.t + ih - ((v - min) / (max - min)) * ih;
+  const y = (v) => m.t + ih - ((v - eje.min) / (eje.max - eje.min)) * ih;
+
+  const rejilla = eje.marcas
+    .map((v) => {
+      const yy = y(v).toFixed(1);
+      return `<line class="pg-grid" x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" />
+        <text class="pg-eje" x="${m.l - 6}" y="${(y(v) + 3).toFixed(1)}" text-anchor="end">${v}</text>`;
+    })
+    .join("");
 
   const linea = puntos.map((p, i) => `${x(i).toFixed(1)},${y(p[progresoMetrica]).toFixed(1)}`).join(" ");
   const circulos = puntos
@@ -92,10 +95,8 @@ function generarGrafica(puntos) {
 
   return `
     <svg viewBox="0 0 ${W} ${H}" class="pg-svg" role="img" aria-label="Gráfica de evolución">
-      <line class="pg-grid" x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${m.t + ih}" />
-      <line class="pg-grid" x1="${m.l}" y1="${m.t + ih}" x2="${m.l + iw}" y2="${m.t + ih}" />
-      <text class="pg-eje" x="${m.l - 6}" y="${(y(max - pad) + 4).toFixed(1)}" text-anchor="end">${Math.round(max - pad)}</text>
-      <text class="pg-eje" x="${m.l - 6}" y="${(y(min + pad) + 4).toFixed(1)}" text-anchor="end">${Math.round(min + pad)}</text>
+      ${rejilla}
+      <line class="pg-eje-linea" x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${m.t + ih}" />
       <text class="pg-eje" x="${x(0).toFixed(1)}" y="${H - 8}" text-anchor="start">${_pgDia(puntos[0].fecha)}</text>
       <text class="pg-eje" x="${x(puntos.length - 1).toFixed(1)}" y="${H - 8}" text-anchor="end">${_pgDia(puntos[puntos.length - 1].fecha)}</text>
       ${puntos.length > 1 ? `<polyline class="pg-linea" points="${linea}" />` : ""}

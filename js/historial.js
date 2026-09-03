@@ -62,9 +62,7 @@ function pintarListaSesiones() {
         <span class="tarjeta-nota">${escaparHtml(_fechaCorta(s.fecha))}</span>
         <div class="tarjeta-encabezado">
           <span class="tarjeta-titulo">${escaparHtml(s.routineNombre || "Entrenamiento")}</span>
-          ${s.division
-            ? `<span class="etiqueta etiqueta-division">${escaparHtml(s.division)}</span>`
-            : ""}
+          ${htmlEtiquetaDivision(s.division)}
         </div>
         <span class="tarjeta-nota">
           ${nEjercicios === 1 ? "1 ejercicio" : nEjercicios + " ejercicios"} ·
@@ -94,6 +92,7 @@ function pintarDetalleSesion() {
 
   sesionRutinaEl.textContent = s.routineNombre || "Entrenamiento";
   sesionDivisionEl.textContent = s.division || "";
+  sesionDivisionEl.dataset.division = s.division || "";
   sesionDivisionEl.hidden = !s.division;
   sesionFechaEl.textContent = _fechaLarga(s.fecha);
 

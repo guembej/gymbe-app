@@ -54,9 +54,7 @@ function pintarListaEmpezar() {
       <div class="tarjeta-cuerpo">
         <div class="tarjeta-encabezado">
           <span class="tarjeta-titulo">${escaparHtml(rutina.nombre)}</span>
-          ${rutina.division
-            ? `<span class="etiqueta etiqueta-division">${escaparHtml(rutina.division)}</span>`
-            : ""}
+          ${htmlEtiquetaDivision(rutina.division)}
         </div>
         <span class="tarjeta-nota">${n === 1 ? "1 ejercicio" : n + " ejercicios"}</span>
       </div>
@@ -134,6 +132,7 @@ function pintarSesionActiva() {
 
   activoNombreEl.textContent = sesion.routineNombre;
   activoDivisionEl.textContent = sesion.division;
+  activoDivisionEl.dataset.division = sesion.division || "";
   activoDivisionEl.hidden = !sesion.division;
   activoFechaEl.textContent = formatearFechaHora(sesion.inicio);
 

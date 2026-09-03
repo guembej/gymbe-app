@@ -99,9 +99,7 @@ function pintarRutinas() {
       <div class="tarjeta-cuerpo">
         <div class="tarjeta-encabezado">
           <span class="tarjeta-titulo">${escaparHtml(rutina.nombre)}</span>
-          ${rutina.division
-            ? `<span class="etiqueta etiqueta-division">${escaparHtml(rutina.division)}</span>`
-            : ""}
+          ${htmlEtiquetaDivision(rutina.division)}
         </div>
         <span class="tarjeta-nota">${numEjercicios === 1 ? "1 ejercicio" : numEjercicios + " ejercicios"}</span>
       </div>
@@ -165,6 +163,7 @@ function pintarDetalle() {
 
   detalleNombreEl.textContent = rutina.nombre;
   detalleDivisionEl.textContent = rutina.division;
+  detalleDivisionEl.dataset.division = rutina.division || "";
   detalleDivisionEl.hidden = !rutina.division;
 
   listaItemsEl.innerHTML = "";

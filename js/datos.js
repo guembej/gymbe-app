@@ -22,6 +22,18 @@ const DIVISIONES = [
   "Torso", "Superior", "Inferior", "Otro",
 ];
 
+// Un color por división, para identificarlas de un vistazo
+const COLOR_DIVISION = {
+  "Full Body": "#a78bfa",
+  "Push": "#ff5722",
+  "Pull": "#38bdf8",
+  "Pierna": "#4ade80",
+  "Torso": "#fbbf24",
+  "Superior": "#f472b6",
+  "Inferior": "#2dd4bf",
+  "Otro": "#9ca3af",
+};
+
 // Cómo son los datos cuando no hay nada guardado todavía
 function datosVacios() {
   return {
@@ -103,6 +115,13 @@ function escaparHtml(texto) {
   return d.innerHTML;
 }
 
+// HTML de la etiqueta de división (con su color). "" si no hay división.
+function htmlEtiquetaDivision(division) {
+  if (!division) return "";
+  const d = escaparHtml(division);
+  return `<span class="etiqueta etiqueta-division" data-division="${d}">${d}</span>`;
+}
+
 // ---- Preferencias (opciones de Ajustes) ----
 
 function obtenerPref(clave) {
@@ -130,6 +149,49 @@ function formatearCronometro(ms, conDecimas) {
 function formatearCuentaAtras(seg) {
   const s = Math.max(0, Math.ceil(seg));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+// El paso "bonito" inmediatamente menor que 'paso' (de la serie 1,2,5,10,20,50...)
+function _pasoBonitoMenor(paso) {
+  const magnitud = Math.pow(10, Math.floor(Math.log10(paso) - 1e-9));
+  const n = paso / magnitud; // ~1, 2, 5 o 10
+  if (n > 5) return 5 * magnitud;
+  if (n > 2) return 2 * magnitud;
+  if (n > 1) return 1 * magnitud;
+  return magnitud / 2; // de 1 bajaría a 0.5 (luego se limita a 1)
+}
+
+// Marcas del eje Y de una gráfica: al menos 5, todas enteras, paso de 1/2/5 x 10^k,
+// cubriendo [datoMin, datoMax]. Devuelve { min, max, marcas: [...] }.
+function marcasEjeY(datoMin, datoMax) {
+  if (datoMin === datoMax) { datoMin -= 1; datoMax += 1; }
+  const OBJETIVO = 5;
+
+  const pasoCrudo = (datoMax - datoMin) / (OBJETIVO - 1);
+  const magnitud = Math.pow(10, Math.floor(Math.log10(pasoCrudo)));
+  const norm = pasoCrudo / magnitud;
+  let paso = magnitud * (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10);
+  paso = Math.max(1, paso);
+
+  let min = Math.floor(datoMin / paso) * paso;
+  let max = Math.ceil(datoMax / paso) * paso;
+
+  let vueltas = 0;
+  while (Math.round((max - min) / paso) + 1 < OBJETIVO && vueltas++ < 20) {
+    const menor = Math.max(1, _pasoBonitoMenor(paso));
+    if (menor < paso) {
+      paso = menor;
+    } else {
+      max += paso;
+      if (Math.round((max - min) / paso) + 1 < OBJETIVO) min -= paso;
+    }
+    min = Math.floor(min / paso) * paso;
+    max = Math.ceil(max / paso) * paso;
+  }
+
+  const marcas = [];
+  for (let v = min; v <= max + 1e-9; v += paso) marcas.push(Math.round(v));
+  return { min, max, marcas };
 }
 
 // ---- Temporizador de series ----

@@ -257,6 +257,16 @@ prueba("marcasEjeY: 5+ marcas enteras con paso bonito (rango pequeño)", () => {
   esVerdad([1, 2, 5, 10, 20, 25, 50].includes(paso), "paso bonito: " + paso);
 });
 
+prueba("indicesEtiquetasX: todos si son pocos, repartidos si son muchos", () => {
+  igual(indicesEtiquetasX(4, 6), [0, 1, 2, 3]);
+  const muchos = indicesEtiquetasX(15, 6);
+  igual(muchos[0], 0);
+  igual(muchos[muchos.length - 1], 14);
+  esVerdad(muchos.length <= 6);
+  // ordenados y sin repetidos
+  igual([...new Set(muchos)].sort((a, b) => a - b), muchos);
+});
+
 prueba("marcasEjeY: valores iguales y rango grande no rompen", () => {
   const a = marcasEjeY(60, 60);
   esVerdad(a.marcas.length >= 5 && a.max > a.min);

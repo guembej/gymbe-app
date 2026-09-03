@@ -13,9 +13,14 @@ let progresoMetrica = "pesoMax"; // pesoMax | volumen | rm
 
 const ETIQUETA_METRICA = { pesoMax: "Peso máximo", volumen: "Volumen", rm: "1RM estimado" };
 
-// "3 sep"
+// "3 sept" (para textos)
 function _pgDia(iso) {
-  return new Date(iso).toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+  return new Date(iso).toLocaleDateString("es-ES", { day: "numeric", month: "short" }).replace(".", "");
+}
+// "3/9" (compacto, para el eje X)
+function _pgDiaCorto(iso) {
+  const d = new Date(iso);
+  return `${d.getDate()}/${d.getMonth() + 1}`;
 }
 // número bonito: 62.5 -> "62,5"  ·  4302 -> "4.302"
 function _pgNum(n) {
@@ -69,8 +74,8 @@ document.getElementById("progreso-metricas").addEventListener("click", (evento) 
 // ---- Gráfica SVG ----
 
 function generarGrafica(puntos) {
-  const W = 320, H = 180;
-  const m = { t: 14, r: 14, b: 26, l: 42 };
+  const W = 320, H = 190;
+  const m = { t: 14, r: 14, b: 34, l: 42 };
   const iw = W - m.l - m.r;
   const ih = H - m.t - m.b;
 
@@ -93,12 +98,24 @@ function generarGrafica(puntos) {
     .map((p, i) => `<circle class="pg-punto" cx="${x(i).toFixed(1)}" cy="${y(p[progresoMetrica]).toFixed(1)}" r="5" data-i="${i}" />`)
     .join("");
 
+  // Eje X: fecha bajo cada punto; si hay muchos, se reparten unas cuantas
+  const baseY = m.t + ih;
+  const indices = indicesEtiquetasX(puntos.length, 6);
+  const ejeX = indices
+    .map((i) => {
+      const px = x(i);
+      const anchor = i === 0 ? "start" : i === puntos.length - 1 ? "end" : "middle";
+      return `<line class="pg-grid" x1="${px.toFixed(1)}" y1="${baseY}" x2="${px.toFixed(1)}" y2="${baseY + 4}" />
+        <text class="pg-eje" x="${px.toFixed(1)}" y="${baseY + 15}" text-anchor="${anchor}">${_pgDiaCorto(puntos[i].fecha)}</text>`;
+    })
+    .join("");
+
   return `
     <svg viewBox="0 0 ${W} ${H}" class="pg-svg" role="img" aria-label="Gráfica de evolución">
       ${rejilla}
-      <line class="pg-eje-linea" x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${m.t + ih}" />
-      <text class="pg-eje" x="${x(0).toFixed(1)}" y="${H - 8}" text-anchor="start">${_pgDia(puntos[0].fecha)}</text>
-      <text class="pg-eje" x="${x(puntos.length - 1).toFixed(1)}" y="${H - 8}" text-anchor="end">${_pgDia(puntos[puntos.length - 1].fecha)}</text>
+      <line class="pg-eje-linea" x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${baseY}" />
+      <line class="pg-eje-linea" x1="${m.l}" y1="${baseY}" x2="${m.l + iw}" y2="${baseY}" />
+      ${ejeX}
       ${puntos.length > 1 ? `<polyline class="pg-linea" points="${linea}" />` : ""}
       ${circulos}
     </svg>`;

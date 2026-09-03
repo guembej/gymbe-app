@@ -194,6 +194,16 @@ function marcasEjeY(datoMin, datoMax) {
   return { min, max, marcas };
 }
 
+// Índices a etiquetar en un eje X de 'n' puntos: todos si son pocos; si no,
+// unos cuantos repartidos de forma pareja, siempre con el primero y el último.
+function indicesEtiquetasX(n, maximo) {
+  if (n <= maximo) return [...Array(n).keys()];
+  const idx = new Set([0, n - 1]);
+  const paso = (n - 1) / (maximo - 1);
+  for (let j = 1; j < maximo - 1; j++) idx.add(Math.round(j * paso));
+  return [...idx].sort((a, b) => a - b);
+}
+
 // ---- Temporizador de series ----
 
 function obtenerTempConfig() {

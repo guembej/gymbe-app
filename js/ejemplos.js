@@ -105,16 +105,24 @@ function _sesionEjemplo(rutinaNombre, haceDias, ajustePrimero) {
 function crearSesionesEjemplo() {
   if (DATOS.sesiones.length > 0 || DATOS.ejemplosHistorialHecho) return 0;
 
-  // Varias sesiones de Empuje con Press banca subiendo (para ver la gráfica de Progreso)
+  // Muchas sesiones de Empuje con Press banca subiendo de 37,5 a 60 kg,
+  // para que la gráfica de Progreso tenga bastantes puntos.
   const sesiones = [
-    _sesionEjemplo("Empuje", 26, -7.5),  // press banca 52,5 kg
-    _sesionEjemplo("Pierna", 22, -5),
-    _sesionEjemplo("Empuje", 19, -5),    // 55 kg
-    _sesionEjemplo("Tirón", 15, 0),
-    _sesionEjemplo("Empuje", 12, -2.5),  // 57,5 kg
-    _sesionEjemplo("Pierna", 9, 0),
-    _sesionEjemplo("Tirón", 5, 0),
-    _sesionEjemplo("Empuje", 2, 0),      // 60 kg -> progresión clara
+    _sesionEjemplo("Empuje", 65, -22.5),
+    _sesionEjemplo("Pierna", 61, -5),
+    _sesionEjemplo("Empuje", 58, -20),
+    _sesionEjemplo("Empuje", 51, -17.5),
+    _sesionEjemplo("Tirón", 48, 0),
+    _sesionEjemplo("Empuje", 44, -15),
+    _sesionEjemplo("Empuje", 37, -12.5),
+    _sesionEjemplo("Pierna", 34, 0),
+    _sesionEjemplo("Empuje", 30, -10),
+    _sesionEjemplo("Empuje", 23, -7.5),
+    _sesionEjemplo("Tirón", 20, 0),
+    _sesionEjemplo("Empuje", 16, -5),
+    _sesionEjemplo("Empuje", 9, -2.5),
+    _sesionEjemplo("Pierna", 6, 0),
+    _sesionEjemplo("Empuje", 2, 0),
   ].filter(Boolean);
 
   DATOS.sesiones.push(...sesiones);

@@ -21,6 +21,7 @@ function irA(nombreSeccion) {
   document.querySelectorAll(".menu-boton").forEach((btn) => {
     btn.classList.toggle("activo", btn.dataset.ir === nombreSeccion);
   });
+  document.getElementById("btn-ajustes").classList.toggle("activo", nombreSeccion === "ajustes");
 
   document.getElementById("titulo-seccion").textContent =
     TITULOS[nombreSeccion] || "Gym App";
@@ -47,6 +48,9 @@ document.querySelectorAll(".conmutador-boton").forEach((btn) => {
 document.getElementById("btn-inicio").addEventListener("click", () => {
   location.reload();
 });
+
+// Engranaje de la cabecera: ir a Ajustes
+document.getElementById("btn-ajustes").addEventListener("click", () => irA("ajustes"));
 
 // Arrancar en "Rutinas"
 irA("rutinas");

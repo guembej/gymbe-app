@@ -28,8 +28,22 @@ body {
   border-bottom: 1px solid var(--borde);
   padding: 14px 16px;
   padding-top: max(14px, env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
-.marca { display: flex; align-items: center; gap: 12px; }
+.marca { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.ajustes-boton {
+  background: none;
+  border: none;
+  color: var(--texto-suave);
+  padding: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+}
+.ajustes-boton.activo { color: var(--acento); }
 .logo-boton {
   background: none;
   border: none;

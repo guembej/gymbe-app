@@ -63,8 +63,10 @@ function _repsRepresentativas(reps) {
   return reps || "";
 }
 
-// Construye una sesión ya terminada a partir de una rutina y una fecha pasada
-function _sesionEjemplo(rutinaNombre, haceDias, ajustePeso) {
+// Construye una sesión ya terminada a partir de una rutina y una fecha pasada.
+// 'ajustePrimero' solo afecta al primer ejercicio de la rutina (el principal),
+// para simular progresión sin que los ejercicios ligeros queden raros.
+function _sesionEjemplo(rutinaNombre, haceDias, ajustePrimero) {
   const rutina = listarRutinas().find((r) => r.nombre === rutinaNombre);
   if (!rutina) return null;
 
@@ -73,14 +75,15 @@ function _sesionEjemplo(rutinaNombre, haceDias, ajustePeso) {
   const inicio = new Date(fecha.getTime() - 50 * 60000); // ~50 min de entreno
 
   const sets = [];
-  rutina.items.forEach((item) => {
+  rutina.items.forEach((item, indiceItem) => {
     const ej = obtenerEjercicio(item.exerciseId);
+    const ajuste = indiceItem === 0 ? (ajustePrimero || 0) : 0;
     for (let i = 0; i < item.series; i++) {
       sets.push({
         exerciseId: item.exerciseId,
         exerciseNombre: ej ? ej.nombre : "(ejercicio)",
         serie: i + 1,
-        pesoReal: Math.max(0, item.peso + (ajustePeso || 0)),
+        pesoReal: Math.max(0, item.peso + ajuste),
         repsReal: String(_repsRepresentativas(item.reps)),
       });
     }
@@ -102,11 +105,16 @@ function _sesionEjemplo(rutinaNombre, haceDias, ajustePeso) {
 function crearSesionesEjemplo() {
   if (DATOS.sesiones.length > 0 || DATOS.ejemplosHistorialHecho) return 0;
 
+  // Varias sesiones de Empuje con Press banca subiendo (para ver la gráfica de Progreso)
   const sesiones = [
-    _sesionEjemplo("Empuje", 12, -2.5),  // press banca a 57,5 kg
+    _sesionEjemplo("Empuje", 26, -7.5),  // press banca 52,5 kg
+    _sesionEjemplo("Pierna", 22, -5),
+    _sesionEjemplo("Empuje", 19, -5),    // 55 kg
+    _sesionEjemplo("Tirón", 15, 0),
+    _sesionEjemplo("Empuje", 12, -2.5),  // 57,5 kg
     _sesionEjemplo("Pierna", 9, 0),
     _sesionEjemplo("Tirón", 5, 0),
-    _sesionEjemplo("Empuje", 2, 0),      // press banca a 60 kg -> progresión
+    _sesionEjemplo("Empuje", 2, 0),      // 60 kg -> progresión clara
   ].filter(Boolean);
 
   DATOS.sesiones.push(...sesiones);

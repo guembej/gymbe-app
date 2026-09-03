@@ -142,7 +142,20 @@
     </section>
 
     <section class="seccion oculta" data-seccion="progreso">
-      <p class="vacio">Aquí verás la evolución de peso y repeticiones.<br />Fase 6.</p>
+      <label class="progreso-select">
+        Ejercicio
+        <select id="progreso-ejercicio"></select>
+      </label>
+
+      <div class="conmutador" id="progreso-metricas">
+        <button class="conmutador-boton activo" data-metrica="pesoMax">Peso máx.</button>
+        <button class="conmutador-boton" data-metrica="volumen">Volumen</button>
+        <button class="conmutador-boton" data-metrica="rm">1RM est.</button>
+      </div>
+
+      <div id="progreso-grafica"></div>
+      <p id="progreso-punto" class="tarjeta-nota"></p>
+      <div id="progreso-resumen"></div>
     </section>
 
     <section class="seccion oculta" data-seccion="cronometro">
@@ -386,6 +399,7 @@
   <script src="js/rutinas.js"></script>
   <script src="js/entrenar.js"></script>
   <script src="js/historial.js"></script>
+  <script src="js/progreso.js"></script>
   <script src="js/tiempo.js"></script>
   <script src="js/ajustes.js"></script>
   <script src="js/app.js"></script>

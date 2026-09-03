@@ -478,6 +478,42 @@ body {
 }
 .opcion input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--acento); }
 
+/* ---- Progreso ---- */
+.progreso-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--texto-suave);
+  margin-bottom: 14px;
+}
+.progreso-select select {
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--texto);
+  font-size: 15px;
+}
+#progreso-metricas { margin-bottom: 8px; }
+#progreso-grafica {
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 8px;
+}
+#progreso-punto { text-align: center; min-height: 18px; margin: 8px 0; }
+.pg-svg { width: 100%; height: auto; display: block; }
+.pg-linea { fill: none; stroke: var(--acento); stroke-width: 2.5; }
+.pg-punto { fill: var(--acento); cursor: pointer; }
+.pg-grid { stroke: var(--borde); stroke-width: 1; }
+.pg-eje { fill: var(--texto-suave); font-size: 10px; }
+
+.pg-tabla { width: 100%; border-collapse: collapse; }
+.pg-tabla td { padding: 8px 4px; border-bottom: 1px solid var(--borde); font-size: 14px; }
+.pg-tabla td:first-child { color: var(--texto-suave); }
+.pg-tabla td:last-child { text-align: right; font-weight: 600; }
+
 /* ---- Historial ---- */
 #sesion-fecha { margin-top: 4px; }
 #sesion-meta { margin-bottom: 4px; }

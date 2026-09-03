@@ -132,7 +132,7 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 3 — Registrar entrenamiento
 - [x] Fase 4 — Historial
 - [x] Fase 5 — Cronómetro y temporizador
-- [ ] Fase 6 — Progreso y gráficas
+- [x] Fase 6 — Progreso y gráficas
 - [ ] Fase 7 — Ajustes: exportar / importar y tema (claro/oscuro)
 - [ ] Fase 8 — PWA y pulido
 - [ ] Fase 9 — Rutinas pregrabadas y uso real

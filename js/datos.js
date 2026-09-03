@@ -402,3 +402,42 @@ function borrarSesion(id) {
   DATOS.sesiones = DATOS.sesiones.filter((s) => s.id !== id);
   guardar();
 }
+
+// ----------------------------------------------------------
+//  Progreso: evolución de un ejercicio a lo largo del historial
+//  Devuelve un punto por sesión (orden: de más antigua a más reciente):
+//    { fecha, sesionId, pesoMax, volumen, rm }
+//  - pesoMax: el peso más alto levantado ese día
+//  - volumen: suma de peso x repeticiones
+//  - rm: 1RM estimado (Epley) de la mejor serie: peso x (1 + reps/30)
+// ----------------------------------------------------------
+function progresoDeEjercicio(exerciseId) {
+  const puntos = [];
+
+  DATOS.sesiones.forEach((sesion) => {
+    const sets = sesion.sets.filter((s) => s.exerciseId === exerciseId);
+    if (sets.length === 0) return;
+
+    let pesoMax = 0;
+    let volumen = 0;
+    let rm = 0;
+    sets.forEach((set) => {
+      const peso = _num(set.pesoReal, 0, 0);
+      const reps = parseInt(set.repsReal, 10) || 0;
+      if (peso > pesoMax) pesoMax = peso;
+      volumen += peso * reps;
+      const rmSet = reps > 0 ? peso * (1 + reps / 30) : peso;
+      if (rmSet > rm) rm = rmSet;
+    });
+
+    puntos.push({
+      fecha: sesion.fecha,
+      sesionId: sesion.id,
+      pesoMax: Math.round(pesoMax * 10) / 10,
+      volumen: Math.round(volumen),
+      rm: Math.round(rm * 10) / 10,
+    });
+  });
+
+  return puntos.sort((a, b) => a.fecha.localeCompare(b.fecha));
+}

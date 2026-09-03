@@ -215,6 +215,39 @@ prueba("listarSesiones ordena de más reciente a más antigua", () => {
   igual(listarSesiones().map((s) => s.id), ["b", "c", "a"]);
 });
 
+prueba("progresoDeEjercicio calcula pesoMax, volumen y 1RM por sesión, en orden", () => {
+  const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 2, reps: "8", peso: 50 });
+
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "50", repsReal: "8", hecha: true };
+  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "50", repsReal: "6", hecha: true };
+  const g1 = terminarSesion();
+  g1.fecha = "2026-01-01T10:00:00.000Z";
+  guardar();
+
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "55", repsReal: "8", hecha: true };
+  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "55", repsReal: "5", hecha: true };
+  const g2 = terminarSesion();
+  g2.fecha = "2026-02-01T10:00:00.000Z";
+  guardar();
+
+  const p = progresoDeEjercicio(e.id);
+  igual(p.length, 2);
+  igual(p[0].pesoMax, 50);
+  igual(p[0].volumen, 50 * 8 + 50 * 6); // 700
+  igual(p[1].pesoMax, 55);
+  igual(p[1].volumen, 55 * 8 + 55 * 5); // 715
+  esVerdad(Math.abs(p[1].rm - 55 * (1 + 8 / 30)) < 0.05, "1RM Epley de la mejor serie");
+});
+
+prueba("progresoDeEjercicio devuelve vacío si el ejercicio no tiene historial", () => {
+  const e = crearEjercicio({ nombre: "Nuevo", grupo: "Otro" });
+  igual(progresoDeEjercicio(e.id).length, 0);
+});
+
 prueba("obtenerSesion y borrarSesion funcionan sobre el historial", () => {
   const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
   const r = crearRutina({ nombre: "D" });

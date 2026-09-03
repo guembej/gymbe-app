@@ -36,7 +36,7 @@ function datosVacios() {
       vibracion: true,    // vibración al terminar el descanso
     },
     temporizador: {       // última configuración del temporizador de series
-      prepSeg: 10,        // cuenta atrás de "prepárate"
+      prepSeg: 5,         // cuenta atrás de "prepárate"
       serieSeg: 30,       // duración de cada serie
       descansoSeg: 90,    // descanso entre series
       numSeries: 4,       // número de series

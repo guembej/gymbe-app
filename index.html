@@ -139,16 +139,6 @@
     </section>
 
     <section class="seccion oculta" data-seccion="cronometro">
-      <!-- Cronómetro (cuenta hacia arriba) -->
-      <div class="bloque-tiempo">
-        <h2>Cronómetro</h2>
-        <p class="tiempo-display" id="crono-display">00:00</p>
-        <div class="tiempo-acciones">
-          <button id="crono-toggle" class="boton-primario">Empezar</button>
-          <button id="crono-reset" class="boton-secundario">Reiniciar</button>
-        </div>
-      </div>
-
       <!-- Temporizador de series (prepárate -> serie / descanso x N) -->
       <div class="bloque-tiempo" id="bloque-temporizador">
 
@@ -160,7 +150,7 @@
               <span>Preparación</span>
               <div class="temp-stepper">
                 <button type="button" data-campo="prepSeg" data-paso="-5">−</button>
-                <b id="temp-prep">10 s</b>
+                <b id="temp-prep">5 s</b>
                 <button type="button" data-campo="prepSeg" data-paso="5">+</button>
               </div>
             </div>
@@ -196,7 +186,7 @@
         <!-- En marcha -->
         <div id="temp-marcha" class="oculta">
           <h2 id="temp-fase">PREPÁRATE</h2>
-          <p class="tiempo-display" id="temp-display">0:10</p>
+          <p class="tiempo-display" id="temp-display">0:05</p>
           <p class="objetivo" id="temp-siguiente"></p>
           <p class="objetivo" id="temp-restantes"></p>
           <div class="tiempo-acciones">
@@ -206,6 +196,16 @@
           <button id="temp-reiniciar" class="boton-enlace">Reiniciar</button>
         </div>
 
+      </div>
+
+      <!-- Cronómetro (cuenta hacia arriba) -->
+      <div class="bloque-tiempo">
+        <h2>Cronómetro</h2>
+        <p class="tiempo-display" id="crono-display">00:00</p>
+        <div class="tiempo-acciones">
+          <button id="crono-toggle" class="boton-primario">Empezar</button>
+          <button id="crono-reset" class="boton-secundario">Reiniciar</button>
+        </div>
       </div>
     </section>
 

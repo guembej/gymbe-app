@@ -313,10 +313,11 @@ prueba("construirSegmentos: sin preparación y con 1 serie es solo la serie", ()
 
 prueba("obtenerTempConfig / guardarTempConfig conservan las demás claves", () => {
   igual(obtenerTempConfig().numSeries, 4);
+  igual(obtenerTempConfig().prepSeg, 5);
   guardarTempConfig({ numSeries: 6, descansoSeg: 120 });
   igual(obtenerTempConfig().numSeries, 6);
   igual(obtenerTempConfig().descansoSeg, 120);
-  igual(obtenerTempConfig().prepSeg, 10);
+  igual(obtenerTempConfig().prepSeg, 5);
 });
 
 prueba("las preferencias se guardan sin perder las demás", () => {

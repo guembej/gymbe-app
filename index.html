@@ -8,6 +8,19 @@
   <title>Gymbe App</title>
   <link rel="icon" href="assets/icono-app.svg" />
   <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    /* Aplica el tema antes de dibujar, para que no haya parpadeo oscuro->claro */
+    (function () {
+      try {
+        var guardado = localStorage.getItem("gym.datos.v1");
+        var tema = guardado && JSON.parse(guardado).prefs && JSON.parse(guardado).prefs.tema;
+        if (!tema || tema === "sistema") {
+          tema = matchMedia("(prefers-color-scheme: light)").matches ? "claro" : "oscuro";
+        }
+        document.documentElement.dataset.tema = tema;
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -231,6 +244,13 @@
 
     <section class="seccion oculta" data-seccion="ajustes">
       <div class="ajustes-grupo">
+        <h2>Tema</h2>
+        <label class="opcion"><input type="radio" name="tema" value="sistema" /> Según el sistema</label>
+        <label class="opcion"><input type="radio" name="tema" value="claro" /> Claro</label>
+        <label class="opcion"><input type="radio" name="tema" value="oscuro" /> Oscuro</label>
+      </div>
+
+      <div class="ajustes-grupo">
         <h2>Opciones</h2>
         <label class="opcion">
           <input type="checkbox" id="pref-crondecimas" />
@@ -248,10 +268,18 @@
 
       <div class="ajustes-grupo">
         <h2>Datos</h2>
+        <div class="ajustes-fila">
+          <button id="btn-exportar" class="boton-secundario">Exportar copia</button>
+          <button id="btn-importar" class="boton-secundario">Importar copia</button>
+        </div>
+        <input type="file" id="input-importar" accept=".json,application/json" hidden />
         <button id="btn-borrar-todo" class="boton-secundario ancho-completo btn-peligro">
           Borrar todos mis datos
         </button>
-        <p class="ayuda">Exportar e importar tus datos llegará en la Fase 7.</p>
+        <p class="ayuda">
+          La copia es un archivo <code>.json</code> con todo. Sirve de respaldo o para
+          pasar tus datos a otro dispositivo (sin nube).
+        </p>
       </div>
 
       <div class="pie-marca">

@@ -10,7 +10,20 @@
   --sobre-acento: #2b0d00;  /* texto sobre fondos naranja */
   --marca-marino: #0d1b2a;  /* azul marino de marca (logo) */
   --borde: #374151;
+  --peligro: #f87171;
+  --peligro-borde: #7f1d1d;
   --alto-menu: 64px;
+}
+
+/* Tema claro: solo cambian fondos, textos y bordes; el naranja y el marino se mantienen */
+:root[data-tema="claro"] {
+  --fondo: #f4f5f7;
+  --fondo-2: #ffffff;
+  --texto: #111827;
+  --texto-suave: #6b7280;
+  --borde: #d8dbe0;
+  --peligro: #dc2626;
+  --peligro-borde: #fca5a5;
 }
 
 body {
@@ -37,7 +50,7 @@ body {
 .ajustes-boton {
   background: none;
   border: none;
-  color: var(--texto-suave);
+  color: #9ca3af;
   padding: 4px;
   cursor: pointer;
   flex-shrink: 0;
@@ -53,7 +66,7 @@ body {
   flex-shrink: 0;
 }
 .marca .iso { width: 44px; height: 17px; color: #f2f4f7; flex-shrink: 0; }
-.cabecera h1 { font-size: 20px; font-weight: 600; }
+.cabecera h1 { font-size: 20px; font-weight: 600; color: #f9fafb; }
 
 /* ---- Logo (isotipo reutilizable vía <use>) ---- */
 .iso { display: block; }
@@ -237,6 +250,14 @@ body {
 .etiqueta-division[data-division="Superior"]  { color: #f472b6; border-color: #f472b6; background: rgba(244, 114, 182, 0.12); }
 .etiqueta-division[data-division="Inferior"]  { color: #2dd4bf; border-color: #2dd4bf; background: rgba(45, 212, 191, 0.12); }
 .etiqueta-division[data-division="Otro"]      { color: #9ca3af; border-color: #9ca3af; background: rgba(156, 163, 175, 0.12); }
+
+/* En tema claro, tonos más oscuros para que se lean sobre blanco */
+:root[data-tema="claro"] .etiqueta-division[data-division="Full Body"] { color: #7c3aed; border-color: #7c3aed; }
+:root[data-tema="claro"] .etiqueta-division[data-division="Pull"]      { color: #0284c7; border-color: #0284c7; }
+:root[data-tema="claro"] .etiqueta-division[data-division="Pierna"]    { color: #15803d; border-color: #15803d; }
+:root[data-tema="claro"] .etiqueta-division[data-division="Torso"]     { color: #b45309; border-color: #b45309; }
+:root[data-tema="claro"] .etiqueta-division[data-division="Superior"]  { color: #db2777; border-color: #db2777; }
+:root[data-tema="claro"] .etiqueta-division[data-division="Inferior"]  { color: #0d9488; border-color: #0d9488; }
 
 /* ---- Formulario en ventana emergente ---- */
 .dialogo {
@@ -475,6 +496,9 @@ body {
 #bloque-temporizador[data-fase="serie"] { border-color: #16a34a; background: #12331f; }
 #bloque-temporizador[data-fase="descanso"] { border-color: var(--acento); background: #3a1e12; }
 #bloque-temporizador[data-fase="fin"] { border-color: var(--acento); }
+:root[data-tema="claro"] #bloque-temporizador[data-fase="prep"] { background: #fef3e2; }
+:root[data-tema="claro"] #bloque-temporizador[data-fase="serie"] { background: #e7f6ec; }
+:root[data-tema="claro"] #bloque-temporizador[data-fase="descanso"] { background: #fdeae1; }
 
 /* ---- Opciones (Ajustes) ---- */
 .opcion {
@@ -535,4 +559,7 @@ body {
 .ajustes-grupo { display: flex; flex-direction: column; gap: 10px; }
 .ajustes-grupo + .ajustes-grupo { margin-top: 28px; }
 .ajustes-grupo h2 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
-.btn-peligro { color: #f87171; border-color: #7f1d1d; }
+.btn-peligro { color: var(--peligro); border-color: var(--peligro-borde); }
+
+.ajustes-fila { display: flex; gap: 8px; }
+.ajustes-fila button { flex: 1; }

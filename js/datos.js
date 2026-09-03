@@ -43,6 +43,7 @@ function datosVacios() {
     sesionActiva: null, // entrenamiento en curso (o null si no hay ninguno)
     ejemplosHistorialHecho: false, // marca interna: ya se metió el historial de ejemplo
     prefs: {
+      tema: "sistema",    // "sistema" | "claro" | "oscuro"
       cronDecimas: false, // cronómetro con décimas de segundo
       sonido: true,       // pitido al terminar el descanso
       vibracion: true,    // vibración al terminar el descanso
@@ -62,6 +63,9 @@ const ES_PRIMERA_VEZ = localStorage.getItem(CLAVE_ALMACEN) === null;
 
 // Copia en memoria mientras la app está abierta
 let DATOS = cargar();
+
+// Aplicar el tema cuanto antes (el <head> ya hizo un primer intento sin parpadeo)
+if (typeof document !== "undefined") aplicarTema();
 
 // Lee la libretita del navegador
 function cargar() {
@@ -131,6 +135,60 @@ function obtenerPref(clave) {
 function guardarPref(clave, valor) {
   DATOS.prefs[clave] = valor;
   guardar();
+}
+
+// ---- Tema claro / oscuro ----
+
+// "claro" u "oscuro" según la preferencia (resolviendo "sistema")
+function temaEfectivo() {
+  const t = DATOS.prefs.tema || "sistema";
+  if (t !== "sistema") return t;
+  const claro = typeof window !== "undefined" && window.matchMedia
+    && window.matchMedia("(prefers-color-scheme: light)").matches;
+  return claro ? "claro" : "oscuro";
+}
+
+function aplicarTema() {
+  document.documentElement.dataset.tema = temaEfectivo();
+}
+
+// ---- Exportar / importar copia ----
+
+const CLAVES_EXPORTABLES = ["ejercicios", "rutinas", "sesiones", "prefs", "temporizador"];
+
+// Devuelve el texto JSON de la copia (todo menos lo interno y el entreno en curso)
+function exportarDatos() {
+  const salida = { version: "gym.datos.v1", exportado: new Date().toISOString() };
+  CLAVES_EXPORTABLES.forEach((clave) => { salida[clave] = DATOS[clave]; });
+  return JSON.stringify(salida, null, 2);
+}
+
+// Reemplaza TODOS los datos con los de una copia. { ok } o { ok:false, error }
+function importarDatos(texto) {
+  let obj;
+  try {
+    obj = JSON.parse(texto);
+  } catch (e) {
+    return { ok: false, error: "El archivo no es un JSON válido." };
+  }
+  const valido = obj && typeof obj === "object"
+    && Array.isArray(obj.ejercicios)
+    && Array.isArray(obj.rutinas)
+    && Array.isArray(obj.sesiones);
+  if (!valido) {
+    return { ok: false, error: "El archivo no parece una copia de Gymbe." };
+  }
+
+  const nuevos = datosVacios();
+  CLAVES_EXPORTABLES.forEach((clave) => {
+    if (obj[clave] !== undefined) nuevos[clave] = obj[clave];
+  });
+  nuevos.prefs = Object.assign(datosVacios().prefs, nuevos.prefs || {});
+  nuevos.temporizador = Object.assign(datosVacios().temporizador, nuevos.temporizador || {});
+
+  DATOS = nuevos;
+  guardar();
+  return { ok: true };
 }
 
 // ---- Formato de tiempo ----

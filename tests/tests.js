@@ -337,6 +337,60 @@ prueba("borrarTodosLosDatos deja todo vacío", () => {
   igual(sesionActiva(), null);
 });
 
+// ---- Exportar / importar ----
+
+prueba("exportarDatos incluye los datos y las opciones, no el entreno en curso", () => {
+  crearEjercicio({ nombre: "Press", grupo: "Pecho" });
+  crearRutina({ nombre: "D", division: "Push" });
+  const obj = JSON.parse(exportarDatos());
+  igual(obj.ejercicios.length, 1);
+  igual(obj.rutinas.length, 1);
+  esVerdad(obj.prefs && obj.temporizador, "incluye opciones y temporizador");
+  igual(obj.sesionActiva, undefined);
+});
+
+prueba("importarDatos reemplaza todo con una copia válida", () => {
+  crearEjercicio({ nombre: "Viejo", grupo: "Otro" });
+  const copia = JSON.stringify({
+    version: "gym.datos.v1",
+    ejercicios: [{ id: "a", nombre: "Nuevo", grupo: "Pecho", nota: "" }],
+    rutinas: [],
+    sesiones: [],
+  });
+  igual(importarDatos(copia).ok, true);
+  igual(listarEjercicios().length, 1);
+  igual(listarEjercicios()[0].nombre, "Nuevo");
+});
+
+prueba("importarDatos rechaza archivos inválidos sin tocar los datos", () => {
+  crearEjercicio({ nombre: "Importante", grupo: "Otro" });
+  igual(importarDatos("esto no es json {{{").ok, false);
+  igual(importarDatos(JSON.stringify({ cualquier: "cosa" })).ok, false);
+  igual(listarEjercicios().length, 1); // sigue ahí
+});
+
+prueba("exportar e importar: ida y vuelta conserva rutinas, items y opciones", () => {
+  const r = crearRutina({ nombre: "Pierna", division: "Pierna" });
+  añadirItemRutina(r.id, { exerciseId: "x", series: 4, reps: "5", peso: 100 });
+  guardarPref("sonido", false);
+  const copia = exportarDatos();
+
+  _reiniciarDatos();
+  igual(listarRutinas().length, 0);
+
+  importarDatos(copia);
+  igual(listarRutinas().length, 1);
+  igual(obtenerRutina(listarRutinas()[0].id).items[0].peso, 100);
+  igual(obtenerPref("sonido"), false);
+});
+
+prueba("temaEfectivo respeta la preferencia guardada", () => {
+  guardarPref("tema", "claro");
+  igual(temaEfectivo(), "claro");
+  guardarPref("tema", "oscuro");
+  igual(temaEfectivo(), "oscuro");
+});
+
 // ---- Utilidades ----
 
 prueba("escaparHtml neutraliza etiquetas HTML", () => {

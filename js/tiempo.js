@@ -114,10 +114,12 @@ cronoToggle.addEventListener("click", () => {
     crono.corriendo = true;
     cronoToggle.textContent = "Pausar";
   }
+  guardarEstadoTiempo();
 });
 cronoReset.addEventListener("click", () => {
   crono = { corriendo: false, acumuladoMs: 0, inicioMs: 0 };
   cronoToggle.textContent = "Empezar";
+  guardarEstadoTiempo();
 });
 
 // ==========================================================
@@ -137,6 +139,35 @@ let temp = {
 
 function limitar(valor, min, max) {
   return Math.max(min, Math.min(max, valor));
+}
+
+// --- Guardar / restaurar el estado para que sobreviva a recargar la página ---
+const CLAVE_TIEMPO = "gym.tiempo.v1";
+
+function guardarEstadoTiempo() {
+  try {
+    localStorage.setItem(CLAVE_TIEMPO, JSON.stringify({ crono, temp }));
+  } catch (e) { /* almacenamiento lleno o bloqueado */ }
+}
+
+function restaurarEstadoTiempo() {
+  try {
+    const g = JSON.parse(localStorage.getItem(CLAVE_TIEMPO));
+    if (!g) return;
+    if (g.crono) crono = g.crono;
+    if (g.temp && Array.isArray(g.temp.segmentos)) {
+      temp = g.temp;
+      if (temp.corriendo || temp.terminadoEn) {
+        tempConfigEl.classList.add("oculta");
+        tempMarchaEl.classList.remove("oculta");
+        tempToggle.textContent = temp.terminadoEn
+          ? "Empezar de nuevo"
+          : (temp.corriendo ? "Pausar" : "Seguir");
+        if (temp.corriendo) pedirWakeLock();
+      }
+    }
+    cronoToggle.textContent = crono.corriendo ? "Pausar" : (crono.acumuladoMs > 0 ? "Seguir" : "Empezar");
+  } catch (e) { /* datos corruptos: se ignora */ }
 }
 
 // Pinta la pantalla de configuración con los valores guardados
@@ -197,6 +228,7 @@ function empezarTemporizador() {
   tempMarchaEl.classList.remove("oculta");
   tempToggle.textContent = "Pausar";
   pedirWakeLock();
+  guardarEstadoTiempo();
   pintarTemporizador();
 }
 
@@ -204,19 +236,23 @@ function pararTemporizador() {
   temp.corriendo = false;
   temp.pausaMs = 0;
   temp.indice = 0;
+  temp.terminadoEn = 0;
   soltarWakeLock();
   tempMarchaEl.classList.add("oculta");
   tempConfigEl.classList.remove("oculta");
   bloqueTemporizador.dataset.fase = "";
+  guardarEstadoTiempo();
 }
 
 function avanzarTramo() {
+  // Si venimos "con retraso" (la app estuvo cerrada), avanzamos sin sonido
+  const conRetraso = Date.now() - temp.finMs > 1500;
   temp.indice++;
   temp.ultimoAviso = -1;
+
   if (temp.indice >= temp.segmentos.length) {
-    // Terminado
     temp.corriendo = false;
-    temp.terminadoEn = Date.now();
+    temp.terminadoEn = temp.finMs;
     soltarWakeLock();
     tempFaseEl.textContent = "¡HECHO!";
     tempDisplayEl.textContent = "0:00";
@@ -224,13 +260,21 @@ function avanzarTramo() {
     tempRestantesEl.textContent = "Entrenamiento completado";
     tempToggle.textContent = "Empezar de nuevo";
     bloqueTemporizador.dataset.fase = "fin";
-    pitido(3);
-    vibrar([300, 120, 300, 120, 300]);
+    if (!conRetraso) {
+      pitido(3);
+      vibrar([300, 120, 300, 120, 300]);
+    }
+    guardarEstadoTiempo();
     return;
   }
-  temp.finMs = Date.now() + temp.segmentos[temp.indice].seg * 1000;
-  pitido(1);
-  vibrar([200]);
+
+  // Al ponerse al día, encadenamos tramos desde el fin anterior (no desde ahora)
+  temp.finMs = (conRetraso ? temp.finMs : Date.now()) + temp.segmentos[temp.indice].seg * 1000;
+  if (!conRetraso) {
+    pitido(1);
+    vibrar([200]);
+  }
+  guardarEstadoTiempo();
 }
 
 function pintarTemporizador() {
@@ -295,6 +339,7 @@ tempToggle.addEventListener("click", () => {
     tempToggle.textContent = "Pausar";
     pedirWakeLock();
   }
+  guardarEstadoTiempo();
   pintarTemporizador();
 });
 
@@ -349,5 +394,6 @@ function tick() {
 setInterval(tick, 100);
 
 // Arranque
+restaurarEstadoTiempo();
 pintarConfig();
 tick();

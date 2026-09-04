@@ -62,3 +62,22 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   });
 }
+
+// Si otra pestaña o ventana cambia los datos, ofrecer recargar
+window.addEventListener("storage", async (evento) => {
+  if (evento.key !== "gym.datos.v1" || evento.newValue === null) return;
+  const recargar = await confirmar(
+    "Los datos han cambiado en otra pestaña. ¿Recargar para ver los cambios?",
+    { aceptar: "Recargar", cancelar: "Ahora no" }
+  );
+  if (recargar) location.reload();
+});
+
+// Ocultar la pantalla de bienvenida en cuanto la app está lista
+const splash = document.getElementById("splash");
+if (splash) {
+  setTimeout(() => {
+    splash.classList.add("oculto");
+    setTimeout(() => splash.remove(), 500);
+  }, 150);
+}

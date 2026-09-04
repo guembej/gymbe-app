@@ -6,7 +6,10 @@
   <meta name="theme-color" content="#0d1b2a" />
   <meta name="description" content="Registro y seguimiento de entrenamientos de gimnasio. Funciona sin conexión." />
   <title>Gymbe App</title>
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" />
   <link rel="icon" href="assets/icono-app.svg" />
+  <link rel="apple-touch-icon" href="assets/icono-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/styles.css" />
   <script>
     /* Aplica el tema antes de dibujar, para que no haya parpadeo oscuro->claro */
@@ -317,6 +320,15 @@
     </button>
   </nav>
 
+  <!-- Diálogo genérico de mensaje / confirmación -->
+  <dialog id="dialogo-mensaje" class="dialogo">
+    <p id="dialogo-mensaje-texto" class="dialogo-mensaje-texto"></p>
+    <div class="form-acciones">
+      <button type="button" id="dialogo-mensaje-cancelar" class="boton-secundario">Cancelar</button>
+      <button type="button" id="dialogo-mensaje-aceptar" class="boton-primario">Aceptar</button>
+    </div>
+  </dialog>
+
   <!-- Formulario de crear / editar ejercicio (ventana emergente) -->
   <dialog id="dialogo-ejercicio" class="dialogo">
     <form id="form-ejercicio" class="formulario">
@@ -423,6 +435,7 @@
 
   <script src="js/datos.js"></script>
   <script src="js/ejemplos.js"></script>
+  <script src="js/dialogos.js"></script>
   <script src="js/ejercicios.js"></script>
   <script src="js/rutinas.js"></script>
   <script src="js/entrenar.js"></script>

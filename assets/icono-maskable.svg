@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gymbe App">
+  <title>Gymbe App</title>
+  <rect width="512" height="512" fill="#0d1b2a" />
+  <g transform="translate(256 256) scale(0.72) translate(-256 -180)">
+    <rect x="90" y="184" width="82" height="12" rx="6" fill="#f2f4f7" />
+    <rect x="125" y="145" width="20" height="90" rx="10" fill="#f2f4f7" />
+    <rect x="340" y="184" width="82" height="12" rx="6" fill="#f2f4f7" />
+    <rect x="367" y="145" width="20" height="90" rx="10" fill="#f2f4f7" />
+    <rect x="100" y="160" width="12" height="60" rx="6" fill="#ff5722" />
+    <rect x="400" y="160" width="12" height="60" rx="6" fill="#ff5722" />
+    <path d="M 256 125 A 65 65 0 1 0 312 223" fill="none" stroke="#f2f4f7" stroke-width="22" />
+    <circle cx="312" cy="223" r="11" fill="#f2f4f7" />
+    <path d="M 260 190 L 321 190 A 65 65 0 0 0 256 125" fill="none" stroke="#ff5722" stroke-width="22" stroke-linejoin="round" />
+    <circle cx="260" cy="190" r="11" fill="#ff5722" />
+  </g>
+</svg>

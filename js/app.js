@@ -54,3 +54,11 @@ document.getElementById("btn-ajustes").addEventListener("click", () => irA("ajus
 
 // Arrancar en "Rutinas"
 irA("rutinas");
+
+// Registrar el service worker: hace que la app funcione sin conexión.
+// (Solo se activa en https o en localhost.)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}

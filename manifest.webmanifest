@@ -1,0 +1,17 @@
+{
+  "name": "Gymbe App",
+  "short_name": "Gymbe",
+  "description": "Registro y seguimiento de entrenamientos de gimnasio. Funciona sin conexión.",
+  "lang": "es",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1b2a",
+  "theme_color": "#0d1b2a",
+  "icons": [
+    { "src": "assets/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icono-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icono-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -295,6 +295,14 @@ body {
 }
 .formulario textarea { resize: vertical; }
 
+.dialogo-mensaje-texto {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--texto);
+  margin-bottom: 18px;
+}
+.boton-primario.peligro { background: #dc2626; color: #fff; }
+
 .form-acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
 .form-acciones .boton-primario,
 .form-acciones .boton-secundario { flex: 1; }

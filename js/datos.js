@@ -451,9 +451,10 @@ function empezarSesion(routineId) {
     inicio: new Date().toISOString(),
     ejercicios: rutina.items.map((item) => {
       const ej = obtenerEjercicio(item.exerciseId);
+      // Las casillas empiezan en blanco; el objetivo se muestra como referencia.
       const filas = [];
       for (let i = 0; i < item.series; i++) {
-        filas.push({ pesoReal: String(item.peso || ""), repsReal: item.reps, hecha: false });
+        filas.push({ pesoReal: "", repsReal: "", hecha: false });
       }
       return {
         exerciseId: item.exerciseId,

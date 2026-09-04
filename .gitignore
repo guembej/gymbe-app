@@ -6,8 +6,10 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Dependencias (por si en el futuro usamos alguna herramienta)
+# Dependencias y artefactos de las pruebas
 node_modules/
+/test-results/
+/playwright-report/
 
 # Copias de seguridad exportadas desde la app
 *.backup.json

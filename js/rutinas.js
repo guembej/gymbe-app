@@ -181,7 +181,6 @@ function pintarDetalle() {
       `${item.series} ${item.series === 1 ? "serie" : "series"}`,
       item.reps ? `${item.reps} reps` : null,
       item.peso > 0 ? `${item.peso} kg` : null,
-      `descanso ${formatearDescanso(item.descansoSeg)}`,
     ].filter(Boolean).join(" · ");
 
     const li = document.createElement("li");

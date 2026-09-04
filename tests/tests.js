@@ -146,7 +146,7 @@ prueba("lo creado sigue en el almacenamiento (sobrevive a una recarga)", () => {
 
 // ---- Entrenamientos ----
 
-prueba("empezar una sesión la crea con las filas prellenadas del objetivo", () => {
+prueba("empezar una sesión crea las filas en blanco, guardando el objetivo como referencia", () => {
   const e = crearEjercicio({ nombre: "Sentadilla", grupo: "Pierna" });
   const r = crearRutina({ nombre: "Día 1", division: "Pierna" });
   añadirItemRutina(r.id, { exerciseId: e.id, series: 3, reps: "8-10", peso: 80, descansoSeg: 120 });
@@ -156,9 +156,12 @@ prueba("empezar una sesión la crea con las filas prellenadas del objetivo", () 
   igual(s.routineNombre, "Día 1");
   igual(s.division, "Pierna");
   igual(s.ejercicios[0].filas.length, 3);
-  igual(s.ejercicios[0].filas[0].pesoReal, "80");
-  igual(s.ejercicios[0].filas[0].repsReal, "8-10");
+  igual(s.ejercicios[0].filas[0].pesoReal, "");
+  igual(s.ejercicios[0].filas[0].repsReal, "");
   igual(s.ejercicios[0].filas[0].hecha, false);
+  // el objetivo se conserva para mostrarlo
+  igual(s.ejercicios[0].objetivo.peso, 80);
+  igual(s.ejercicios[0].objetivo.reps, "8-10");
 });
 
 prueba("la sesión en curso se guarda en el almacenamiento", () => {

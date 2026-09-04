@@ -242,14 +242,14 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
 
 // ---- Terminar / descartar ----
 
-document.getElementById("btn-descartar").addEventListener("click", () => {
-  if (confirm("¿Descartar este entreno? No se guardará nada.")) {
+document.getElementById("btn-descartar").addEventListener("click", async () => {
+  if (await confirmar("¿Descartar este entreno? No se guardará nada.", { aceptar: "Descartar", peligro: true })) {
     descartarSesionActiva();
     renderEntrenar();
   }
 });
 
-document.getElementById("btn-terminar").addEventListener("click", () => {
+document.getElementById("btn-terminar").addEventListener("click", async () => {
   const sesion = sesionActiva();
   if (!sesion) return;
 
@@ -262,10 +262,10 @@ document.getElementById("btn-terminar").addEventListener("click", () => {
     ? "No has marcado ninguna serie como hecha. ¿Terminar igualmente? Se guardará el entreno sin series."
     : `Se guardarán ${hechas} ${hechas === 1 ? "serie" : "series"}. ¿Terminar?`;
 
-  if (!confirm(mensaje)) return;
+  if (!(await confirmar(mensaje, { aceptar: "Terminar" }))) return;
 
   const guardada = terminarSesion();
-  alert(`Entrenamiento guardado (${guardada.sets.length} ${guardada.sets.length === 1 ? "serie" : "series"}).`);
+  await avisar(`Entrenamiento guardado (${guardada.sets.length} ${guardada.sets.length === 1 ? "serie" : "series"}).`);
   renderEntrenar();
 });
 

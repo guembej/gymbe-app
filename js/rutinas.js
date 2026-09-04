@@ -138,9 +138,9 @@ document.getElementById("btn-editar-rutina").addEventListener("click", () => {
   if (rutina) abrirFormRutina(rutina);
 });
 
-document.getElementById("btn-borrar-rutina").addEventListener("click", () => {
+document.getElementById("btn-borrar-rutina").addEventListener("click", async () => {
   const rutina = obtenerRutina(rutinaAbiertaId);
-  if (rutina && confirm(`¿Borrar la rutina "${rutina.nombre}"?`)) {
+  if (rutina && await confirmar(`¿Borrar la rutina "${rutina.nombre}"?`, { aceptar: "Borrar", peligro: true })) {
     borrarRutina(rutina.id);
     volverALista();
   }
@@ -210,8 +210,8 @@ function pintarDetalle() {
       pintarDetalle();
     });
     li.querySelector('[data-accion="editar"]').addEventListener("click", () => abrirFormItem(indice));
-    li.querySelector('[data-accion="borrar"]').addEventListener("click", () => {
-      if (confirm(`¿Quitar "${nombre}" de la rutina?`)) {
+    li.querySelector('[data-accion="borrar"]').addEventListener("click", async () => {
+      if (await confirmar(`¿Quitar "${nombre}" de la rutina?`, { aceptar: "Quitar", peligro: true })) {
         quitarItemRutina(rutinaAbiertaId, indice);
         pintarDetalle();
       }
@@ -248,7 +248,7 @@ function rellenarSelectEjercicios(idSeleccionado) {
 
 function abrirFormItem(indice) {
   if (listarEjercicios().length === 0) {
-    alert("Primero crea algún ejercicio en la pestaña «Ejercicios».");
+    avisar("Primero crea algún ejercicio en la pestaña «Ejercicios».");
     return;
   }
 

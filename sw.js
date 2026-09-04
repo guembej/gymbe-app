@@ -2,7 +2,7 @@
 // Guarda toda la app para que funcione sin conexión y cargue al instante.
 // Al cambiar archivos, sube el número de versión para renovar la caché.
 
-const CACHE = "gymbe-v1";
+const CACHE = "gymbe-v2";
 
 const ARCHIVOS = [
   ".",

@@ -101,8 +101,8 @@ function pintarEjercicios() {
     li.querySelector('[data-accion="editar"]')
       .addEventListener("click", () => abrirFormEjercicio(ej));
     li.querySelector('[data-accion="borrar"]')
-      .addEventListener("click", () => {
-        if (confirm(`¿Borrar el ejercicio "${ej.nombre}"?`)) {
+      .addEventListener("click", async () => {
+        if (await confirmar(`¿Borrar el ejercicio "${ej.nombre}"?`, { aceptar: "Borrar", peligro: true })) {
           borrarEjercicio(ej.id);
           pintarEjercicios();
         }

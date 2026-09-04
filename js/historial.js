@@ -140,9 +140,9 @@ function pintarDetalleSesion() {
 
 document.getElementById("btn-volver-historial").addEventListener("click", renderHistorial);
 
-document.getElementById("btn-borrar-sesion").addEventListener("click", () => {
+document.getElementById("btn-borrar-sesion").addEventListener("click", async () => {
   const s = obtenerSesion(sesionAbiertaId);
-  if (s && confirm("¿Borrar este entrenamiento del historial? No se puede deshacer.")) {
+  if (s && await confirmar("¿Borrar este entrenamiento del historial? No se puede deshacer.", { aceptar: "Borrar", peligro: true })) {
     borrarSesion(s.id);
     renderHistorial();
   }

@@ -53,24 +53,31 @@ inputImportar.addEventListener("change", () => {
   if (!archivo) return;
 
   const lector = new FileReader();
-  lector.onload = () => {
+  lector.onload = async () => {
     inputImportar.value = ""; // permitir volver a elegir el mismo archivo
-    if (!confirm("Esto reemplazará TODOS tus datos actuales (y cualquier entrenamiento en curso) por los de la copia. ¿Continuar?")) {
-      return;
-    }
+    const ok = await confirmar(
+      "Esto reemplazará TODOS tus datos actuales (y cualquier entrenamiento en curso) por los de la copia. ¿Continuar?",
+      { aceptar: "Reemplazar", peligro: true }
+    );
+    if (!ok) return;
+
     const resultado = importarDatos(String(lector.result));
     if (!resultado.ok) {
-      alert(resultado.error);
+      await avisar(resultado.error);
       return;
     }
-    alert("Copia importada. La app se va a recargar.");
+    await avisar("Copia importada. La app se va a recargar.");
     location.reload();
   };
   lector.readAsText(archivo);
 });
 
-document.getElementById("btn-borrar-todo").addEventListener("click", () => {
-  if (confirm("Esto borrará TODAS tus rutinas, ejercicios e historial. No se puede deshacer. ¿Seguro?")) {
+document.getElementById("btn-borrar-todo").addEventListener("click", async () => {
+  const ok = await confirmar(
+    "Esto borrará TODAS tus rutinas, ejercicios e historial. No se puede deshacer. ¿Seguro?",
+    { aceptar: "Borrar todo", peligro: true }
+  );
+  if (ok) {
     borrarTodosLosDatos();
     location.reload();
   }

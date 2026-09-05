@@ -1,8 +1,10 @@
 // Service worker de Gymbe App.
-// Guarda toda la app para que funcione sin conexión y cargue al instante.
-// Al cambiar archivos, sube el número de versión para renovar la caché.
+// Estrategia: "stale-while-revalidate" para los archivos de la propia app:
+//   - se sirve al instante lo que haya en caché (rápido, y funciona sin conexión),
+//   - a la vez se pide la versión nueva por red y se guarda para la próxima vez.
+// Así, tras publicar cambios, la app se actualiza sola en la siguiente apertura.
 
-const CACHE = "gymbe-v3";
+const CACHE = "gymbe-v4";
 
 const ARCHIVOS = [
   ".",
@@ -42,20 +44,23 @@ self.addEventListener("activate", (evento) => {
 });
 
 self.addEventListener("fetch", (evento) => {
-  if (evento.request.method !== "GET") return;
+  const req = evento.request;
+  if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
 
   evento.respondWith(
-    caches.match(evento.request).then((cacheado) => {
-      if (cacheado) return cacheado;
-      return fetch(evento.request)
+    caches.open(CACHE).then(async (cache) => {
+      const cacheado = await cache.match(req);
+
+      const desdeRed = fetch(req, { cache: "no-store" })
         .then((respuesta) => {
-          if (respuesta.ok && evento.request.url.startsWith(self.location.origin)) {
-            const copia = respuesta.clone();
-            caches.open(CACHE).then((c) => c.put(evento.request, copia));
-          }
+          if (respuesta && respuesta.ok) cache.put(req, respuesta.clone());
           return respuesta;
         })
-        .catch(() => cacheado); // sin conexión y sin copia en caché
+        .catch(() => null);
+
+      // Si hay copia en caché, se devuelve ya (y la red actualiza por detrás).
+      // Si no, se espera a la red.
+      return cacheado || (await desdeRed) || Response.error();
     })
   );
 });

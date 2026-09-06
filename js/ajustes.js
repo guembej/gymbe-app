@@ -15,6 +15,10 @@ conectarPref("pref-crondecimas", "cronDecimas");
 conectarPref("pref-sonido", "sonido");
 conectarPref("pref-vibracion", "vibracion");
 
+// Versión + buscar actualizaciones
+document.getElementById("pie-version").textContent = `versión ${APP_VERSION} · funciona sin conexión`;
+document.getElementById("btn-buscar-actualizacion").addEventListener("click", () => buscarActualizacion());
+
 // ---- Tema ----
 const temaActual = obtenerPref("tema") || "sistema";
 document.querySelectorAll('input[name="tema"]').forEach((radio) => {

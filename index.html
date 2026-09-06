@@ -68,6 +68,15 @@
     </button>
   </header>
 
+  <!-- Aviso de versión nueva (oculto hasta que la haya) -->
+  <div id="aviso-version" class="aviso-version" hidden>
+    <span>Versión nueva disponible</span>
+    <div class="aviso-version-acciones">
+      <button id="aviso-version-actualizar" class="boton-primario">Actualizar</button>
+      <button id="aviso-version-cerrar" class="aviso-version-cerrar" aria-label="Cerrar">✕</button>
+    </div>
+  </div>
+
   <!-- Contenido: una sección visible cada vez -->
   <main id="contenido">
 
@@ -297,7 +306,8 @@
           <svg class="iso" aria-hidden="true"><use href="#gymbe-iso" /></svg>
           <span class="lockup-texto"><b>Gymbe</b> <span>App</span></span>
         </div>
-        <p class="pie-version">versión 0.1 · funciona sin conexión</p>
+        <p class="pie-version" id="pie-version">funciona sin conexión</p>
+        <button id="btn-buscar-actualizacion" class="boton-enlace">Buscar actualizaciones</button>
       </div>
     </section>
 
@@ -440,6 +450,7 @@
     </form>
   </dialog>
 
+  <script src="js/version.js"></script>
   <script src="js/datos.js"></script>
   <script src="js/ejemplos.js"></script>
   <script src="js/dialogos.js"></script>

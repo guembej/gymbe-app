@@ -55,12 +55,73 @@ document.getElementById("btn-ajustes").addEventListener("click", () => irA("ajus
 // Arrancar en "Rutinas"
 irA("rutinas");
 
-// Registrar el service worker: hace que la app funcione sin conexión.
-// (Solo se activa en https o en localhost.)
+// ==========================================================
+//  Service worker: offline + aviso de versión nueva
+// ==========================================================
+
+let _regSW = null;
+let _usuarioPidioActualizar = false;
+
+function mostrarAvisoVersion(swEsperando) {
+  const barra = document.getElementById("aviso-version");
+  if (!barra || !swEsperando) return;
+  barra.hidden = false;
+  document.getElementById("aviso-version-actualizar").onclick = () => {
+    _usuarioPidioActualizar = true;
+    swEsperando.postMessage({ tipo: "actualizar" });
+  };
+  document.getElementById("aviso-version-cerrar").onclick = () => { barra.hidden = true; };
+}
+
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+  window.addEventListener("load", async () => {
+    try {
+      const reg = await navigator.serviceWorker.register("sw.js");
+      _regSW = reg;
+
+      // ¿ya hay una versión nueva esperando de una visita anterior?
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        mostrarAvisoVersion(reg.waiting);
+      }
+
+      // se detecta una versión nueva mientras la app está abierta
+      reg.addEventListener("updatefound", () => {
+        const nuevo = reg.installing;
+        if (!nuevo) return;
+        nuevo.addEventListener("statechange", () => {
+          if (nuevo.state === "installed" && navigator.serviceWorker.controller) {
+            mostrarAvisoVersion(nuevo);
+          }
+        });
+      });
+
+      // comprobar al abrir (por si el navegador tarda en mirar)
+      reg.update().catch(() => {});
+
+      // cuando el SW nuevo toma el control tras pulsar "Actualizar" -> recargar
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (_usuarioPidioActualizar) location.reload();
+      });
+    } catch (e) {
+      /* sin service worker (p. ej. http sin localhost): la app funciona igual */
+    }
   });
+}
+
+// Botón "Buscar actualizaciones" (Ajustes) — expuesto para ajustes.js
+async function buscarActualizacion() {
+  if (!_regSW) {
+    avisar("Las actualizaciones se comprueban solas al abrir la app instalada o desde la web.");
+    return;
+  }
+  await _regSW.update().catch(() => {});
+  await new Promise((r) => setTimeout(r, 1200));
+  const hayAviso = _regSW.waiting || !document.getElementById("aviso-version").hidden;
+  if (hayAviso) {
+    avisar("Hay una versión nueva. Pulsa «Actualizar» en la barra de arriba.");
+  } else {
+    avisar(`Ya tienes la última versión (${APP_VERSION}).`);
+  }
 }
 
 // Si otra pestaña o ventana cambia los datos, ofrecer recargar

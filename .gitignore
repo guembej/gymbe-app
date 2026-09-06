@@ -13,3 +13,6 @@ node_modules/
 
 # Copias de seguridad exportadas desde la app
 *.backup.json
+
+# Plantillas / hojas de rutinas (documentos de trabajo)
+*.xlsx

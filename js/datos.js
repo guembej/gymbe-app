@@ -41,12 +41,12 @@ function datosVacios() {
     rutinas: [],
     sesiones: [],       // entrenamientos ya terminados
     sesionActiva: null, // entrenamiento en curso (o null si no hay ninguno)
-    ejemplosHistorialHecho: false, // marca interna: ya se metió el historial de ejemplo
     prefs: {
-      tema: "sistema",    // "sistema" | "claro" | "oscuro"
-      cronDecimas: false, // cronómetro con décimas de segundo
-      sonido: true,       // pitido al terminar el descanso
-      vibracion: true,    // vibración al terminar el descanso
+      tema: "sistema",       // "sistema" | "claro" | "oscuro"
+      cronDecimas: false,    // cronómetro con décimas de segundo
+      sonido: true,          // pitido al terminar el descanso
+      vibracion: true,       // vibración al terminar el descanso
+      registroSimple: false, // en Entrenar, una sola fila por ejercicio (la mejor serie)
     },
     temporizador: {       // última configuración del temporizador de series
       prepSeg: 5,         // cuenta atrás de "prepárate"
@@ -452,8 +452,10 @@ function empezarSesion(routineId) {
     ejercicios: rutina.items.map((item) => {
       const ej = obtenerEjercicio(item.exerciseId);
       // Las casillas empiezan en blanco; el objetivo se muestra como referencia.
+      // Con "registro simple" activado, una sola fila por ejercicio (la mejor serie).
+      const nFilas = DATOS.prefs.registroSimple ? 1 : item.series;
       const filas = [];
-      for (let i = 0; i < item.series; i++) {
+      for (let i = 0; i < nFilas; i++) {
         filas.push({ pesoReal: "", repsReal: "", hecha: false });
       }
       return {

@@ -14,6 +14,7 @@ function conectarPref(id, clave) {
 conectarPref("pref-crondecimas", "cronDecimas");
 conectarPref("pref-sonido", "sonido");
 conectarPref("pref-vibracion", "vibracion");
+conectarPref("pref-registrosimple", "registroSimple");
 
 // Versión + buscar actualizaciones
 document.getElementById("pie-version").textContent = `versión ${APP_VERSION} · funciona sin conexión`;

@@ -68,7 +68,7 @@ function mostrarAvisoVersion(swEsperando) {
   barra.hidden = false;
   document.getElementById("aviso-version-actualizar").onclick = () => {
     _usuarioPidioActualizar = true;
-    swEsperando.postMessage({ tipo: "actualizar" });
+    manejarClicActualizar(barra, swEsperando, () => location.reload());
   };
   document.getElementById("aviso-version-cerrar").onclick = () => { barra.hidden = true; };
 }

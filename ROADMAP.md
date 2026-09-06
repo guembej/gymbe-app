@@ -135,4 +135,9 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 6 — Progreso y gráficas
 - [x] Fase 7 — Ajustes: exportar / importar y tema (claro/oscuro)
 - [x] Fase 8 — PWA y pulido
-- [ ] Fase 9 — Rutinas pregrabadas y uso real
+- [x] Fase 9 — Rutinas pregrabadas y uso real
+
+Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js/ejemplos.js),
+sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
+Entrenar). Arreglo: la barra "Versión nueva" ahora se cierra al pulsar "Actualizar" y tiene
+recarga de seguridad (js/aviso-version.js).

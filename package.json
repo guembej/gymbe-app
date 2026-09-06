@@ -1,6 +1,6 @@
 {
   "name": "gymbe-app",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "PWA personal para registrar y seguir el progreso en el gimnasio. Sin frameworks, sin nube, funciona sin conexión.",
   "scripts": {

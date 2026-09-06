@@ -7,7 +7,7 @@
 //
 // IMPORTANTE: subir la versión en cada publicación (y ponerla igual en js/version.js).
 
-const CACHE = "gymbe-v0.9";
+const CACHE = "gymbe-v1.0";
 
 const ARCHIVOS = [
   ".",
@@ -24,6 +24,7 @@ const ARCHIVOS = [
   "js/historial.js",
   "js/progreso.js",
   "js/tiempo.js",
+  "js/aviso-version.js",
   "js/ajustes.js",
   "js/app.js",
   "assets/icono-app.svg",

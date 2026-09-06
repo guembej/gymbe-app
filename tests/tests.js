@@ -501,3 +501,19 @@ prueba("app.js: reacciona a 'controllerchange' usando decidirActualizacion", () 
   esVerdad(/controllerchange/.test(src), "app.js debe escuchar 'controllerchange'");
   esVerdad(/decidirActualizacion/.test(src), "app.js debe usar decidirActualizacion");
 });
+
+prueba("styles.css: el atributo 'hidden' oculta DE VERDAD la barra de aviso", () => {
+  // Bug real de la barra pegada: .aviso-version { display:flex } ganaba a
+  // [hidden]{display:none}, así que la barra se veía siempre pasara lo que pasara.
+  const style = document.createElement("style");
+  style.textContent = _leerArchivo("../css/styles.css");
+  document.head.appendChild(style);
+  const el = document.createElement("div");
+  el.className = "aviso-version";
+  el.hidden = true;
+  document.body.appendChild(el);
+  const display = getComputedStyle(el).display;
+  el.remove();
+  style.remove();
+  igual(display, "none", "con el atributo 'hidden', display debe ser 'none'");
+});

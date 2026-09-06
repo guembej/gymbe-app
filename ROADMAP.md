@@ -141,7 +141,10 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
-Versión 1.0.1 (2026-09-07): arreglo de la barra "Versión nueva" que se quedaba pegada.
-El service worker ya no espera: se activa solo (skipWaiting + clients.claim) y js/app.js
-recarga la página cuando el SW nuevo toma el control (decidirActualizacion en
+Versión 1.0.1 (2026-09-07): arreglo de la barra "Versión nueva" que se veía siempre.
+Causa real: en css/styles.css, `.aviso-version { display:flex }` ganaba a la regla
+`[hidden]{display:none}` del navegador (misma especificidad, venía después), así que el
+atributo `hidden` no ocultaba nada. Solución: regla global `[hidden]{display:none!important}`.
+Además, mejora del service worker: ya no espera, se activa solo (skipWaiting + clients.claim)
+y js/app.js recarga la página cuando el SW nuevo toma el control (decidirActualizacion en
 js/aviso-version.js) — salvo que haya un entreno en curso, entonces muestra la barra.

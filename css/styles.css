@@ -1,6 +1,12 @@
 /* ---- Base ---- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* El atributo "hidden" siempre oculta, aunque luego una regla ponga display:flex/grid.
+   (Sin esto, .aviso-version { display:flex } ganaba a [hidden]{display:none} del
+   navegador por tener la misma especificidad y venir después: la barra "Versión
+   nueva" se veía siempre.) */
+[hidden] { display: none !important; }
+
 :root {
   --fondo: #111827;
   --fondo-2: #1f2937;

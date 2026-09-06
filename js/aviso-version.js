@@ -1,26 +1,21 @@
 // ==========================================================
-//  Lógica de la barra "Versión nueva disponible".
-//  Está en su propio archivo para poder probarla (tests/tests.js).
+//  Lógica de la actualización de versión.
+//  En su propio archivo para poder probarla (tests/tests.js).
 // ==========================================================
 
-// Se llama al pulsar "Actualizar":
-//  - oculta la barra al instante (respuesta inmediata para el usuario),
-//  - pide al service worker en espera que tome el control,
-//  - programa una recarga de seguridad por si el evento 'controllerchange'
-//    no llega (pasa en algunos móviles con la app instalada), así la barra
-//    no se queda pegada en pantalla.
-//
-// 'programar' se puede inyectar en las pruebas; por defecto es setTimeout.
-function manejarClicActualizar(barra, swEnEspera, recargar, programar) {
-  if (barra) barra.hidden = true;
-  if (swEnEspera && typeof swEnEspera.postMessage === "function") {
-    swEnEspera.postMessage({ tipo: "actualizar" });
-  }
-  const prog = typeof programar === "function" ? programar : setTimeout;
-  prog(() => { if (typeof recargar === "function") recargar(); }, 3000);
+// ¿Qué hacer cuando el service worker nuevo toma el control de la página?
+//   - "nada":     primera instalación (no había SW controlando), o ya hemos
+//                 actuado en este ciclo de vida de la página.
+//   - "recargar": hay versión nueva y NO hay un entreno a medias -> recargar
+//                 directamente para pasar a la versión nueva.
+//   - "avisar":   hay versión nueva pero hay un entreno en curso -> mostrar la
+//                 barra y dejar que el usuario recargue cuando termine.
+function decidirActualizacion({ habiaControlador, hayEntrenoEnCurso, yaHecho }) {
+  if (yaHecho || !habiaControlador) return "nada";
+  return hayEntrenoEnCurso ? "avisar" : "recargar";
 }
 
-// Para Node/otros entornos sin ventana (las pruebas corren en navegador).
+// Para Node/otros entornos (las pruebas corren en navegador).
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { manejarClicActualizar };
+  module.exports = { decidirActualizacion };
 }

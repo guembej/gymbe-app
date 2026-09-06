@@ -463,25 +463,57 @@ prueba("registroSimple activado: una sola fila por ejercicio, sea cual sea el ob
   igual(ej.objetivo.series, 4, "el objetivo sigue mostrando las 4 series");
 });
 
-// ---- Barra "Versión nueva disponible" ----
+// ---- Actualización de versión (que la barra "Actualizar" no se quede pegada) ----
 
-prueba("manejarClicActualizar oculta la barra, avisa al SW y programa la recarga", () => {
-  const barra = { hidden: false };
-  let mensaje = null;
-  let recargado = false;
-  manejarClicActualizar(
-    barra,
-    { postMessage: (m) => { mensaje = m; } },
-    () => { recargado = true; },
-    (fn) => fn() // "programar" síncrono para la prueba
-  );
-  igual(barra.hidden, true, "la barra debe ocultarse al instante");
-  igual(mensaje, { tipo: "actualizar" }, "se avisa al service worker en espera");
-  esVerdad(recargado, "se programa la recarga de seguridad");
+prueba("decidirActualizacion: primera instalación (sin SW previo) no recarga", () => {
+  igual(decidirActualizacion({ habiaControlador: false, hayEntrenoEnCurso: false, yaHecho: false }), "nada");
 });
 
-prueba("manejarClicActualizar no falla si no hay service worker en espera", () => {
-  const barra = { hidden: false };
-  manejarClicActualizar(barra, null, () => {}, (fn) => fn());
-  igual(barra.hidden, true);
+prueba("decidirActualizacion: versión nueva y sin entreno en curso -> recargar", () => {
+  igual(decidirActualizacion({ habiaControlador: true, hayEntrenoEnCurso: false, yaHecho: false }), "recargar");
+});
+
+prueba("decidirActualizacion: versión nueva con un entreno en curso -> avisar", () => {
+  igual(decidirActualizacion({ habiaControlador: true, hayEntrenoEnCurso: true, yaHecho: false }), "avisar");
+});
+
+prueba("decidirActualizacion: no actúa dos veces en la misma carga de página", () => {
+  igual(decidirActualizacion({ habiaControlador: true, hayEntrenoEnCurso: false, yaHecho: true }), "nada");
+});
+
+// Estas comprueban el "cableado": que sw.js y app.js siguen conectados como toca.
+// (Regresión de la barra pegada: el SW no se activaba solo y app.js no recargaba.)
+function _leerArchivo(ruta) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", ruta, false); // síncrono: el runner de pruebas no es async
+  xhr.send();
+  return xhr.responseText;
+}
+
+prueba("sw.js: el service worker nuevo se activa solo (skipWaiting + clients.claim)", () => {
+  const src = _leerArchivo("../sw.js");
+  esVerdad(/skipWaiting\s*\(\s*\)/.test(src), "sw.js debe llamar a self.skipWaiting()");
+  esVerdad(/clients\.claim\s*\(\s*\)/.test(src), "sw.js debe llamar a clients.claim()");
+});
+
+prueba("app.js: reacciona a 'controllerchange' usando decidirActualizacion", () => {
+  const src = _leerArchivo("../js/app.js");
+  esVerdad(/controllerchange/.test(src), "app.js debe escuchar 'controllerchange'");
+  esVerdad(/decidirActualizacion/.test(src), "app.js debe usar decidirActualizacion");
+});
+
+prueba("styles.css: el atributo 'hidden' oculta DE VERDAD la barra de aviso", () => {
+  // Bug real de la barra pegada: .aviso-version { display:flex } ganaba a
+  // [hidden]{display:none}, así que la barra se veía siempre pasara lo que pasara.
+  const style = document.createElement("style");
+  style.textContent = _leerArchivo("../css/styles.css");
+  document.head.appendChild(style);
+  const el = document.createElement("div");
+  el.className = "aviso-version";
+  el.hidden = true;
+  document.body.appendChild(el);
+  const display = getComputedStyle(el).display;
+  el.remove();
+  style.remove();
+  igual(display, "none", "con el atributo 'hidden', display debe ser 'none'");
 });

@@ -48,3 +48,9 @@ assets/            Iconos, librerías locales
 - **Cada fase nueva amplía `js/ejemplos.js`** con un par de ejemplos de esa función,
   para poder ver cómo queda. Se cargan solos en la primera apertura (o tras "Borrar
   todos mis datos" + recargar). Guardar con flag propio para no duplicar.
+
+## Al publicar (checklist)
+- Subir la versión en **dos sitios** (deben coincidir):
+  `js/version.js` → `APP_VERSION` y `sw.js` → `const CACHE = "gymbe-v<versión>"`.
+  Así el móvil detecta la versión nueva y muestra el aviso "Actualizar".
+- `npm test` en verde antes de mergear.

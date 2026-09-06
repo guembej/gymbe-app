@@ -110,6 +110,34 @@ body {
 .lockup-texto span { color: var(--acento); }
 .pie-version { font-size: 12px; color: var(--texto-suave); }
 
+/* ---- Aviso de versión nueva ---- */
+.aviso-version {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--acento);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+.aviso-version-acciones { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.aviso-version .boton-primario {
+  background: #fff;
+  color: var(--acento);
+  padding: 6px 14px;
+  font-size: 13px;
+}
+.aviso-version-cerrar {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
 /* ---- Contenido ---- */
 #contenido {
   padding: 16px;

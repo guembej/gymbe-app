@@ -2,15 +2,19 @@
 // Estrategia: "stale-while-revalidate" para los archivos de la propia app:
 //   - se sirve al instante lo que haya en caché (rápido, y funciona sin conexión),
 //   - a la vez se pide la versión nueva por red y se guarda para la próxima vez.
-// Así, tras publicar cambios, la app se actualiza sola en la siguiente apertura.
+// La actualización NO se aplica sola: la app muestra un aviso y, al pulsar
+// "Actualizar", este service worker recibe un mensaje y toma el control.
+//
+// IMPORTANTE: subir la versión en cada publicación (y ponerla igual en js/version.js).
 
-const CACHE = "gymbe-v4";
+const CACHE = "gymbe-v0.9";
 
 const ARCHIVOS = [
   ".",
   "index.html",
   "manifest.webmanifest",
   "css/styles.css",
+  "js/version.js",
   "js/datos.js",
   "js/ejemplos.js",
   "js/dialogos.js",
@@ -30,9 +34,9 @@ const ARCHIVOS = [
 ];
 
 self.addEventListener("install", (evento) => {
-  evento.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ARCHIVOS)).then(() => self.skipWaiting())
-  );
+  // No se llama a skipWaiting(): el SW nuevo queda "esperando" hasta que
+  // el usuario pulse "Actualizar".
+  evento.waitUntil(caches.open(CACHE).then((c) => c.addAll(ARCHIVOS)));
 });
 
 self.addEventListener("activate", (evento) => {
@@ -41,6 +45,10 @@ self.addEventListener("activate", (evento) => {
       .then((claves) => Promise.all(claves.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("message", (evento) => {
+  if (evento.data && evento.data.tipo === "actualizar") self.skipWaiting();
 });
 
 self.addEventListener("fetch", (evento) => {
@@ -58,8 +66,6 @@ self.addEventListener("fetch", (evento) => {
         })
         .catch(() => null);
 
-      // Si hay copia en caché, se devuelve ya (y la red actualiza por detrás).
-      // Si no, se espera a la red.
       return cacheado || (await desdeRed) || Response.error();
     })
   );

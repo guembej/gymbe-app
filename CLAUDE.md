@@ -52,5 +52,8 @@ assets/            Iconos, librerías locales
 ## Al publicar (checklist)
 - Subir la versión en **dos sitios** (deben coincidir):
   `js/version.js` → `APP_VERSION` y `sw.js` → `const CACHE = "gymbe-v<versión>"`.
-  Así el móvil detecta la versión nueva y muestra el aviso "Actualizar".
+  El `CACHE` nuevo hace que el navegador vea un `sw.js` distinto: el service
+  worker nuevo se activa solo (`skipWaiting` + `clients.claim`) y `js/app.js`
+  recarga la página al tomar el control (o muestra la barra "Actualizar" si hay
+  un entreno a medias). Si no cambias el `CACHE`, la actualización no se detecta.
 - `npm test` en verde antes de mergear.

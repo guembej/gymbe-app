@@ -139,5 +139,9 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 
 Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js/ejemplos.js),
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
-Entrenar). Arreglo: la barra "Versión nueva" ahora se cierra al pulsar "Actualizar" y tiene
-recarga de seguridad (js/aviso-version.js).
+Entrenar).
+
+Versión 1.0.1 (2026-09-07): arreglo de la barra "Versión nueva" que se quedaba pegada.
+El service worker ya no espera: se activa solo (skipWaiting + clients.claim) y js/app.js
+recarga la página cuando el SW nuevo toma el control (decidirActualizacion en
+js/aviso-version.js) — salvo que haya un entreno en curso, entonces muestra la barra.

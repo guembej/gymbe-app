@@ -2,12 +2,13 @@
 // Estrategia: "stale-while-revalidate" para los archivos de la propia app:
 //   - se sirve al instante lo que haya en caché (rápido, y funciona sin conexión),
 //   - a la vez se pide la versión nueva por red y se guarda para la próxima vez.
-// La actualización NO se aplica sola: la app muestra un aviso y, al pulsar
-// "Actualizar", este service worker recibe un mensaje y toma el control.
+// El service worker nuevo se activa SOLO (skipWaiting + clients.claim). Cuando
+// toma el control, la app (js/app.js) recarga la página —o muestra un aviso si
+// hay un entreno a medias—. Así la actualización nunca se queda a medias.
 //
 // IMPORTANTE: subir la versión en cada publicación (y ponerla igual en js/version.js).
 
-const CACHE = "gymbe-v1.0";
+const CACHE = "gymbe-v1.0.1";
 
 const ARCHIVOS = [
   ".",
@@ -35,8 +36,8 @@ const ARCHIVOS = [
 ];
 
 self.addEventListener("install", (evento) => {
-  // No se llama a skipWaiting(): el SW nuevo queda "esperando" hasta que
-  // el usuario pulse "Actualizar".
+  // El SW nuevo NO se queda esperando: precarga los archivos y pasa a activarse.
+  self.skipWaiting();
   evento.waitUntil(caches.open(CACHE).then((c) => c.addAll(ARCHIVOS)));
 });
 
@@ -48,6 +49,7 @@ self.addEventListener("activate", (evento) => {
   );
 });
 
+// Compatibilidad con páginas de versiones anteriores que aún mandan este mensaje.
 self.addEventListener("message", (evento) => {
   if (evento.data && evento.data.tipo === "actualizar") self.skipWaiting();
 });

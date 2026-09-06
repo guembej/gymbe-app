@@ -1,153 +1,149 @@
 // ==========================================================
-//  Datos de ejemplo — para probar la app o empezar con algo.
-//  Se cargan desde el botón "Cargar datos de ejemplo" en Ajustes.
-//  No duplica: si ya existe una rutina/ejercicio con ese nombre, lo respeta.
+//  Rutinas iniciales — las rutinas reales del usuario.
+//  Se cargan solas la primera vez que se abre la app en el dispositivo
+//  (y otra vez si se pulsa "Borrar todos mis datos" y se recarga).
+//  No duplican: si ya existe una rutina/ejercicio con ese nombre, se respeta.
+//
+//  Cada item: { ejercicio, grupo, series, reps, peso, descansoSeg, nota }
+//   - grupo: uno de GRUPOS_MUSCULARES (se puede cambiar luego en la app)
+//   - reps: texto libre corto ("8-10", "40s", "AMRAP (mín. 10)"...)
+//   - peso: kg (0 = peso corporal o aún sin definir)
+//   - descansoSeg: segundos (2:30 -> 150, 2:00 -> 120, 90s -> 90...)
 // ==========================================================
-
-// Cada ejercicio usado en las rutinas, con su grupo muscular
-const EJEMPLO_EJERCICIOS = {
-  "Press banca": "Pecho",
-  "Press inclinado con mancuernas": "Pecho",
-  "Press militar": "Hombro",
-  "Elevaciones laterales": "Hombro",
-  "Extensión de tríceps en polea": "Tríceps",
-  "Dominadas": "Espalda",
-  "Remo con barra": "Espalda",
-  "Jalón al pecho": "Espalda",
-  "Curl con barra": "Bíceps",
-  "Curl martillo": "Bíceps",
-  "Sentadilla trasera": "Pierna",
-  "Peso muerto rumano": "Pierna",
-  "Prensa de piernas": "Pierna",
-  "Curl femoral tumbado": "Pierna",
-  "Elevación de gemelos": "Pierna",
-};
 
 const EJEMPLO_RUTINAS = [
   {
-    nombre: "Empuje", division: "Push",
+    nombre: "Empuje A - Gym", division: "Push",
     items: [
-      { ejercicio: "Press banca", series: 4, reps: "6-8", peso: 60, descansoSeg: 150, nota: "progresar carga" },
-      { ejercicio: "Press inclinado con mancuernas", series: 3, reps: "8-12", peso: 22, descansoSeg: 120, nota: "" },
-      { ejercicio: "Press militar", series: 3, reps: "8-10", peso: 35, descansoSeg: 120, nota: "sin rebote" },
-      { ejercicio: "Elevaciones laterales", series: 4, reps: "12-15", peso: 8, descansoSeg: 60, nota: "controlado" },
-      { ejercicio: "Extensión de tríceps en polea", series: 3, reps: "12-15", peso: 20, descansoSeg: 60, nota: "" },
+      { ejercicio: "Press banca", grupo: "Pecho", series: 4, reps: "6-8", peso: 50, descansoSeg: 150, nota: "" },
+      { ejercicio: "Press inclinado con mancuernas", grupo: "Pecho", series: 3, reps: "8-12", peso: 20, descansoSeg: 120, nota: "" },
+      { ejercicio: "Press militar con mancuernas", grupo: "Hombro", series: 3, reps: "8-10", peso: 15, descansoSeg: 120, nota: "" },
+      { ejercicio: "Elevaciones laterales", grupo: "Hombro", series: 3, reps: "12-15", peso: 7, descansoSeg: 90, nota: "" },
+      { ejercicio: "Fondos en paralelas", grupo: "Pecho", series: 3, reps: "8-12", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Extensión de tríceps en polea", grupo: "Tríceps", series: 3, reps: "12-15", peso: 20, descansoSeg: 90, nota: "" },
     ],
   },
   {
-    nombre: "Tirón", division: "Pull",
+    nombre: "Tirón A - Calistenia", division: "Pull",
     items: [
-      { ejercicio: "Dominadas", series: 4, reps: "6-10", peso: 0, descansoSeg: 150, nota: "lastre si salen fáciles" },
-      { ejercicio: "Remo con barra", series: 4, reps: "8-10", peso: 50, descansoSeg: 120, nota: "espalda neutra" },
-      { ejercicio: "Jalón al pecho", series: 3, reps: "10-12", peso: 45, descansoSeg: 90, nota: "" },
-      { ejercicio: "Curl con barra", series: 3, reps: "8-10", peso: 25, descansoSeg: 75, nota: "" },
-      { ejercicio: "Curl martillo", series: 3, reps: "10-12", peso: 12, descansoSeg: 60, nota: "" },
+      { ejercicio: "Dead hang (colgarse de barra)", grupo: "Espalda", series: 3, reps: "40s", peso: 0, descansoSeg: 60, nota: "Activación de agarre y hombro" },
+      { ejercicio: "Dominadas agarre ancho", grupo: "Espalda", series: 4, reps: "6-8", peso: 0, descansoSeg: 120, nota: "Foco en anchura dorsal" },
+      { ejercicio: "Dominadas pronas", grupo: "Espalda", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "" },
+      { ejercicio: "Dominadas supinas", grupo: "Espalda", series: 3, reps: "8-10", peso: 0, descansoSeg: 90, nota: "Más énfasis en bíceps" },
+      { ejercicio: "Remo en anillas", grupo: "Espalda", series: 3, reps: "10-12", peso: 0, descansoSeg: 90, nota: "Espalda media y deltoide posterior" },
+      { ejercicio: "Bíceps martillo con mancuerna", grupo: "Bíceps", series: 3, reps: "12-15", peso: 0, descansoSeg: 60, nota: "Bíceps y antebrazo" },
     ],
   },
   {
-    nombre: "Pierna", division: "Pierna",
+    nombre: "Tirón B - Gym", division: "Pull",
     items: [
-      { ejercicio: "Sentadilla trasera", series: 4, reps: "5", peso: 90, descansoSeg: 180, nota: "calentar bien antes" },
-      { ejercicio: "Peso muerto rumano", series: 3, reps: "8-10", peso: 70, descansoSeg: 150, nota: "" },
-      { ejercicio: "Prensa de piernas", series: 3, reps: "12-15", peso: 160, descansoSeg: 120, nota: "" },
-      { ejercicio: "Curl femoral tumbado", series: 3, reps: "10-12", peso: 30, descansoSeg: 75, nota: "" },
-      { ejercicio: "Elevación de gemelos", series: 4, reps: "15-20", peso: 40, descansoSeg: 45, nota: "pausa arriba" },
+      { ejercicio: "Jalón al pecho en polea (agarre ancho)", grupo: "Espalda", series: 4, reps: "8-10", peso: 0, descansoSeg: 120, nota: "" },
+      { ejercicio: "Remo con mancuerna a un brazo", grupo: "Espalda", series: 4, reps: "8-10", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Remo en polea baja, agarre neutro", grupo: "Espalda", series: 3, reps: "10-12", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Pájaros / face pull con mancuerna", grupo: "Hombro", series: 3, reps: "12-15", peso: 0, descansoSeg: 60, nota: "" },
+      { ejercicio: "Bíceps con barra Z", grupo: "Bíceps", series: 3, reps: "8-10", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Bíceps curl banco inclinado con mancuerna", grupo: "Bíceps", series: 3, reps: "10-12", peso: 0, descansoSeg: 60, nota: "" },
+    ],
+  },
+  {
+    nombre: "Empuje B - Calistenia", division: "Push",
+    items: [
+      { ejercicio: "Press militar con barra", grupo: "Hombro", series: 4, reps: "6-8", peso: 0, descansoSeg: 150, nota: "" },
+      { ejercicio: "Press inclinado con mancuernas", grupo: "Pecho", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "" },
+      { ejercicio: "Flexiones", grupo: "Pecho", series: 3, reps: "AMRAP (mín. 10)", peso: 0, descansoSeg: 90, nota: "pies elevados o lastradas" },
+      { ejercicio: "Elevaciones laterales", grupo: "Hombro", series: 3, reps: "12-15", peso: 0, descansoSeg: 60, nota: "" },
+      { ejercicio: "Fondos en máquina", grupo: "Pecho", series: 3, reps: "10-12", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Extensión de tríceps en polea (cuerda)", grupo: "Tríceps", series: 3, reps: "12-15", peso: 0, descansoSeg: 60, nota: "Codo pegado al cuerpo, evita el estiramiento overhead que te carga el codo" },
+    ],
+  },
+  {
+    nombre: "Pierna A", division: "Pierna",
+    items: [
+      { ejercicio: "Sentadilla libre o en Smith", grupo: "Pierna", series: 4, reps: "8-10", peso: 0, descansoSeg: 150, nota: "Retomando forma, sube peso poco a poco" },
+      { ejercicio: "Peso muerto rumano con mancuernas", grupo: "Pierna", series: 3, reps: "10-12", peso: 0, descansoSeg: 90, nota: "Isquios y glúteo" },
+      { ejercicio: "Prensa de piernas", grupo: "Pierna", series: 3, reps: "10-12", peso: 0, descansoSeg: 120, nota: "" },
+      { ejercicio: "Curl femoral tumbado", grupo: "Pierna", series: 3, reps: "12-15", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Zancadas caminando con mancuernas", grupo: "Pierna", series: 3, reps: "10-12 por pierna", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Elevación de talones de pie (gemelo)", grupo: "Pierna", series: 3, reps: "15-20", peso: 0, descansoSeg: 60, nota: "" },
+    ],
+  },
+  {
+    nombre: "Pierna B", division: "Pierna",
+    items: [
+      { ejercicio: "Peso muerto rumano con barra", grupo: "Pierna", series: 4, reps: "8-10", peso: 0, descansoSeg: 150, nota: "" },
+      { ejercicio: "Sentadilla búlgara con mancuernas", grupo: "Pierna", series: 3, reps: "10-12 por pierna", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Hip thrust", grupo: "Pierna", series: 3, reps: "10-12", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Extensión de cuádriceps", grupo: "Pierna", series: 3, reps: "12-15", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Curl femoral sentado", grupo: "Pierna", series: 3, reps: "12-15", peso: 0, descansoSeg: 90, nota: "" },
+      { ejercicio: "Elevación de talones sentado (gemelo/sóleo)", grupo: "Pierna", series: 3, reps: "15-20", peso: 0, descansoSeg: 60, nota: "" },
+    ],
+  },
+  {
+    nombre: "Full Body", division: "Full Body",
+    items: [
+      { ejercicio: "Sentadilla libre", grupo: "Pierna", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Pierna completa" },
+      { ejercicio: "Press banca o press inclinado con mancuernas", grupo: "Pecho", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Empuje" },
+      { ejercicio: "Remo con barra o jalón al pecho", grupo: "Espalda", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Tirón" },
+      { ejercicio: "Peso muerto rumano", grupo: "Pierna", series: 3, reps: "10-12", peso: 0, descansoSeg: 90, nota: "Posterior/isquios" },
+      { ejercicio: "Press militar con mancuernas", grupo: "Hombro", series: 3, reps: "8-10", peso: 0, descansoSeg: 90, nota: "Hombro" },
+      { ejercicio: "Bíceps curl con mancuerna", grupo: "Bíceps", series: 2, reps: "10-12", peso: 0, descansoSeg: 60, nota: "" },
+      { ejercicio: "Extensión de tríceps en polea (cuerda)", grupo: "Tríceps", series: 2, reps: "10-12", peso: 0, descansoSeg: 60, nota: "Codo pegado al cuerpo" },
+      { ejercicio: "Elevación de talones de pie", grupo: "Pierna", series: 2, reps: "15-20", peso: 0, descansoSeg: 45, nota: "Gemelo" },
+      { ejercicio: "Plancha", grupo: "Core", series: 2, reps: "40-60s", peso: 0, descansoSeg: 45, nota: "Core" },
+    ],
+  },
+  {
+    nombre: "Superior A", division: "Superior",
+    items: [
+      { ejercicio: "Press banca", grupo: "Pecho", series: 4, reps: "6-8", peso: 0, descansoSeg: 150, nota: "Pecho" },
+      { ejercicio: "Remo con barra o mancuerna", grupo: "Espalda", series: 4, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Espalda, grosor" },
+      { ejercicio: "Press militar con mancuernas", grupo: "Hombro", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Hombro" },
+      { ejercicio: "Jalón al pecho o dominadas", grupo: "Espalda", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Espalda, anchura" },
+      { ejercicio: "Elevaciones laterales", grupo: "Hombro", series: 3, reps: "12-15", peso: 0, descansoSeg: 60, nota: "Hombro lateral" },
+      { ejercicio: "Bíceps curl con mancuerna", grupo: "Bíceps", series: 2, reps: "10-12", peso: 0, descansoSeg: 60, nota: "" },
+      { ejercicio: "Extensión de tríceps en polea", grupo: "Tríceps", series: 2, reps: "10-12", peso: 0, descansoSeg: 60, nota: "" },
+    ],
+  },
+  {
+    nombre: "Superior B", division: "Superior",
+    items: [
+      { ejercicio: "Press inclinado con mancuernas", grupo: "Pecho", series: 4, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Pecho superior" },
+      { ejercicio: "Remo en polea baja", grupo: "Espalda", series: 3, reps: "10-12", peso: 0, descansoSeg: 90, nota: "Espalda" },
+      { ejercicio: "Face pull", grupo: "Hombro", series: 3, reps: "12-15", peso: 0, descansoSeg: 60, nota: "Deltoide posterior" },
+      { ejercicio: "Fondos en paralelas", grupo: "Pecho", series: 3, reps: "8-12", peso: 0, descansoSeg: 90, nota: "Pecho/tríceps" },
+      { ejercicio: "Dominadas o jalón supino", grupo: "Espalda", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "Espalda/bíceps" },
+      { ejercicio: "Bíceps martillo con mancuerna", grupo: "Bíceps", series: 2, reps: "10-12", peso: 0, descansoSeg: 60, nota: "" },
+      { ejercicio: "Elevaciones laterales en polea", grupo: "Hombro", series: 2, reps: "12-15", peso: 0, descansoSeg: 60, nota: "" },
     ],
   },
 ];
 
-// De un rango "8-12" saca un número representativo (10); "5" -> 5; "45 s" -> "45 s"
-function _repsRepresentativas(reps) {
-  const m = /^(\d+)\s*-\s*(\d+)$/.exec(reps || "");
-  if (m) return Math.round((Number(m[1]) + Number(m[2])) / 2);
-  return reps || "";
-}
-
-// Construye una sesión ya terminada a partir de una rutina y una fecha pasada.
-// 'ajustePrimero' solo afecta al primer ejercicio de la rutina (el principal),
-// para simular progresión sin que los ejercicios ligeros queden raros.
-function _sesionEjemplo(rutinaNombre, haceDias, ajustePrimero) {
-  const rutina = listarRutinas().find((r) => r.nombre === rutinaNombre);
-  if (!rutina) return null;
-
-  const fecha = new Date(Date.now() - haceDias * 86400000);
-  fecha.setHours(18, 10 + (haceDias % 25), 0, 0); // entreno por la tarde-noche
-  const inicio = new Date(fecha.getTime() - 50 * 60000); // ~50 min de entreno
-
-  const sets = [];
-  rutina.items.forEach((item, indiceItem) => {
-    const ej = obtenerEjercicio(item.exerciseId);
-    const ajuste = indiceItem === 0 ? (ajustePrimero || 0) : 0;
-    for (let i = 0; i < item.series; i++) {
-      sets.push({
-        exerciseId: item.exerciseId,
-        exerciseNombre: ej ? ej.nombre : "(ejercicio)",
-        serie: i + 1,
-        pesoReal: Math.max(0, item.peso + ajuste),
-        repsReal: String(_repsRepresentativas(item.reps)),
-      });
-    }
-  });
-
-  return {
-    id: nuevoId(),
-    routineId: rutina.id,
-    routineNombre: rutina.nombre,
-    division: rutina.division,
-    inicio: inicio.toISOString(),
-    fecha: fecha.toISOString(),
-    sets,
-  };
-}
-
-// Mete un pequeño historial de ejemplo (solo si no hay ninguno todavía).
-// Devuelve cuántas sesiones se añadieron.
-function crearSesionesEjemplo() {
-  if (DATOS.sesiones.length > 0 || DATOS.ejemplosHistorialHecho) return 0;
-
-  // Muchas sesiones de Empuje con Press banca subiendo de 37,5 a 60 kg,
-  // para que la gráfica de Progreso tenga bastantes puntos.
-  const sesiones = [
-    _sesionEjemplo("Empuje", 65, -22.5),
-    _sesionEjemplo("Pierna", 61, -5),
-    _sesionEjemplo("Empuje", 58, -20),
-    _sesionEjemplo("Empuje", 51, -17.5),
-    _sesionEjemplo("Tirón", 48, 0),
-    _sesionEjemplo("Empuje", 44, -15),
-    _sesionEjemplo("Empuje", 37, -12.5),
-    _sesionEjemplo("Pierna", 34, 0),
-    _sesionEjemplo("Empuje", 30, -10),
-    _sesionEjemplo("Empuje", 23, -7.5),
-    _sesionEjemplo("Tirón", 20, 0),
-    _sesionEjemplo("Empuje", 16, -5),
-    _sesionEjemplo("Empuje", 9, -2.5),
-    _sesionEjemplo("Pierna", 6, 0),
-    _sesionEjemplo("Empuje", 2, 0),
-  ].filter(Boolean);
-
-  DATOS.sesiones.push(...sesiones);
-  DATOS.ejemplosHistorialHecho = true;
-  guardar();
-  return sesiones.length;
-}
-
-// Devuelve { rutinasAñadidas, ejerciciosAñadidos, sesionesAñadidas }
+// Crea los ejercicios y las rutinas iniciales que aún no existan (por nombre).
+// Devuelve { rutinasAñadidas, ejerciciosAñadidos }.
 function cargarDatosEjemplo() {
   const idPorNombre = {};
   let ejerciciosAñadidos = 0;
 
-  // 1) Asegurar los ejercicios necesarios
-  Object.keys(EJEMPLO_EJERCICIOS).forEach((nombre) => {
+  // 1) Grupo muscular de cada ejercicio: el primero que aparezca manda
+  const grupoDe = {};
+  EJEMPLO_RUTINAS.forEach((r) => {
+    r.items.forEach((it) => {
+      if (!(it.ejercicio in grupoDe)) grupoDe[it.ejercicio] = it.grupo || "Otro";
+    });
+  });
+
+  // 2) Asegurar los ejercicios
+  Object.keys(grupoDe).forEach((nombre) => {
     const existente = listarEjercicios().find((e) => e.nombre === nombre);
     if (existente) {
       idPorNombre[nombre] = existente.id;
     } else {
-      idPorNombre[nombre] = crearEjercicio({ nombre, grupo: EJEMPLO_EJERCICIOS[nombre] }).id;
+      idPorNombre[nombre] = crearEjercicio({ nombre, grupo: grupoDe[nombre] }).id;
       ejerciciosAñadidos++;
     }
   });
 
-  // 2) Crear las rutinas que no existan ya (por nombre)
+  // 3) Crear las rutinas que no existan ya (por nombre)
   let rutinasAñadidas = 0;
   EJEMPLO_RUTINAS.forEach((plantilla) => {
     if (listarRutinas().some((r) => r.nombre === plantilla.nombre)) return;
@@ -166,21 +162,13 @@ function cargarDatosEjemplo() {
     rutinasAñadidas++;
   });
 
-  // 3) Un pequeño historial de ejemplo
-  const sesionesAñadidas = crearSesionesEjemplo();
-
-  return { rutinasAñadidas, ejerciciosAñadidos, sesionesAñadidas };
+  return { rutinasAñadidas, ejerciciosAñadidos };
 }
 
-// La primera vez que se abre la app en este dispositivo, cargamos datos de ejemplo
-// para no empezar con la pantalla en blanco. Después, si borras todo desde Ajustes,
-// ya no se vuelven a cargar solos.
+// La primera vez que se abre la app en este dispositivo cargamos las rutinas
+// para no empezar con la pantalla en blanco. Después, si borras todo desde
+// Ajustes, ya no se vuelven a cargar solas.
 // (En la página de pruebas no se hace: usa su propia clave de almacenamiento.)
-if (typeof ES_PRIMERA_VEZ !== "undefined" && !window.GYM_CLAVE_ALMACEN) {
-  if (ES_PRIMERA_VEZ) {
-    cargarDatosEjemplo();
-  } else if (DATOS.rutinas.length > 0 && !DATOS.ejemplosHistorialHecho && DATOS.sesiones.length === 0) {
-    // Instalación que ya tenía rutinas de ejemplo pero aún sin historial de ejemplo
-    crearSesionesEjemplo();
-  }
+if (typeof ES_PRIMERA_VEZ !== "undefined" && !window.GYM_CLAVE_ALMACEN && ES_PRIMERA_VEZ) {
+  cargarDatosEjemplo();
 }

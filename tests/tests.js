@@ -295,30 +295,22 @@ prueba("obtenerSesion y borrarSesion funcionan sobre el historial", () => {
 
 // ---- Datos de ejemplo ----
 
-prueba("cargarDatosEjemplo crea las rutinas de ejemplo con sus ejercicios", () => {
+prueba("cargarDatosEjemplo crea las rutinas iniciales con sus ejercicios", () => {
   const r = cargarDatosEjemplo();
   esVerdad(r.rutinasAñadidas >= 3, "debería añadir al menos 3 rutinas");
   igual(listarRutinas().length, r.rutinasAñadidas);
-  const empuje = listarRutinas().find((x) => x.nombre === "Empuje");
-  esVerdad(empuje, "debería existir la rutina Empuje");
+  const empuje = listarRutinas().find((x) => x.nombre === "Empuje A - Gym");
+  esVerdad(empuje, "debería existir la rutina «Empuje A - Gym»");
   igual(empuje.division, "Push");
-  esVerdad(empuje.items.length >= 4, "Empuje debería tener varios ejercicios");
+  esVerdad(empuje.items.length >= 4, "«Empuje A - Gym» debería tener varios ejercicios");
   esVerdad(obtenerEjercicio(empuje.items[0].exerciseId), "el item apunta a un ejercicio real");
+  igual(empuje.items[0].reps, "6-8", "reps de la primera serie");
+  igual(empuje.items[0].descansoSeg, 150, "descanso en segundos");
 });
 
-prueba("cargarDatosEjemplo también crea un historial de ejemplo", () => {
-  const r = cargarDatosEjemplo();
-  esVerdad(r.sesionesAñadidas >= 2, "debería añadir varias sesiones");
-  igual(listarSesiones().length, r.sesionesAñadidas);
-  const s = listarSesiones()[0];
-  esVerdad(s.sets.length > 0 && s.routineNombre, "la sesión tiene series y nombre de rutina");
-});
-
-prueba("crearSesionesEjemplo no vuelve a añadir si ya hay historial", () => {
+prueba("cargarDatosEjemplo NO crea historial (Progreso empieza de cero)", () => {
   cargarDatosEjemplo();
-  const antes = listarSesiones().length;
-  igual(crearSesionesEjemplo(), 0);
-  igual(listarSesiones().length, antes);
+  igual(listarSesiones().length, 0);
 });
 
 prueba("cargarDatosEjemplo no duplica si se llama otra vez", () => {
@@ -447,4 +439,49 @@ prueba("las preferencias se guardan sin perder las demás", () => {
   // se conserva al releer del almacenamiento
   const enDisco = JSON.parse(localStorage.getItem(window.GYM_CLAVE_ALMACEN));
   igual(enDisco.prefs.sonido, false);
+});
+
+// ---- Registro simple (una fila por ejercicio en Entrenar) ----
+
+prueba("registroSimple desactivado: una fila por serie del objetivo", () => {
+  const e = crearEjercicio({ nombre: "Press banca", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "Push", division: "Push" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 4, reps: "8-10", peso: 60 });
+  igual(obtenerPref("registroSimple"), false);
+  empezarSesion(r.id);
+  igual(sesionActiva().ejercicios[0].filas.length, 4);
+});
+
+prueba("registroSimple activado: una sola fila por ejercicio, sea cual sea el objetivo", () => {
+  const e = crearEjercicio({ nombre: "Press banca", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "Push", division: "Push" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 4, reps: "8-10", peso: 60 });
+  guardarPref("registroSimple", true);
+  empezarSesion(r.id);
+  const ej = sesionActiva().ejercicios[0];
+  igual(ej.filas.length, 1);
+  igual(ej.objetivo.series, 4, "el objetivo sigue mostrando las 4 series");
+});
+
+// ---- Barra "Versión nueva disponible" ----
+
+prueba("manejarClicActualizar oculta la barra, avisa al SW y programa la recarga", () => {
+  const barra = { hidden: false };
+  let mensaje = null;
+  let recargado = false;
+  manejarClicActualizar(
+    barra,
+    { postMessage: (m) => { mensaje = m; } },
+    () => { recargado = true; },
+    (fn) => fn() // "programar" síncrono para la prueba
+  );
+  igual(barra.hidden, true, "la barra debe ocultarse al instante");
+  igual(mensaje, { tipo: "actualizar" }, "se avisa al service worker en espera");
+  esVerdad(recargado, "se programa la recarga de seguridad");
+});
+
+prueba("manejarClicActualizar no falla si no hay service worker en espera", () => {
+  const barra = { hidden: false };
+  manejarClicActualizar(barra, null, () => {}, (fn) => fn());
+  igual(barra.hidden, true);
 });

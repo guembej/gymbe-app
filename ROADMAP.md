@@ -141,6 +141,13 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
+Versión 1.4.0 (2026-09-09): al añadir un ejercicio a una rutina, el desplegable se
+cambia por un buscador: escribes y salen las coincidencias de tu biblioteca
+(ignora mayúsculas y tildes); si no hay ninguna igual, aparece "+ Crear «X»" que
+lo crea al vuelo pidiendo solo el grupo muscular (recuerda el último en
+prefs.grupoPorDefecto). Ya no hace falta pasar por la subpestaña Ejercicios antes.
+filtrarEjercicios() en datos.js.
+
 Versión 1.3.0 (2026-09-09): en el editor de rutinas, los ejercicios se reordenan
 arrastrando (pulsación larga ~350 ms → el ejercicio sigue al dedo → soltar guarda
 el orden). Sin librerías, con eventos de puntero (dedo y ratón). Se quitan las

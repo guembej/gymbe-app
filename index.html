@@ -427,10 +427,19 @@
     <form id="form-item" class="formulario">
       <h2 id="form-item-titulo">Añadir ejercicio</h2>
 
-      <label>
-        Ejercicio
-        <select name="exerciseId" required></select>
-      </label>
+      <div class="combo-ejercicio">
+        <label>
+          Ejercicio
+          <input type="text" id="item-ejercicio-busca" autocomplete="off"
+                 placeholder="Escribe para buscar o crear" />
+        </label>
+        <input type="hidden" name="exerciseId" />
+        <ul id="item-ejercicio-sugerencias" class="sugerencias" hidden></ul>
+        <label id="item-crear-grupo" hidden>
+          Grupo muscular de «<span id="item-crear-nombre"></span>»
+          <select id="item-crear-grupo-select"></select>
+        </label>
+      </div>
 
       <div class="fila-2">
         <label>

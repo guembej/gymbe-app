@@ -20,7 +20,13 @@ const listaItemsEl = document.getElementById("lista-items");
 const dlgItem = document.getElementById("dialogo-item");
 const formItem = document.getElementById("form-item");
 const formItemTitulo = document.getElementById("form-item-titulo");
-const selectEjercicioItem = formItem.elements.exerciseId;
+const buscaEjercicioEl = document.getElementById("item-ejercicio-busca");
+const campoExerciseId = formItem.elements.exerciseId; // <input type="hidden">
+const sugerenciasEl = document.getElementById("item-ejercicio-sugerencias");
+const crearGrupoEl = document.getElementById("item-crear-grupo");
+const crearGrupoSelect = document.getElementById("item-crear-grupo-select");
+const crearNombreEl = document.getElementById("item-crear-nombre");
+let _modoCrearEjercicio = false;
 
 // ---- Estado de la pantalla ----
 let editandoRutinaId = null;     // en el diálogo de rutina: null = creando
@@ -38,6 +44,14 @@ DIVISIONES.forEach((division) => {
   opcion.value = division;
   opcion.textContent = division;
   selectDivision.appendChild(opcion);
+});
+
+// Rellenar el desplegable de grupo muscular del "crear al vuelo" (una sola vez)
+GRUPOS_MUSCULARES.forEach((grupo) => {
+  const opcion = document.createElement("option");
+  opcion.value = grupo;
+  opcion.textContent = grupo;
+  crearGrupoSelect.appendChild(opcion);
 });
 
 // ==========================================================
@@ -276,40 +290,83 @@ function pintarDetalle() {
 //  Diálogo de item (ejercicio dentro de una rutina)
 // ==========================================================
 
-function rellenarSelectEjercicios(idSeleccionado) {
-  selectEjercicioItem.innerHTML = "";
-  const ejercicios = listarEjercicios();
+// ---- Buscador de ejercicio (elegir uno existente o crear al vuelo) ----
 
-  ejercicios.forEach((ej) => {
-    const opcion = document.createElement("option");
-    opcion.value = ej.id;
-    opcion.textContent = `${ej.nombre} (${ej.grupo})`;
-    selectEjercicioItem.appendChild(opcion);
-  });
-
-  // Si el ejercicio guardado ya no existe, añadimos una opción para no perderlo
-  if (idSeleccionado && !obtenerEjercicio(idSeleccionado)) {
-    const opcion = document.createElement("option");
-    opcion.value = idSeleccionado;
-    opcion.textContent = "(ejercicio eliminado)";
-    selectEjercicioItem.appendChild(opcion);
-  }
-
-  if (idSeleccionado) selectEjercicioItem.value = idSeleccionado;
+function ocultarCrearGrupo() {
+  _modoCrearEjercicio = false;
+  crearGrupoEl.hidden = true;
 }
 
-function abrirFormItem(indice) {
-  if (listarEjercicios().length === 0) {
-    avisar("Primero crea algún ejercicio en la pestaña «Ejercicios».");
+function elegirEjercicioSugerido(ej) {
+  campoExerciseId.value = ej.id;
+  buscaEjercicioEl.value = ej.nombre;
+  sugerenciasEl.hidden = true;
+  ocultarCrearGrupo();
+}
+
+function activarCrearEjercicio(nombre) {
+  campoExerciseId.value = "";
+  _modoCrearEjercicio = true;
+  crearNombreEl.textContent = nombre;
+  crearGrupoSelect.value = obtenerPref("grupoPorDefecto") || "Otro";
+  sugerenciasEl.hidden = true;
+  crearGrupoEl.hidden = false;
+}
+
+function pintarSugerenciasEjercicio() {
+  const texto = buscaEjercicioEl.value.trim();
+  sugerenciasEl.innerHTML = "";
+
+  if (!texto) {
+    sugerenciasEl.hidden = true;
+    ocultarCrearGrupo();
     return;
   }
 
+  const { coincidencias, hayExacto } = filtrarEjercicios(texto);
+
+  coincidencias.forEach((ej) => {
+    const li = document.createElement("li");
+    li.className = "sugerencia";
+    li.innerHTML =
+      `<span>${escaparHtml(ej.nombre)}</span>` +
+      `<span class="sugerencia-grupo">${escaparHtml(ej.grupo)}</span>`;
+    li.addEventListener("click", () => elegirEjercicioSugerido(ej));
+    sugerenciasEl.appendChild(li);
+  });
+
+  if (!hayExacto) {
+    const li = document.createElement("li");
+    li.className = "sugerencia sugerencia-crear";
+    li.textContent = `+ Crear «${texto}»`;
+    li.addEventListener("click", () => activarCrearEjercicio(texto));
+    sugerenciasEl.appendChild(li);
+  }
+
+  sugerenciasEl.hidden = false;
+}
+
+buscaEjercicioEl.addEventListener("input", () => {
+  campoExerciseId.value = "";
+  ocultarCrearGrupo();
+  pintarSugerenciasEjercicio();
+});
+buscaEjercicioEl.addEventListener("focus", pintarSugerenciasEjercicio);
+buscaEjercicioEl.addEventListener("blur", () => {
+  setTimeout(() => { sugerenciasEl.hidden = true; }, 150); // deja que registre el clic
+});
+
+function abrirFormItem(indice) {
   editandoItemIndice = indice;
   const rutina = obtenerRutina(rutinaAbiertaId);
   const item = indice != null ? rutina.items[indice] : null;
+  const ej = item ? obtenerEjercicio(item.exerciseId) : null;
 
   formItemTitulo.textContent = item ? "Editar ejercicio" : "Añadir ejercicio";
-  rellenarSelectEjercicios(item ? item.exerciseId : null);
+  campoExerciseId.value = ej ? ej.id : "";
+  buscaEjercicioEl.value = ej ? ej.nombre : "";
+  sugerenciasEl.hidden = true;
+  ocultarCrearGrupo();
   formItem.elements.series.value = item ? item.series : 3;
   formItem.elements.reps.value = item ? item.reps : "";
   formItem.elements.peso.value = item ? item.peso : 0;
@@ -321,6 +378,8 @@ function abrirFormItem(indice) {
 
 dlgItem.addEventListener("close", () => {
   editandoItemIndice = null;
+  sugerenciasEl.hidden = true;
+  ocultarCrearGrupo();
 });
 
 // Botones rápidos de descanso
@@ -332,15 +391,34 @@ document.getElementById("chips-descanso").addEventListener("click", (evento) => 
 
 formItem.addEventListener("submit", (evento) => {
   evento.preventDefault();
+
+  let exerciseId = campoExerciseId.value;
+  const texto = buscaEjercicioEl.value.trim();
+
+  // ¿el texto coincide exactamente con uno que ya existe?
+  if (!exerciseId && texto) {
+    const exacto = listarEjercicios().find((e) => _sinTildes(e.nombre).trim() === _sinTildes(texto).trim());
+    if (exacto) exerciseId = exacto.id;
+  }
+  // crear al vuelo
+  if (!exerciseId && _modoCrearEjercicio && texto) {
+    const grupo = crearGrupoSelect.value;
+    exerciseId = crearEjercicio({ nombre: texto, grupo }).id;
+    guardarPref("grupoPorDefecto", grupo);
+  }
+  if (!exerciseId) {
+    avisar("Escribe un ejercicio y elígelo de la lista, o pulsa «Crear».");
+    return;
+  }
+
   const valores = {
-    exerciseId: formItem.elements.exerciseId.value,
+    exerciseId,
     series: formItem.elements.series.value,
     reps: formItem.elements.reps.value,
     peso: formItem.elements.peso.value,
     descansoSeg: formItem.elements.descansoSeg.value,
     nota: formItem.elements.nota.value,
   };
-  if (!valores.exerciseId) return;
 
   if (editandoItemIndice != null) {
     editarItemRutina(rutinaAbiertaId, editandoItemIndice, valores);

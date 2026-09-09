@@ -46,6 +46,23 @@ prueba("borrar un ejercicio lo quita de la lista", () => {
   igual(listarEjercicios().length, 0);
 });
 
+prueba("filtrarEjercicios encuentra por trozo de nombre ignorando mayúsculas y tildes", () => {
+  crearEjercicio({ nombre: "Press banca", grupo: "Pecho" });
+  crearEjercicio({ nombre: "Press militar", grupo: "Hombro" });
+  crearEjercicio({ nombre: "Extensión de tríceps", grupo: "Tríceps" });
+
+  igual(filtrarEjercicios("press").coincidencias.map((e) => e.nombre), ["Press banca", "Press militar"]);
+  igual(filtrarEjercicios("EXTENSION DE TRICEPS").coincidencias.map((e) => e.nombre), ["Extensión de tríceps"]);
+  igual(filtrarEjercicios("  ").coincidencias.length, 0);
+});
+
+prueba("filtrarEjercicios: hayExacto solo cuando el nombre coincide entero", () => {
+  crearEjercicio({ nombre: "Press banca", grupo: "Pecho" });
+  esVerdad(filtrarEjercicios("press banca").hayExacto);
+  esVerdad(filtrarEjercicios("PRESS BANCA").hayExacto);
+  esVerdad(!filtrarEjercicios("press").hayExacto, "un trozo no es coincidencia exacta");
+});
+
 // ---- Rutinas ----
 
 prueba("crear una rutina sin división guarda cadena vacía y sin ejercicios", () => {

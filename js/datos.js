@@ -42,11 +42,12 @@ function datosVacios() {
     sesiones: [],       // entrenamientos ya terminados
     sesionActiva: null, // entrenamiento en curso (o null si no hay ninguno)
     prefs: {
-      tema: "sistema",       // "sistema" | "claro" | "oscuro"
-      cronDecimas: false,    // cronómetro con décimas de segundo
-      sonido: true,          // pitido al terminar el descanso
-      vibracion: true,       // vibración al terminar el descanso
-      registroSimple: false, // en Entrenar, una sola fila por ejercicio (la mejor serie)
+      tema: "sistema",         // "sistema" | "claro" | "oscuro"
+      cronDecimas: false,      // cronómetro con décimas de segundo
+      sonido: true,            // pitido al terminar el descanso
+      vibracion: true,         // vibración al terminar el descanso
+      registroSimple: false,   // en Entrenar, una sola fila por ejercicio (la mejor serie)
+      grupoPorDefecto: "Otro", // grupo preseleccionado al crear un ejercicio al vuelo
     },
     temporizador: {       // última configuración del temporizador de series
       prepSeg: 5,         // cuenta atrás de "prepárate"
@@ -327,6 +328,24 @@ function listarEjercicios() {
 
 function obtenerEjercicio(id) {
   return DATOS.ejercicios.find((e) => e.id === id) || null;
+}
+
+// Pasa a minúsculas y quita las tildes, para buscar sin que estorben
+function _sinTildes(texto) {
+  // NFD separa la letra de su tilde; ̀-ͯ son esas marcas sueltas
+  return (texto || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+// Ejercicios cuyo nombre contiene 'texto' (ignora mayúsculas y tildes).
+// Devuelve { coincidencias: [...], hayExacto } — hayExacto = ya existe uno igual.
+function filtrarEjercicios(texto, limite = 6) {
+  const t = _sinTildes(texto).trim();
+  if (!t) return { coincidencias: [], hayExacto: false };
+  const todos = listarEjercicios();
+  return {
+    coincidencias: todos.filter((e) => _sinTildes(e.nombre).includes(t)).slice(0, limite),
+    hayExacto: todos.some((e) => _sinTildes(e.nombre).trim() === t),
+  };
 }
 
 function crearEjercicio({ nombre, grupo, nota }) {

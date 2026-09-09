@@ -561,7 +561,25 @@ body {
   margin-bottom: 4px;
 }
 #temp-siguiente, #temp-restantes { margin: 2px 0; }
-#temp-reiniciar { display: block; margin: 12px auto 0; }
+.temp-pie {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.temp-pie .boton-enlace { margin: 0; }
+
+/* Vídeo de la ventana flotante: fuera de la vista, nunca se ve en la página */
+.pip-oculto {
+  position: fixed;
+  left: -9999px;
+  width: 2px;
+  height: 2px;
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* Color de fondo según la fase */
 #bloque-temporizador[data-fase="prep"] { border-color: #d97706; background: #3a2a12; }

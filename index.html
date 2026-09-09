@@ -254,11 +254,17 @@
             <button id="temp-toggle" class="boton-primario">Pausar</button>
             <button id="temp-saltar" class="boton-secundario">Saltar</button>
           </div>
-          <button id="temp-reiniciar" class="boton-enlace">Reiniciar</button>
+          <div class="temp-pie">
+            <button id="temp-flotante" class="boton-enlace" hidden>📺 Ventana flotante</button>
+            <button id="temp-reiniciar" class="boton-enlace">Reiniciar</button>
+          </div>
         </div>
 
       </div>
       </div>
+
+      <!-- Vídeo oculto para la ventana flotante (Picture-in-Picture) -->
+      <video id="pip-video" class="pip-oculto" muted playsinline></video>
 
       <!-- Cronómetro (cuenta hacia arriba) -->
       <div class="tiempo-vista oculta" data-tiempo="cronometro">

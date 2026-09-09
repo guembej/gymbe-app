@@ -300,6 +300,24 @@ prueba("construirEtiquetaTemp: ejercicio · reps · peso; vacío sin ejercicio",
   igual(construirEtiquetaTemp(), "");
 });
 
+// ---- Avisos de sonido del temporizador (se programan por adelantado) ----
+
+prueba("avisosDelTramo: tics 3-2-1 y un pitido de fin cuando viene otro tramo", () => {
+  const a = avisosDelTramo(90, true);
+  igual(a.map((x) => x.enSeg), [87, 88, 89, 90]);
+  igual(a.map((x) => x.freq), [1320, 1320, 1320, 880]);
+});
+
+prueba("avisosDelTramo: tres pitidos al final si es el último tramo", () => {
+  const finales = avisosDelTramo(30, false).filter((x) => x.freq === 880);
+  igual(finales.length, 3);
+});
+
+prueba("avisosDelTramo: en un tramo muy corto solo caben los tics que quepan", () => {
+  igual(avisosDelTramo(2, true).map((x) => x.enSeg), [1, 2]);
+  igual(avisosDelTramo(0, true), []);
+});
+
 prueba("marcasEjeY: 5+ marcas enteras con paso bonito (rango pequeño)", () => {
   const eje = marcasEjeY(52.5, 60);
   esVerdad(eje.marcas.length >= 5, "al menos 5 marcas");

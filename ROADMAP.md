@@ -141,6 +141,16 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
+Versión 1.1.0 (2026-09-09):
+- Entrenar: campo "Reps" con teclado numérico; la serie se marca sola al rellenar
+  peso y reps (nunca se desmarca sola); bajo el objetivo, "última: 60 kg × 8"
+  (mejor serie del último día). datos.js: mejorSerieUltimoDia(), debeMarcarSerie().
+- Tiempo: dos sub-pestañas (Temporizador | Cronómetro). El botón "⏱ Temporizador"
+  de Entrenar lleva el ejercicio/reps/peso y se muestra en el temporizador.
+- Temporizador: el pitido de fin de descanso se programa con Web Audio (suena con
+  el móvil bloqueado); botón "📺 Ventana flotante" (Picture-in-Picture) con la
+  cuenta atrás encima de otras apps, si el navegador lo permite.
+
 Versión 1.0.1 (2026-09-07): arreglo de la barra "Versión nueva" que se veía siempre.
 Causa real: en css/styles.css, `.aviso-version { display:flex }` ganaba a la regla
 `[hidden]{display:none}` del navegador (misma especificidad, venía después), así que el

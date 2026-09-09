@@ -513,6 +513,7 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   padding: 10px 20px;
   font-size: 15px;
   font-weight: 600;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
   z-index: 50;

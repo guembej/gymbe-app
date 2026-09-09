@@ -141,6 +141,11 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
+Versión 1.2.1 (2026-09-09): la ventana flotante (PiP) se pinta como la píldora de
+dentro de la app: fondo del color de la fase y "descanso · 1:12" en una línea,
+centrado y grande (Android redondea las esquinas). Proporción 2.39:1 (lo más plano
+que Chrome-Android permite). textoPiP() en tiempo.js.
+
 Versión 1.2.0 (2026-09-09):
 - Fusión Rutinas + Entrenar en una sola pestaña "Entrenar" (menú a 4 pestañas).
   Tocar una rutina -> detalle "ver" (solo lectura + "última: X kg × Y" + botón

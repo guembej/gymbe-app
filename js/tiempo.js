@@ -421,7 +421,6 @@ let _pipCtx = null;
 const COLOR_FASE_PIP = {
   prep: "#c2740c", serie: "#15803d", descanso: "#e2551f", fin: "#e2551f", "": "#1f2937",
 };
-const ETIQUETA_FASE_PIP = { prep: "PREPARA", serie: "SERIE", descanso: "DESCANSO" };
 
 const flotanteDisponible = !!(
   pipVideo &&
@@ -429,8 +428,19 @@ const flotanteDisponible = !!(
   HTMLCanvasElement.prototype.captureStream
 );
 
-// Se pinta como una TIRA ancha y baja (3:1): "DESCANSO      1:12" en una línea,
-// sobre el color de la fase. Cuanto más plana, menos molesta encima de otra app.
+// Texto de la ventana flotante: igual que la píldora de dentro de la app,
+// "descanso · 1:12" / "serie 2 · 0:35" / "prepárate · 0:05".
+function textoPiP() {
+  if (temp.terminadoEn) return "¡entrenamiento hecho!";
+  const tramo = temp.segmentos[temp.indice];
+  if (!tramo) return "";
+  let nombre = (NOMBRE_FASE[tramo.fase] || "").toLowerCase();
+  if (tramo.fase === "serie") nombre = `serie ${tramo.serie}`;
+  return `${nombre} · ${formatearCuentaAtras(segRestantes())}`;
+}
+
+// Se pinta como la píldora: fondo del color de la fase y el texto en una línea,
+// centrado y lo más grande que quepa. Android redondea las esquinas -> pastilla.
 function dibujarPiP() {
   if (!_pipCtx) return;
   const c = _pipCtx;
@@ -442,22 +452,17 @@ function dibujarPiP() {
   c.fillStyle = COLOR_FASE_PIP[fase] || "#1f2937";
   c.fillRect(0, 0, w, h);
   c.fillStyle = "#fff";
+  c.textAlign = "center";
   c.textBaseline = "middle";
 
-  if (temp.terminadoEn) {
-    c.textAlign = "center";
-    c.font = "bold 34px system-ui, -apple-system, sans-serif";
-    c.fillText("¡HECHO!", w / 2, h / 2);
-    return;
-  }
+  const texto = textoPiP();
+  let px = 42;
+  do {
+    c.font = `bold ${px}px system-ui, -apple-system, sans-serif`;
+    px -= 2;
+  } while (px > 14 && c.measureText(texto).width > w - 28);
 
-  c.textAlign = "left";
-  c.font = "bold 18px system-ui, -apple-system, sans-serif";
-  c.fillText(ETIQUETA_FASE_PIP[fase] || "", 16, h / 2);
-
-  c.textAlign = "right";
-  c.font = "bold 48px system-ui, -apple-system, sans-serif";
-  c.fillText(formatearCuentaAtras(segRestantes()), w - 16, h / 2 + 2);
+  c.fillText(texto, w / 2, h / 2 + 2);
 }
 
 async function abrirFlotante() {
@@ -465,8 +470,9 @@ async function abrirFlotante() {
   try {
     if (!_pipCanvas) {
       _pipCanvas = document.createElement("canvas");
-      _pipCanvas.width = 288;   // tira 3:1: baja y ancha
-      _pipCanvas.height = 96;
+      // 2.39:1 es lo más plano que Chrome-Android permite en una ventana PiP
+      _pipCanvas.width = 320;
+      _pipCanvas.height = 134;
       _pipCtx = _pipCanvas.getContext("2d");
       pipVideo.srcObject = _pipCanvas.captureStream(8);
     }

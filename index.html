@@ -191,8 +191,17 @@
     </section>
 
     <section class="seccion oculta" data-seccion="cronometro">
+      <!-- Sub-pestañas: Temporizador | Cronómetro -->
+      <div class="conmutador" id="tiempo-tabs">
+        <button type="button" class="conmutador-boton activo" data-tiempo="temporizador">Temporizador</button>
+        <button type="button" class="conmutador-boton" data-tiempo="cronometro">Cronómetro</button>
+      </div>
+
       <!-- Temporizador de series (prepárate -> serie / descanso x N) -->
+      <div class="tiempo-vista" data-tiempo="temporizador">
       <div class="bloque-tiempo" id="bloque-temporizador">
+
+        <p class="temp-etiqueta" id="temp-etiqueta" hidden></p>
 
         <!-- Configuración -->
         <div id="temp-config">
@@ -249,8 +258,10 @@
         </div>
 
       </div>
+      </div>
 
       <!-- Cronómetro (cuenta hacia arriba) -->
+      <div class="tiempo-vista oculta" data-tiempo="cronometro">
       <div class="bloque-tiempo">
         <h2>Cronómetro</h2>
         <p class="tiempo-display" id="crono-display">00:00</p>
@@ -258,6 +269,7 @@
           <button id="crono-toggle" class="boton-primario">Empezar</button>
           <button id="crono-reset" class="boton-secundario">Reiniciar</button>
         </div>
+      </div>
       </div>
     </section>
 

@@ -26,6 +26,7 @@ const tempRestantesEl = document.getElementById("temp-restantes");
 const tempToggle = document.getElementById("temp-toggle");
 const tempSaltar = document.getElementById("temp-saltar");
 const tempReiniciar = document.getElementById("temp-reiniciar");
+const tempEtiquetaEl = document.getElementById("temp-etiqueta");
 
 const pildora = document.getElementById("pildora-descanso");
 const pildoraTexto = document.getElementById("pildora-texto");
@@ -135,6 +136,7 @@ let temp = {
   terminadoEn: 0,  // marca de tiempo del final (para la píldora)
   ultimoAviso: -1, // segundo entero en el que sonó el último tic (3-2-1)
   numSeries: 4,
+  etiqueta: "",    // "Press banca · 8-12 reps · 60 kg" cuando viene de Entrenar
 };
 
 function limitar(valor, min, max) {
@@ -198,13 +200,17 @@ document.querySelectorAll("#temp-config .temp-stepper button").forEach((btn) => 
 });
 
 // Configura el temporizador desde fuera (lo usa "Entrenar")
-function configurarTemporizador({ numSeries, descansoSeg }) {
+function configurarTemporizador({ numSeries, descansoSeg, ejercicio, reps, peso } = {}) {
   const parcial = {};
   if (numSeries != null) parcial.numSeries = limitar(numSeries, 1, 15);
   if (descansoSeg != null) parcial.descansoSeg = limitar(descansoSeg, 5, 600);
   guardarTempConfig(parcial);
   pararTemporizador();
+  temp.etiqueta = construirEtiquetaTemp({ ejercicio, reps, peso });
+  guardarEstadoTiempo();
+  irASubtabTiempo("temporizador");
   pintarConfig();
+  pintarEtiquetaTemp();
 }
 
 // ---- Ejecución ----
@@ -237,10 +243,12 @@ function pararTemporizador() {
   temp.pausaMs = 0;
   temp.indice = 0;
   temp.terminadoEn = 0;
+  temp.etiqueta = "";
   soltarWakeLock();
   tempMarchaEl.classList.add("oculta");
   tempConfigEl.classList.remove("oculta");
   bloqueTemporizador.dataset.fase = "";
+  if (tempEtiquetaEl) pintarEtiquetaTemp();
   guardarEstadoTiempo();
 }
 
@@ -355,6 +363,29 @@ tempReiniciar.addEventListener("click", pararTemporizador);
 document.getElementById("temp-empezar").addEventListener("click", empezarTemporizador);
 
 // ==========================================================
+//  Sub-pestañas: Temporizador | Cronómetro
+// ==========================================================
+
+function irASubtabTiempo(cual) {
+  document.querySelectorAll("#tiempo-tabs .conmutador-boton").forEach((b) => {
+    b.classList.toggle("activo", b.dataset.tiempo === cual);
+  });
+  document.querySelectorAll('.tiempo-vista').forEach((v) => {
+    v.classList.toggle("oculta", v.dataset.tiempo !== cual);
+  });
+}
+document.querySelectorAll("#tiempo-tabs .conmutador-boton").forEach((btn) => {
+  btn.addEventListener("click", () => irASubtabTiempo(btn.dataset.tiempo));
+});
+
+// Etiqueta del ejercicio ("Press banca · 8-12 reps · 60 kg")
+function pintarEtiquetaTemp() {
+  const t = temp.etiqueta || "";
+  tempEtiquetaEl.textContent = t;
+  tempEtiquetaEl.hidden = !t;
+}
+
+// ==========================================================
 //  Píldora flotante
 // ==========================================================
 
@@ -389,6 +420,7 @@ pildora.addEventListener("click", () => irA("cronometro"));
 function tick() {
   cronoDisplay.textContent = formatearCronometro(cronoMs(), obtenerPref("cronDecimas"));
   if (temp.corriendo || temp.terminadoEn) pintarTemporizador();
+  pintarEtiquetaTemp();
   pintarPildora();
 }
 setInterval(tick, 100);
@@ -396,4 +428,5 @@ setInterval(tick, 100);
 // Arranque
 restaurarEstadoTiempo();
 pintarConfig();
+pintarEtiquetaTemp();
 tick();

@@ -545,6 +545,14 @@ body {
 }
 #temp-total { margin-bottom: 14px; }
 
+/* Etiqueta del ejercicio en el temporizador ("Press banca · 8-12 reps · 60 kg") */
+.temp-etiqueta {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--acento);
+  margin-bottom: 12px;
+}
+
 /* Temporizador en marcha */
 #temp-fase {
   font-size: 20px;

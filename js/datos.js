@@ -209,6 +209,16 @@ function formatearCuentaAtras(seg) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
+// Etiqueta del ejercicio para el temporizador: "Press banca · 8-12 reps · 60 kg".
+// Devuelve "" si no viene ejercicio (temporizador usado suelto).
+function construirEtiquetaTemp({ ejercicio, reps, peso } = {}) {
+  if (!ejercicio) return "";
+  const partes = [ejercicio];
+  if (reps) partes.push(`${reps} reps`);
+  if (peso > 0) partes.push(`${peso} kg`);
+  return partes.join(" · ");
+}
+
 // El paso "bonito" inmediatamente menor que 'paso' (de la serie 1,2,5,10,20,50...)
 function _pasoBonitoMenor(paso) {
   const magnitud = Math.pow(10, Math.floor(Math.log10(paso) - 1e-9));

@@ -290,6 +290,16 @@ prueba("debeMarcarSerie: solo con peso Y reps, y solo si no está marcada", () =
   igual(debeMarcarSerie({ pesoReal: "60", repsReal: "8", hecha: true }), false);
 });
 
+prueba("construirEtiquetaTemp: ejercicio · reps · peso; vacío sin ejercicio", () => {
+  igual(construirEtiquetaTemp({ ejercicio: "Press banca", reps: "8-12", peso: 60 }),
+    "Press banca · 8-12 reps · 60 kg");
+  igual(construirEtiquetaTemp({ ejercicio: "Dominadas", reps: "6-10", peso: 0 }),
+    "Dominadas · 6-10 reps");
+  igual(construirEtiquetaTemp({ ejercicio: "Plancha", reps: "", peso: 0 }), "Plancha");
+  igual(construirEtiquetaTemp({}), "");
+  igual(construirEtiquetaTemp(), "");
+});
+
 prueba("marcasEjeY: 5+ marcas enteras con paso bonito (rango pequeño)", () => {
   const eje = marcasEjeY(52.5, 60);
   esVerdad(eje.marcas.length >= 5, "al menos 5 marcas");

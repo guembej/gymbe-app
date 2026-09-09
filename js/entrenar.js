@@ -181,6 +181,9 @@ function pintarSesionActiva() {
     temporizador.dataset.temp = JSON.stringify({
       numSeries: obj.series,
       descansoSeg: obj.descansoSeg || 90,
+      ejercicio: ej.exerciseNombre,
+      reps: obj.reps,
+      peso: obj.peso,
     });
 
     pie.append(anadir, temporizador);

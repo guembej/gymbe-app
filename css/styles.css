@@ -379,6 +379,39 @@ body.reordenando { cursor: grabbing; }
 .fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .fila-2 label { min-width: 0; }
 
+/* Buscador de ejercicio (elegir uno o crear al vuelo) */
+.combo-ejercicio { display: flex; flex-direction: column; gap: 10px; }
+.sugerencias {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  max-height: 230px;
+  overflow-y: auto;
+}
+.sugerencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--texto);
+  cursor: pointer;
+}
+.sugerencia:hover, .sugerencia:active { background: var(--fondo-2); }
+.sugerencia-grupo {
+  flex-shrink: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--texto-suave);
+}
+.sugerencia-crear { color: var(--acento); font-weight: 600; }
+
 /* Botones rápidos (chips) */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; }
 .chips button {

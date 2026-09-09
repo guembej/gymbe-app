@@ -412,6 +412,8 @@ body {
 }
 .bloque-ejercicio h3 { font-size: 16px; font-weight: 600; }
 .objetivo { font-size: 12px; color: var(--texto-suave); margin: 4px 0 12px; }
+.bloque-ejercicio .objetivo { margin-bottom: 2px; }
+.ultima-vez { font-size: 12px; color: var(--texto); margin: 0 0 12px; font-weight: 600; }
 
 .serie-fila {
   display: grid;

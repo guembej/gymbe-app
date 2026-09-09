@@ -102,6 +102,7 @@ function crearFilaSerie(ejIndice, filaIndice, fila) {
 
   const reps = document.createElement("input");
   reps.type = "text";
+  reps.inputMode = "numeric"; // teclado de números en el móvil
   reps.maxLength = 12;
   reps.value = fila.repsReal;
   reps.dataset.ej = ejIndice;
@@ -146,11 +147,17 @@ function pintarSesionActiva() {
       `descanso ${formatearDescanso(obj.descansoSeg)}`,
     ].filter(Boolean).join(" · ");
 
+    const ultima = mejorSerieUltimoDia(ej.exerciseId);
+    const ultimaTexto = ultima
+      ? `última: ${String(ultima.peso).replace(".", ",")} kg × ${ultima.reps || "—"}`
+      : "";
+
     const bloque = document.createElement("div");
     bloque.className = "bloque-ejercicio";
     bloque.innerHTML = `
       <h3>${escaparHtml(ej.exerciseNombre)}</h3>
       <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}</p>
+      ${ultimaTexto ? `<p class="ultima-vez">${escaparHtml(ultimaTexto)}</p>` : ""}
       <div class="serie-fila serie-cabecera">
         <span>#</span><span>Peso</span><span>Reps</span><span>✓</span><span></span>
       </div>
@@ -196,6 +203,14 @@ function alEditarCasilla(evento) {
     el.closest(".serie-fila").classList.toggle("serie-hecha", el.checked);
   } else {
     fila[el.dataset.campo] = el.value;
+    // Marcar la serie sola cuando ya tiene peso y reps (nunca la desmarca).
+    if (debeMarcarSerie(fila)) {
+      fila.hecha = true;
+      const filaEl = el.closest(".serie-fila");
+      filaEl.classList.add("serie-hecha");
+      const casilla = filaEl.querySelector('input[type="checkbox"]');
+      if (casilla) casilla.checked = true;
+    }
   }
   guardarSesionActiva();
 }

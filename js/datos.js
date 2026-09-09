@@ -544,6 +544,36 @@ function borrarSesion(id) {
 //  - volumen: suma de peso x repeticiones
 //  - rm: 1RM estimado (Epley) de la mejor serie: peso x (1 + reps/30)
 // ----------------------------------------------------------
+// La mejor serie del día más reciente en que se registró este ejercicio.
+// "Mejor" = más peso; a igualdad de peso, más repeticiones.
+// Devuelve { peso, reps, fecha } o null si no hay ningún registro.
+function mejorSerieUltimoDia(exerciseId) {
+  const sesiones = [...DATOS.sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  for (const sesion of sesiones) {
+    const sets = sesion.sets.filter((s) => s.exerciseId === exerciseId);
+    if (sets.length === 0) continue;
+
+    let mejor = null;
+    sets.forEach((s) => {
+      const peso = _num(s.pesoReal, 0, 0);
+      const reps = parseInt(s.repsReal, 10) || 0;
+      if (!mejor || peso > mejor.peso || (peso === mejor.peso && reps > mejor.reps)) {
+        mejor = { peso, reps };
+      }
+    });
+    return { peso: mejor.peso, reps: mejor.reps, fecha: sesion.fecha };
+  }
+  return null;
+}
+
+// ¿Hay que marcar sola esta serie? Sí cuando peso y reps tienen valor y aún no
+// está marcada. (Nunca se desmarca sola: eso es siempre manual con la casilla.)
+function debeMarcarSerie(fila) {
+  return !fila.hecha
+    && String(fila.pesoReal == null ? "" : fila.pesoReal).trim() !== ""
+    && String(fila.repsReal == null ? "" : fila.repsReal).trim() !== "";
+}
+
 function progresoDeEjercicio(exerciseId) {
   const puntos = [];
 

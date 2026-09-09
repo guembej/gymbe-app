@@ -251,6 +251,45 @@ prueba("progresoDeEjercicio devuelve vacío si el ejercicio no tiene historial",
   igual(progresoDeEjercicio(e.id).length, 0);
 });
 
+// ---- Última vez / autocompletar serie (Entrenar) ----
+
+prueba("mejorSerieUltimoDia: mejor serie (más peso, luego más reps) del día más reciente", () => {
+  const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 3, reps: "8", peso: 50 });
+
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "40", repsReal: "12", hecha: true };
+  const antigua = terminarSesion();
+  antigua.fecha = "2026-01-01T10:00:00.000Z";
+  guardar();
+
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "60", repsReal: "6", hecha: true };
+  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "60", repsReal: "8", hecha: true };
+  sesionActiva().ejercicios[0].filas[2] = { pesoReal: "57.5", repsReal: "10", hecha: true };
+  const reciente = terminarSesion();
+  reciente.fecha = "2026-03-01T10:00:00.000Z";
+  guardar();
+
+  const m = mejorSerieUltimoDia(e.id);
+  igual(m.peso, 60);
+  igual(m.reps, 8, "a igual peso, la de más reps");
+});
+
+prueba("mejorSerieUltimoDia: null si el ejercicio no tiene historial", () => {
+  const e = crearEjercicio({ nombre: "Sin uso", grupo: "Otro" });
+  igual(mejorSerieUltimoDia(e.id), null);
+});
+
+prueba("debeMarcarSerie: solo con peso Y reps, y solo si no está marcada", () => {
+  igual(debeMarcarSerie({ pesoReal: "60", repsReal: "8", hecha: false }), true);
+  igual(debeMarcarSerie({ pesoReal: "0", repsReal: "8", hecha: false }), true);
+  igual(debeMarcarSerie({ pesoReal: "", repsReal: "8", hecha: false }), false);
+  igual(debeMarcarSerie({ pesoReal: "60", repsReal: "", hecha: false }), false);
+  igual(debeMarcarSerie({ pesoReal: "60", repsReal: "8", hecha: true }), false);
+});
+
 prueba("marcasEjeY: 5+ marcas enteras con paso bonito (rango pequeño)", () => {
   const eje = marcasEjeY(52.5, 60);
   esVerdad(eje.marcas.length >= 5, "al menos 5 marcas");

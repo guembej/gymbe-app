@@ -454,6 +454,17 @@ function moverItemRutina(rutinaId, indice, delta) {
   guardar();
 }
 
+// Coloca el item que está en 'desde' en la posición 'hasta' (arrastrar y soltar)
+function reordenarItem(rutinaId, desde, hasta) {
+  const rutina = obtenerRutina(rutinaId);
+  if (!rutina) return;
+  const n = rutina.items.length;
+  if (desde < 0 || desde >= n || hasta < 0 || hasta >= n || desde === hasta) return;
+  const [item] = rutina.items.splice(desde, 1);
+  rutina.items.splice(hasta, 0, item);
+  guardar();
+}
+
 // ----------------------------------------------------------
 //  Entrenamientos
 //  - sesionActiva: el que se está haciendo ahora (se puede cerrar la app y seguir)

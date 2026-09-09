@@ -237,8 +237,6 @@ function pintarDetalle() {
           <div class="item-fila-top">
             <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>
             <div class="tarjeta-acciones">
-              <button class="icono-boton" data-accion="subir" title="Subir">▲</button>
-              <button class="icono-boton" data-accion="bajar" title="Bajar">▼</button>
               <button class="icono-boton" data-accion="editar" title="Editar">✏️</button>
               <button class="icono-boton" data-accion="borrar" title="Quitar">🗑️</button>
             </div>
@@ -246,14 +244,6 @@ function pintarDetalle() {
           <span class="tarjeta-nota">${escaparHtml(resumen)}</span>
         </div>
       `;
-      li.querySelector('[data-accion="subir"]').addEventListener("click", () => {
-        moverItemRutina(rutinaAbiertaId, indice, -1);
-        pintarDetalle();
-      });
-      li.querySelector('[data-accion="bajar"]').addEventListener("click", () => {
-        moverItemRutina(rutinaAbiertaId, indice, 1);
-        pintarDetalle();
-      });
       li.querySelector('[data-accion="editar"]').addEventListener("click", () => abrirFormItem(indice));
       li.querySelector('[data-accion="borrar"]').addEventListener("click", async () => {
         if (await confirmar(`¿Quitar "${nombre}" de la rutina?`, { aceptar: "Quitar", peligro: true })) {
@@ -261,6 +251,7 @@ function pintarDetalle() {
           pintarDetalle();
         }
       });
+      li.addEventListener("pointerdown", (e) => alPunteroAbajoItem(e, li, indice));
     } else {
       // Modo "ver": solo lectura + la mejor marca del último día
       const ultima = mejorSerieUltimoDia(item.exerciseId);
@@ -363,6 +354,136 @@ formItem.addEventListener("submit", (evento) => {
 document
   .getElementById("form-item-cancelar")
   .addEventListener("click", () => dlgItem.close());
+
+// ==========================================================
+//  Reordenar ejercicios arrastrando (pulsación larga)
+//  Sin librerías: con eventos de puntero (funciona con dedo y con ratón).
+//   - pulsas y mantienes ~350 ms  -> el ejercicio se "levanta" y sigue al dedo
+//   - si mueves antes de ese tiempo -> es un scroll, no se activa
+//   - al soltar, se guarda el nuevo orden
+// ==========================================================
+
+let _arrastre = null;
+const RETARDO_ARRASTRE = 350; // ms de pulsación larga
+const MARGEN_SCROLL = 10;     // px de movimiento que cancelan la pulsación larga
+
+function alPunteroAbajoItem(e, li, indice) {
+  if (!detalleModoEdicion || _arrastre) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  if (e.target.closest("button")) return; // ✏️ / 🗑️ no arrastran
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+  const pointerId = e.pointerId;
+  let cancelado = false;
+
+  const alMover = (ev) => {
+    if (_arrastre) return;
+    if (Math.hypot(ev.clientX - inicioX, ev.clientY - inicioY) > MARGEN_SCROLL) limpiar();
+  };
+  const limpiar = () => {
+    if (cancelado) return;
+    cancelado = true;
+    clearTimeout(temporizador);
+    document.removeEventListener("pointermove", alMover);
+    document.removeEventListener("pointerup", limpiar);
+    document.removeEventListener("pointercancel", limpiar);
+  };
+
+  const temporizador = setTimeout(() => {
+    limpiar();
+    iniciarArrastre(li, indice, inicioY, pointerId);
+  }, RETARDO_ARRASTRE);
+
+  document.addEventListener("pointermove", alMover);
+  document.addEventListener("pointerup", limpiar);
+  document.addEventListener("pointercancel", limpiar);
+}
+
+function iniciarArrastre(li, indice, clientY, pointerId) {
+  const rect = li.getBoundingClientRect();
+  _arrastre = {
+    li,
+    lista: li.parentElement,
+    indiceOrigen: indice,
+    agarreY: clientY - rect.top, // dónde agarró el dedo dentro de la tarjeta
+    despl: 0,
+    pointerId,
+  };
+
+  try { navigator.vibrate && navigator.vibrate(15); } catch (er) { /* nada */ }
+  try { li.setPointerCapture(pointerId); } catch (er) { /* nada */ }
+  li.classList.add("arrastrando");
+  document.body.classList.add("reordenando");
+
+  document.addEventListener("pointermove", moverArrastre);
+  document.addEventListener("pointerup", soltarArrastre);
+  document.addEventListener("pointercancel", soltarArrastre);
+  document.addEventListener("touchmove", _prevenirScroll, { passive: false });
+
+  pegarAlDedo(clientY);
+}
+
+function _prevenirScroll(e) { e.preventDefault(); }
+
+// Recalcula el transform para que la tarjeta quede pegada al dedo,
+// aunque su posición natural haya cambiado tras reordenar en el DOM.
+function pegarAlDedo(clientY) {
+  const a = _arrastre;
+  const rect = a.li.getBoundingClientRect();
+  const topNatural = rect.top - a.despl;
+  a.despl = (clientY - a.agarreY) - topNatural;
+  a.li.style.transform = `translateY(${a.despl}px)`;
+}
+
+function moverArrastre(e) {
+  if (!_arrastre) return;
+  const a = _arrastre;
+  const y = e.clientY;
+
+  const hermanos = [...a.lista.children].filter((el) => el !== a.li);
+  for (const h of hermanos) {
+    const r = h.getBoundingClientRect();
+    const medio = r.top + r.height / 2;
+    const despues = a.li.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING;
+    if ((despues && y > medio) || (!despues && y < medio)) {
+      const antes = r.top;
+      a.lista.insertBefore(a.li, despues ? h.nextSibling : h);
+      // FLIP: el hermano que se ha desplazado se desliza a su nuevo sitio
+      const ahora = h.getBoundingClientRect().top;
+      h.style.transition = "none";
+      h.style.transform = `translateY(${antes - ahora}px)`;
+      requestAnimationFrame(() => {
+        h.style.transition = "transform 0.16s ease";
+        h.style.transform = "";
+      });
+      break;
+    }
+  }
+  pegarAlDedo(y);
+}
+
+function soltarArrastre() {
+  const a = _arrastre;
+  if (!a) return;
+  _arrastre = null;
+
+  document.removeEventListener("pointermove", moverArrastre);
+  document.removeEventListener("pointerup", soltarArrastre);
+  document.removeEventListener("pointercancel", soltarArrastre);
+  document.removeEventListener("touchmove", _prevenirScroll);
+  try { a.li.releasePointerCapture(a.pointerId); } catch (er) { /* nada */ }
+
+  a.li.style.transform = "";
+  a.li.classList.remove("arrastrando");
+  document.body.classList.remove("reordenando");
+
+  const destino = [...a.lista.children].indexOf(a.li);
+  if (destino >= 0 && destino !== a.indiceOrigen) {
+    reordenarItem(rutinaAbiertaId, a.indiceOrigen, destino);
+  }
+  pintarDetalle(); // repinta con el orden guardado y listeners limpios
+}
 
 // ==========================================================
 //  Refresco general

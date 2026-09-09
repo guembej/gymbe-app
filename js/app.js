@@ -4,7 +4,6 @@
 
 // Títulos que se muestran en la cabecera según la sección
 const TITULOS = {
-  rutinas: "Rutinas",
   entrenar: "Entrenar",
   historial: "Historial",
   progreso: "Progreso",
@@ -25,13 +24,16 @@ function irA(nombreSeccion) {
 
   document.getElementById("titulo-seccion").textContent =
     TITULOS[nombreSeccion] || "Gym App";
+
+  if (nombreSeccion === "entrenar" && typeof renderEntrenar === "function") renderEntrenar();
+  if (typeof actualizarBarraEntreno === "function") actualizarBarraEntreno();
 }
 
 document.querySelectorAll(".menu-boton").forEach((btn) => {
   btn.addEventListener("click", () => irA(btn.dataset.ir));
 });
 
-// Conmutador Rutinas / Ejercicios (dentro de la pestaña "Rutinas")
+// Conmutador Rutinas / Ejercicios (dentro de la pestaña "Entrenar")
 document.querySelectorAll(".conmutador-boton").forEach((btn) => {
   btn.addEventListener("click", () => {
     const vista = btn.dataset.vista;
@@ -53,8 +55,11 @@ document.getElementById("btn-inicio").addEventListener("click", () => {
 // Engranaje de la cabecera: ir a Ajustes
 document.getElementById("btn-ajustes").addEventListener("click", () => irA("ajustes"));
 
-// Arrancar en "Rutinas"
-irA("rutinas");
+// Barra "entreno en curso" (fuera de la pestaña Entrenar) -> volver al entreno
+document.getElementById("barra-entreno").addEventListener("click", () => irA("entrenar"));
+
+// Arrancar en "Entrenar"
+irA("entrenar");
 
 // ==========================================================
 //  Service worker: offline + actualización automática

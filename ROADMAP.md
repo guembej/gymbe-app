@@ -141,6 +141,17 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
+Versión 1.2.0 (2026-09-09):
+- Fusión Rutinas + Entrenar en una sola pestaña "Entrenar" (menú a 4 pestañas).
+  Tocar una rutina -> detalle "ver" (solo lectura + "última: X kg × Y" + botón
+  "Empezar entrenamiento" + enlace "Editar rutina"). "Editar rutina" -> modo
+  edición. El panel de entreno en curso vive dentro de esa vista; barra
+  "Entrenamiento en curso" para volver desde otras pestañas. Aviso si empiezas
+  otra rutina con un entreno ya en curso (conflictoDeSesion en datos.js).
+- Ventana flotante del temporizador: tira 3:1 (288×96) en vez de recuadro 16:9.
+- Arreglo: [hidden] y .oculta ahora llevan display:none !important (una regla
+  display:flex posterior con la misma especificidad los ignoraba).
+
 Versión 1.1.0 (2026-09-09):
 - Entrenar: campo "Reps" con teclado numérico; la serie se marca sola al rellenar
   peso y reps (nunca se desmarca sola); bajo el objetivo, "última: 60 kg × 8"

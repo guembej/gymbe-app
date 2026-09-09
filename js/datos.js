@@ -209,6 +209,16 @@ function formatearCuentaAtras(seg) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
+// Etiqueta del ejercicio para el temporizador: "Press banca · 8-12 reps · 60 kg".
+// Devuelve "" si no viene ejercicio (temporizador usado suelto).
+function construirEtiquetaTemp({ ejercicio, reps, peso } = {}) {
+  if (!ejercicio) return "";
+  const partes = [ejercicio];
+  if (reps) partes.push(`${reps} reps`);
+  if (peso > 0) partes.push(`${peso} kg`);
+  return partes.join(" · ");
+}
+
 // El paso "bonito" inmediatamente menor que 'paso' (de la serie 1,2,5,10,20,50...)
 function _pasoBonitoMenor(paso) {
   const magnitud = Math.pow(10, Math.floor(Math.log10(paso) - 1e-9));
@@ -286,6 +296,22 @@ function construirSegmentos({ prepSeg, serieSeg, descansoSeg, numSeries }) {
     }
   }
   return segmentos;
+}
+
+// Avisos de sonido de un tramo, como offsets (segundos) desde ahora:
+//  - tics agudos 3-2-1 antes de acabar
+//  - al acabar: 1 pitido si viene otro tramo, 3 si es el fin del entrenamiento
+// Se programan con Web Audio (suenan aunque el móvil esté bloqueado).
+function avisosDelTramo(finEnSeg, hayOtroTramo) {
+  const avisos = [];
+  for (let k = 3; k >= 1; k--) {
+    if (finEnSeg - k > 0.05) avisos.push({ freq: 1320, enSeg: finEnSeg - k });
+  }
+  if (finEnSeg > 0.05) {
+    const veces = hayOtroTramo ? 1 : 3;
+    for (let i = 0; i < veces; i++) avisos.push({ freq: 880, enSeg: finEnSeg + i * 0.22 });
+  }
+  return avisos;
 }
 
 // ----------------------------------------------------------
@@ -544,6 +570,36 @@ function borrarSesion(id) {
 //  - volumen: suma de peso x repeticiones
 //  - rm: 1RM estimado (Epley) de la mejor serie: peso x (1 + reps/30)
 // ----------------------------------------------------------
+// La mejor serie del día más reciente en que se registró este ejercicio.
+// "Mejor" = más peso; a igualdad de peso, más repeticiones.
+// Devuelve { peso, reps, fecha } o null si no hay ningún registro.
+function mejorSerieUltimoDia(exerciseId) {
+  const sesiones = [...DATOS.sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  for (const sesion of sesiones) {
+    const sets = sesion.sets.filter((s) => s.exerciseId === exerciseId);
+    if (sets.length === 0) continue;
+
+    let mejor = null;
+    sets.forEach((s) => {
+      const peso = _num(s.pesoReal, 0, 0);
+      const reps = parseInt(s.repsReal, 10) || 0;
+      if (!mejor || peso > mejor.peso || (peso === mejor.peso && reps > mejor.reps)) {
+        mejor = { peso, reps };
+      }
+    });
+    return { peso: mejor.peso, reps: mejor.reps, fecha: sesion.fecha };
+  }
+  return null;
+}
+
+// ¿Hay que marcar sola esta serie? Sí cuando peso y reps tienen valor y aún no
+// está marcada. (Nunca se desmarca sola: eso es siempre manual con la casilla.)
+function debeMarcarSerie(fila) {
+  return !fila.hecha
+    && String(fila.pesoReal == null ? "" : fila.pesoReal).trim() !== ""
+    && String(fila.repsReal == null ? "" : fila.repsReal).trim() !== "";
+}
+
 function progresoDeEjercicio(exerciseId) {
   const puntos = [];
 

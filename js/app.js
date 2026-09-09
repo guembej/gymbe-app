@@ -35,7 +35,8 @@ document.querySelectorAll(".menu-boton").forEach((btn) => {
 document.querySelectorAll(".conmutador-boton").forEach((btn) => {
   btn.addEventListener("click", () => {
     const vista = btn.dataset.vista;
-    document.querySelectorAll(".conmutador-boton").forEach((b) => {
+    if (!vista) return; // otros conmutadores (Tiempo, Progreso) tienen su propia lógica
+    document.querySelectorAll(".conmutador-boton[data-vista]").forEach((b) => {
       b.classList.toggle("activo", b === btn);
     });
     document.querySelectorAll(".vista").forEach((v) => {

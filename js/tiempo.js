@@ -26,6 +26,7 @@ const tempRestantesEl = document.getElementById("temp-restantes");
 const tempToggle = document.getElementById("temp-toggle");
 const tempSaltar = document.getElementById("temp-saltar");
 const tempReiniciar = document.getElementById("temp-reiniciar");
+const tempEtiquetaEl = document.getElementById("temp-etiqueta");
 
 const pildora = document.getElementById("pildora-descanso");
 const pildoraTexto = document.getElementById("pildora-texto");
@@ -39,32 +40,55 @@ const NOMBRE_FASE = { prep: "PREPÁRATE", serie: "SERIE", descanso: "DESCANSO" }
 // ==========================================================
 
 let _audioCtx = null;
-function _tono(frecuencia, cuando, duracion, volumen) {
-  const ctx = _audioCtx;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "sine";
-  osc.frequency.value = frecuencia;
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  const t0 = ctx.currentTime + cuando;
-  gain.gain.setValueAtTime(0.0001, t0);
-  gain.gain.exponentialRampToValueAtTime(volumen, t0 + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duracion);
-  osc.start(t0);
-  osc.stop(t0 + duracion + 0.02);
-}
-function pitido(veces = 1, agudo = false) {
-  if (!obtenerPref("sonido")) return;
+let _avisosProgramados = [];
+
+function _ctxAudio() {
   try {
     _audioCtx = _audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     if (_audioCtx.state === "suspended") _audioCtx.resume();
-    const f = agudo ? 1320 : 880;
-    for (let i = 0; i < veces; i++) _tono(f, i * 0.22, 0.15, 0.3);
+    return _audioCtx;
   } catch (e) {
-    /* algunos navegadores no dejan sonar; no pasa nada */
+    return null;
   }
 }
+
+// Programa un tono para dentro de 'enSeg' segundos. Web Audio mantiene la cita
+// aunque la app pase a segundo plano (setInterval no), así que el pitido de fin
+// de descanso suena aunque tengas el móvil bloqueado.
+function _programarTono(freq, enSeg, dur, vol) {
+  const ctx = _audioCtx;
+  if (!ctx || enSeg < 0) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = freq;
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  const t0 = ctx.currentTime + enSeg;
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+  _avisosProgramados.push(osc);
+}
+
+function cancelarAvisos() {
+  _avisosProgramados.forEach((osc) => { try { osc.stop(); } catch (e) {} });
+  _avisosProgramados = [];
+}
+
+// (Re)programa los pitidos del tramo actual. Se llama al empezar/seguir un tramo
+// y al saltar; cancela los anteriores para no doblar.
+function reprogramarAvisos() {
+  cancelarAvisos();
+  if (!obtenerPref("sonido") || !temp.corriendo) return;
+  if (!_ctxAudio()) return;
+  const finEnSeg = (temp.finMs - Date.now()) / 1000;
+  const hayOtro = temp.indice + 1 < temp.segmentos.length;
+  avisosDelTramo(finEnSeg, hayOtro).forEach((a) => _programarTono(a.freq, a.enSeg, 0.15, 0.3));
+}
+
 function vibrar(patron) {
   try {
     if (obtenerPref("vibracion") && navigator.vibrate) navigator.vibrate(patron);
@@ -91,7 +115,10 @@ function soltarWakeLock() {
   _wakeLock = null;
 }
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && temp.corriendo) pedirWakeLock();
+  if (document.visibilityState === "visible" && temp.corriendo) {
+    pedirWakeLock();
+    reprogramarAvisos(); // por si el navegador durmió el audio en segundo plano
+  }
 });
 
 // ==========================================================
@@ -133,8 +160,8 @@ let temp = {
   finMs: 0,        // marca de tiempo en que acaba el tramo actual
   pausaMs: 0,      // ms restantes al pausar
   terminadoEn: 0,  // marca de tiempo del final (para la píldora)
-  ultimoAviso: -1, // segundo entero en el que sonó el último tic (3-2-1)
   numSeries: 4,
+  etiqueta: "",    // "Press banca · 8-12 reps · 60 kg" cuando viene de Entrenar
 };
 
 function limitar(valor, min, max) {
@@ -163,7 +190,10 @@ function restaurarEstadoTiempo() {
         tempToggle.textContent = temp.terminadoEn
           ? "Empezar de nuevo"
           : (temp.corriendo ? "Pausar" : "Seguir");
-        if (temp.corriendo) pedirWakeLock();
+        if (temp.corriendo) {
+          pedirWakeLock();
+          reprogramarAvisos(); // el audio no sobrevive a recargar; se reprograma
+        }
       }
     }
     cronoToggle.textContent = crono.corriendo ? "Pausar" : (crono.acumuladoMs > 0 ? "Seguir" : "Empezar");
@@ -198,13 +228,17 @@ document.querySelectorAll("#temp-config .temp-stepper button").forEach((btn) => 
 });
 
 // Configura el temporizador desde fuera (lo usa "Entrenar")
-function configurarTemporizador({ numSeries, descansoSeg }) {
+function configurarTemporizador({ numSeries, descansoSeg, ejercicio, reps, peso } = {}) {
   const parcial = {};
   if (numSeries != null) parcial.numSeries = limitar(numSeries, 1, 15);
   if (descansoSeg != null) parcial.descansoSeg = limitar(descansoSeg, 5, 600);
   guardarTempConfig(parcial);
   pararTemporizador();
+  temp.etiqueta = construirEtiquetaTemp({ ejercicio, reps, peso });
+  guardarEstadoTiempo();
+  irASubtabTiempo("temporizador");
   pintarConfig();
+  pintarEtiquetaTemp();
 }
 
 // ---- Ejecución ----
@@ -221,13 +255,13 @@ function empezarTemporizador() {
   temp.indice = 0;
   temp.pausaMs = 0;
   temp.terminadoEn = 0;
-  temp.ultimoAviso = -1;
   temp.finMs = Date.now() + temp.segmentos[0].seg * 1000;
   temp.corriendo = true;
   tempConfigEl.classList.add("oculta");
   tempMarchaEl.classList.remove("oculta");
   tempToggle.textContent = "Pausar";
   pedirWakeLock();
+  reprogramarAvisos();
   guardarEstadoTiempo();
   pintarTemporizador();
 }
@@ -237,22 +271,27 @@ function pararTemporizador() {
   temp.pausaMs = 0;
   temp.indice = 0;
   temp.terminadoEn = 0;
+  temp.etiqueta = "";
+  cancelarAvisos();
+  cerrarFlotante();
   soltarWakeLock();
   tempMarchaEl.classList.add("oculta");
   tempConfigEl.classList.remove("oculta");
   bloqueTemporizador.dataset.fase = "";
+  if (tempEtiquetaEl) pintarEtiquetaTemp();
   guardarEstadoTiempo();
 }
 
 function avanzarTramo() {
-  // Si venimos "con retraso" (la app estuvo cerrada), avanzamos sin sonido
+  // Si venimos "con retraso" (la app estuvo cerrada), avanzamos sin vibración.
+  // El sonido no se toca aquí: ya estaba programado con Web Audio.
   const conRetraso = Date.now() - temp.finMs > 1500;
   temp.indice++;
-  temp.ultimoAviso = -1;
 
   if (temp.indice >= temp.segmentos.length) {
     temp.corriendo = false;
     temp.terminadoEn = temp.finMs;
+    cancelarAvisos();
     soltarWakeLock();
     tempFaseEl.textContent = "¡HECHO!";
     tempDisplayEl.textContent = "0:00";
@@ -260,20 +299,15 @@ function avanzarTramo() {
     tempRestantesEl.textContent = "Entrenamiento completado";
     tempToggle.textContent = "Empezar de nuevo";
     bloqueTemporizador.dataset.fase = "fin";
-    if (!conRetraso) {
-      pitido(3);
-      vibrar([300, 120, 300, 120, 300]);
-    }
+    if (!conRetraso) vibrar([300, 120, 300, 120, 300]);
     guardarEstadoTiempo();
     return;
   }
 
   // Al ponerse al día, encadenamos tramos desde el fin anterior (no desde ahora)
   temp.finMs = (conRetraso ? temp.finMs : Date.now()) + temp.segmentos[temp.indice].seg * 1000;
-  if (!conRetraso) {
-    pitido(1);
-    vibrar([200]);
-  }
+  reprogramarAvisos();
+  if (!conRetraso) vibrar([200]);
   guardarEstadoTiempo();
 }
 
@@ -287,13 +321,6 @@ function pintarTemporizador() {
   if (temp.corriendo && restante <= 0) {
     avanzarTramo();
     return;
-  }
-
-  // Tics 3-2-1
-  const entero = Math.ceil(restante);
-  if (temp.corriendo && entero <= 3 && entero >= 1 && entero !== temp.ultimoAviso) {
-    temp.ultimoAviso = entero;
-    pitido(1, true);
   }
 
   let etiquetaFase = NOMBRE_FASE[tramo.fase];
@@ -328,6 +355,7 @@ tempToggle.addEventListener("click", () => {
     temp.pausaMs = temp.finMs - Date.now();
     temp.corriendo = false;
     tempToggle.textContent = "Seguir";
+    cancelarAvisos();
     soltarWakeLock();
   } else {
     const restanteMs = temp.pausaMs > 0
@@ -338,6 +366,7 @@ tempToggle.addEventListener("click", () => {
     temp.corriendo = true;
     tempToggle.textContent = "Pausar";
     pedirWakeLock();
+    reprogramarAvisos();
   }
   guardarEstadoTiempo();
   pintarTemporizador();
@@ -353,6 +382,114 @@ tempSaltar.addEventListener("click", () => {
 tempReiniciar.addEventListener("click", pararTemporizador);
 
 document.getElementById("temp-empezar").addEventListener("click", empezarTemporizador);
+
+// ==========================================================
+//  Sub-pestañas: Temporizador | Cronómetro
+// ==========================================================
+
+function irASubtabTiempo(cual) {
+  document.querySelectorAll("#tiempo-tabs .conmutador-boton").forEach((b) => {
+    b.classList.toggle("activo", b.dataset.tiempo === cual);
+  });
+  document.querySelectorAll('.tiempo-vista').forEach((v) => {
+    v.classList.toggle("oculta", v.dataset.tiempo !== cual);
+  });
+}
+document.querySelectorAll("#tiempo-tabs .conmutador-boton").forEach((btn) => {
+  btn.addEventListener("click", () => irASubtabTiempo(btn.dataset.tiempo));
+});
+
+// Etiqueta del ejercicio ("Press banca · 8-12 reps · 60 kg")
+function pintarEtiquetaTemp() {
+  const t = temp.etiqueta || "";
+  tempEtiquetaEl.textContent = t;
+  tempEtiquetaEl.hidden = !t;
+}
+
+// ==========================================================
+//  Ventana flotante (Picture-in-Picture)
+//  Una ventanita con la cuenta atrás que se queda encima de otras apps.
+//  Es un truco: pintamos en un <canvas>, lo convertimos en vídeo y ese vídeo
+//  entra en modo Picture-in-Picture. No todos los navegadores lo permiten.
+// ==========================================================
+
+const flotanteBtn = document.getElementById("temp-flotante");
+const pipVideo = document.getElementById("pip-video");
+let _pipCanvas = null;
+let _pipCtx = null;
+
+const COLOR_FASE_PIP = {
+  prep: "#c2740c", serie: "#15803d", descanso: "#e2551f", fin: "#e2551f",
+};
+
+const flotanteDisponible = !!(
+  pipVideo &&
+  document.pictureInPictureEnabled &&
+  HTMLCanvasElement.prototype.captureStream
+);
+
+function dibujarPiP() {
+  if (!_pipCtx) return;
+  const c = _pipCtx;
+  const w = _pipCanvas.width;
+  const h = _pipCanvas.height;
+  const tramo = temp.segmentos[temp.indice];
+  const fase = temp.terminadoEn ? "fin" : (tramo ? tramo.fase : "");
+
+  c.fillStyle = COLOR_FASE_PIP[fase] || "#1f2937";
+  c.fillRect(0, 0, w, h);
+  c.fillStyle = "#fff";
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+
+  let faseTxt = temp.terminadoEn ? "¡HECHO!" : (NOMBRE_FASE[fase] || "");
+  if (fase === "serie" && tramo) faseTxt = `SERIE ${tramo.serie}/${temp.numSeries}`;
+  c.font = "bold 22px system-ui, -apple-system, sans-serif";
+  c.fillText(faseTxt, w / 2, 30);
+
+  c.font = "bold 64px system-ui, -apple-system, sans-serif";
+  c.fillText(temp.terminadoEn ? "0:00" : formatearCuentaAtras(segRestantes()), w / 2, h / 2 + 10);
+
+  if (temp.etiqueta) {
+    c.font = "14px system-ui, -apple-system, sans-serif";
+    const et = temp.etiqueta.length > 40 ? temp.etiqueta.slice(0, 39) + "…" : temp.etiqueta;
+    c.fillText(et, w / 2, h - 22);
+  }
+}
+
+async function abrirFlotante() {
+  if (!flotanteDisponible) return;
+  try {
+    if (!_pipCanvas) {
+      _pipCanvas = document.createElement("canvas");
+      _pipCanvas.width = 320;
+      _pipCanvas.height = 180;
+      _pipCtx = _pipCanvas.getContext("2d");
+      pipVideo.srcObject = _pipCanvas.captureStream(8);
+    }
+    dibujarPiP();
+    await pipVideo.play();
+    await pipVideo.requestPictureInPicture();
+  } catch (e) {
+    avisar("Tu navegador no ha dejado abrir la ventana flotante.");
+  }
+}
+
+function cerrarFlotante() {
+  try {
+    if (document.pictureInPictureElement) document.exitPictureInPicture();
+  } catch (e) { /* nada */ }
+}
+
+async function alternarFlotante() {
+  if (document.pictureInPictureElement) cerrarFlotante();
+  else await abrirFlotante();
+}
+
+if (flotanteDisponible) {
+  flotanteBtn.hidden = false;
+  flotanteBtn.addEventListener("click", alternarFlotante);
+}
 
 // ==========================================================
 //  Píldora flotante
@@ -389,11 +526,14 @@ pildora.addEventListener("click", () => irA("cronometro"));
 function tick() {
   cronoDisplay.textContent = formatearCronometro(cronoMs(), obtenerPref("cronDecimas"));
   if (temp.corriendo || temp.terminadoEn) pintarTemporizador();
+  pintarEtiquetaTemp();
   pintarPildora();
+  if (document.pictureInPictureElement) dibujarPiP();
 }
 setInterval(tick, 100);
 
 // Arranque
 restaurarEstadoTiempo();
 pintarConfig();
+pintarEtiquetaTemp();
 tick();

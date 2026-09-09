@@ -569,6 +569,23 @@ prueba("app.js: reacciona a 'controllerchange' usando decidirActualizacion", () 
   esVerdad(/decidirActualizacion/.test(src), "app.js debe usar decidirActualizacion");
 });
 
+// ---- Fusión Rutinas + Entrenar ----
+
+prueba("conflictoDeSesion: ninguna / misma / otra", () => {
+  igual(conflictoDeSesion(null, "r1"), "ninguna");
+  igual(conflictoDeSesion({ routineId: "r1" }, "r1"), "misma");
+  igual(conflictoDeSesion({ routineId: "r2" }, "r1"), "otra");
+});
+
+prueba("index.html: una sola pestaña Entrenar (sin sección 'rutinas', 4 botones de menú)", () => {
+  const html = _leerArchivo("../index.html");
+  esVerdad(!/data-seccion="rutinas"/.test(html), "no debe quedar la sección 'rutinas'");
+  esVerdad(/data-seccion="entrenar"/.test(html), "debe existir la sección 'entrenar'");
+  igual((html.match(/class="menu-boton/g) || []).length, 4, "el menú inferior tiene 4 botones");
+  esVerdad(/id="btn-empezar-entreno"/.test(html), "el detalle tiene el botón Empezar");
+  esVerdad(/id="barra-entreno"/.test(html), "existe la barra 'entreno en curso'");
+});
+
 prueba("styles.css: el atributo 'hidden' oculta DE VERDAD la barra de aviso", () => {
   // Bug real de la barra pegada: .aviso-version { display:flex } ganaba a
   // [hidden]{display:none}, así que la barra se veía siempre pasara lo que pasara.

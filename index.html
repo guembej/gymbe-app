@@ -80,7 +80,7 @@
   <!-- Contenido: una sección visible cada vez -->
   <main id="contenido">
 
-    <section class="seccion" data-seccion="rutinas">
+    <section class="seccion" data-seccion="entrenar">
       <!-- Conmutador entre Rutinas y Ejercicios -->
       <div class="conmutador">
         <button class="conmutador-boton activo" data-vista="mis-rutinas">Rutinas</button>
@@ -94,55 +94,54 @@
           <ul id="lista-rutinas" class="lista"></ul>
         </div>
 
-        <!-- Detalle de una rutina (ejercicios que la componen) -->
+        <!-- Detalle de una rutina: ver ejercicios + Empezar; o editar -->
         <div id="rutina-detalle" class="oculta">
-          <button id="btn-volver-rutinas" class="boton-enlace">&larr; Todas las rutinas</button>
+          <button id="btn-volver-rutinas" class="boton-enlace">&larr; Rutinas</button>
 
           <div class="detalle-cabecera">
             <div class="detalle-titulo">
               <h2 id="detalle-nombre"></h2>
               <span id="detalle-division" class="etiqueta etiqueta-division"></span>
             </div>
-            <div class="tarjeta-acciones">
-              <button class="icono-boton" id="btn-editar-rutina" title="Editar rutina">✏️</button>
+            <div class="tarjeta-acciones detalle-solo-edicion">
+              <button class="icono-boton" id="btn-editar-datos-rutina" title="Editar nombre y división">✏️</button>
               <button class="icono-boton" id="btn-borrar-rutina" title="Borrar rutina">🗑️</button>
             </div>
           </div>
 
           <ul id="lista-items" class="lista"></ul>
-          <button id="btn-anadir-item" class="boton-primario ancho-completo">+ Añadir ejercicio</button>
+          <button id="btn-anadir-item" class="boton-secundario ancho-completo detalle-solo-edicion">+ Añadir ejercicio</button>
+
+          <div class="detalle-pie">
+            <button id="btn-empezar-entreno" class="boton-primario ancho-completo detalle-solo-lectura">Empezar entrenamiento</button>
+            <button id="btn-editar-rutina" class="boton-enlace detalle-solo-lectura">Editar rutina</button>
+            <button id="btn-fin-editar" class="boton-enlace detalle-solo-edicion">&larr; Listo</button>
+          </div>
+        </div>
+
+        <!-- Entreno en curso -->
+        <div id="entrenar-activo" class="oculta">
+          <button id="btn-volver-lista-entreno" class="boton-enlace">&larr; Rutinas</button>
+          <div class="detalle-cabecera">
+            <div class="detalle-titulo">
+              <h2 id="activo-nombre"></h2>
+              <span id="activo-division" class="etiqueta etiqueta-division"></span>
+            </div>
+            <span id="activo-fecha" class="tarjeta-nota"></span>
+          </div>
+
+          <div id="activo-ejercicios"></div>
+
+          <div class="acciones-entreno">
+            <button id="btn-descartar" class="boton-secundario">Descartar</button>
+            <button id="btn-terminar" class="boton-primario">Terminar</button>
+          </div>
         </div>
       </div>
 
       <div class="vista oculta" data-vista="mis-ejercicios">
         <button id="btn-nuevo-ejercicio" class="boton-primario ancho-completo">+ Nuevo ejercicio</button>
         <ul id="lista-ejercicios" class="lista"></ul>
-      </div>
-    </section>
-
-    <section class="seccion oculta" data-seccion="entrenar">
-      <!-- Elegir una rutina para empezar -->
-      <div id="entrenar-elegir">
-        <p class="ayuda">Elige una rutina para empezar a entrenar.</p>
-        <ul id="lista-empezar" class="lista"></ul>
-      </div>
-
-      <!-- Entreno en curso -->
-      <div id="entrenar-activo" class="oculta">
-        <div class="detalle-cabecera">
-          <div class="detalle-titulo">
-            <h2 id="activo-nombre"></h2>
-            <span id="activo-division" class="etiqueta etiqueta-division"></span>
-          </div>
-          <span id="activo-fecha" class="tarjeta-nota"></span>
-        </div>
-
-        <div id="activo-ejercicios"></div>
-
-        <div class="acciones-entreno">
-          <button id="btn-descartar" class="boton-secundario">Descartar</button>
-          <button id="btn-terminar" class="boton-primario">Terminar</button>
-        </div>
       </div>
     </section>
 
@@ -335,6 +334,11 @@
 
   </main>
 
+  <!-- Barra "entreno en curso": aparece fuera de la pestaña Entrenar -->
+  <button id="barra-entreno" class="barra-entreno oculta">
+    <span>🏋️ Entrenamiento en curso</span><span class="barra-entreno-flecha">›</span>
+  </button>
+
   <!-- Píldora flotante del temporizador de descanso (visible en cualquier pantalla) -->
   <button id="pildora-descanso" class="pildora-descanso oculta" aria-label="Ver temporizador">
     <span id="pildora-texto">descanso 1:30</span>
@@ -342,10 +346,7 @@
 
   <!-- Menú inferior -->
   <nav class="menu-inferior">
-    <button class="menu-boton activo" data-ir="rutinas">
-      <span class="menu-icono">📋</span><span class="menu-texto">Rutinas</span>
-    </button>
-    <button class="menu-boton" data-ir="entrenar">
+    <button class="menu-boton activo" data-ir="entrenar">
       <span class="menu-icono">🏋️</span><span class="menu-texto">Entrenar</span>
     </button>
     <button class="menu-boton" data-ir="historial">

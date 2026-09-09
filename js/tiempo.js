@@ -419,8 +419,9 @@ let _pipCanvas = null;
 let _pipCtx = null;
 
 const COLOR_FASE_PIP = {
-  prep: "#c2740c", serie: "#15803d", descanso: "#e2551f", fin: "#e2551f",
+  prep: "#c2740c", serie: "#15803d", descanso: "#e2551f", fin: "#e2551f", "": "#1f2937",
 };
+const ETIQUETA_FASE_PIP = { prep: "PREPARA", serie: "SERIE", descanso: "DESCANSO" };
 
 const flotanteDisponible = !!(
   pipVideo &&
@@ -428,6 +429,8 @@ const flotanteDisponible = !!(
   HTMLCanvasElement.prototype.captureStream
 );
 
+// Se pinta como una TIRA ancha y baja (3:1): "DESCANSO      1:12" en una línea,
+// sobre el color de la fase. Cuanto más plana, menos molesta encima de otra app.
 function dibujarPiP() {
   if (!_pipCtx) return;
   const c = _pipCtx;
@@ -439,22 +442,22 @@ function dibujarPiP() {
   c.fillStyle = COLOR_FASE_PIP[fase] || "#1f2937";
   c.fillRect(0, 0, w, h);
   c.fillStyle = "#fff";
-  c.textAlign = "center";
   c.textBaseline = "middle";
 
-  let faseTxt = temp.terminadoEn ? "¡HECHO!" : (NOMBRE_FASE[fase] || "");
-  if (fase === "serie" && tramo) faseTxt = `SERIE ${tramo.serie}/${temp.numSeries}`;
-  c.font = "bold 22px system-ui, -apple-system, sans-serif";
-  c.fillText(faseTxt, w / 2, 30);
-
-  c.font = "bold 64px system-ui, -apple-system, sans-serif";
-  c.fillText(temp.terminadoEn ? "0:00" : formatearCuentaAtras(segRestantes()), w / 2, h / 2 + 10);
-
-  if (temp.etiqueta) {
-    c.font = "14px system-ui, -apple-system, sans-serif";
-    const et = temp.etiqueta.length > 40 ? temp.etiqueta.slice(0, 39) + "…" : temp.etiqueta;
-    c.fillText(et, w / 2, h - 22);
+  if (temp.terminadoEn) {
+    c.textAlign = "center";
+    c.font = "bold 34px system-ui, -apple-system, sans-serif";
+    c.fillText("¡HECHO!", w / 2, h / 2);
+    return;
   }
+
+  c.textAlign = "left";
+  c.font = "bold 18px system-ui, -apple-system, sans-serif";
+  c.fillText(ETIQUETA_FASE_PIP[fase] || "", 16, h / 2);
+
+  c.textAlign = "right";
+  c.font = "bold 48px system-ui, -apple-system, sans-serif";
+  c.fillText(formatearCuentaAtras(segRestantes()), w - 16, h / 2 + 2);
 }
 
 async function abrirFlotante() {
@@ -462,8 +465,8 @@ async function abrirFlotante() {
   try {
     if (!_pipCanvas) {
       _pipCanvas = document.createElement("canvas");
-      _pipCanvas.width = 320;
-      _pipCanvas.height = 180;
+      _pipCanvas.width = 288;   // tira 3:1: baja y ancha
+      _pipCanvas.height = 96;
       _pipCtx = _pipCanvas.getContext("2d");
       pipVideo.srcObject = _pipCanvas.captureStream(8);
     }

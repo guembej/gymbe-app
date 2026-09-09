@@ -26,6 +26,7 @@ const selectEjercicioItem = formItem.elements.exerciseId;
 let editandoRutinaId = null;     // en el diálogo de rutina: null = creando
 let rutinaAbiertaId = null;      // rutina cuyo detalle se está viendo (null = lista)
 let editandoItemIndice = null;   // en el diálogo de item: null = añadiendo
+let detalleModoEdicion = false;  // detalle: false = ver + Empezar; true = editar ejercicios
 
 // Rellenar el desplegable de divisiones (una sola vez)
 const opcionSinDivision = document.createElement("option");
@@ -119,21 +120,37 @@ function pintarRutinas() {
 
 function abrirDetalle(rutinaId) {
   rutinaAbiertaId = rutinaId;
+  detalleModoEdicion = false; // siempre se abre en modo "ver + Empezar"
   panelLista.classList.add("oculta");
+  document.getElementById("entrenar-activo").classList.add("oculta");
   panelDetalle.classList.remove("oculta");
   pintarDetalle();
+  if (typeof actualizarBarraEntreno === "function") actualizarBarraEntreno();
 }
 
 function volverALista() {
   rutinaAbiertaId = null;
+  detalleModoEdicion = false;
   panelDetalle.classList.add("oculta");
   panelLista.classList.remove("oculta");
   pintarRutinas();
+  if (typeof actualizarBarraEntreno === "function") actualizarBarraEntreno();
 }
 
 document.getElementById("btn-volver-rutinas").addEventListener("click", volverALista);
 
+// Enlace "Editar rutina" / "‹ Listo": entra y sale del modo edición
 document.getElementById("btn-editar-rutina").addEventListener("click", () => {
+  detalleModoEdicion = true;
+  pintarDetalle();
+});
+document.getElementById("btn-fin-editar").addEventListener("click", () => {
+  detalleModoEdicion = false;
+  pintarDetalle();
+});
+
+// ✏️ (solo en modo edición): cambiar nombre / división
+document.getElementById("btn-editar-datos-rutina").addEventListener("click", () => {
   const rutina = obtenerRutina(rutinaAbiertaId);
   if (rutina) abrirFormRutina(rutina);
 });
@@ -148,6 +165,26 @@ document.getElementById("btn-borrar-rutina").addEventListener("click", async () 
 
 document.getElementById("btn-anadir-item").addEventListener("click", () => abrirFormItem(null));
 
+// "Empezar entrenamiento" desde el detalle de la rutina
+document.getElementById("btn-empezar-entreno").addEventListener("click", empezarDesdeDetalle);
+
+async function empezarDesdeDetalle() {
+  const rutina = obtenerRutina(rutinaAbiertaId);
+  if (!rutina || rutina.items.length === 0) return;
+
+  const rel = conflictoDeSesion(sesionActiva(), rutina.id);
+  if (rel === "otra") {
+    const ok = await confirmar(
+      `Ya tienes un entreno en curso de «${sesionActiva().routineNombre}». ¿Descartarlo y empezar «${rutina.nombre}»?`,
+      { aceptar: "Descartar y empezar", peligro: true }
+    );
+    if (!ok) return;
+    descartarSesionActiva();
+  }
+  if (!sesionActiva()) empezarSesion(rutina.id);
+  mostrarPanelEntreno();
+}
+
 // Muestra "90 s", "2 min", "2:30" o "sin descanso"
 function formatearDescanso(segundos) {
   if (!segundos) return "sin descanso";
@@ -161,16 +198,23 @@ function pintarDetalle() {
   const rutina = obtenerRutina(rutinaAbiertaId);
   if (!rutina) return volverALista();
 
+  panelDetalle.classList.toggle("modo-edicion", detalleModoEdicion);
+
   detalleNombreEl.textContent = rutina.nombre;
   detalleDivisionEl.textContent = rutina.division;
   detalleDivisionEl.dataset.division = rutina.division || "";
   detalleDivisionEl.hidden = !rutina.division;
 
+  const btnEmpezar = document.getElementById("btn-empezar-entreno");
+  btnEmpezar.disabled = rutina.items.length === 0;
+  btnEmpezar.title = rutina.items.length === 0 ? "Añade ejercicios a la rutina primero" : "";
+
   listaItemsEl.innerHTML = "";
 
   if (rutina.items.length === 0) {
-    listaItemsEl.innerHTML =
-      '<li class="vacio">Esta rutina no tiene ejercicios todavía.</li>';
+    listaItemsEl.innerHTML = detalleModoEdicion
+      ? '<li class="vacio">Esta rutina no tiene ejercicios todavía.</li>'
+      : '<li class="vacio">Esta rutina no tiene ejercicios. Pulsa «Editar rutina» para añadirlos.</li>';
     return;
   }
 
@@ -185,36 +229,54 @@ function pintarDetalle() {
 
     const li = document.createElement("li");
     li.className = "tarjeta item-rutina";
-    li.innerHTML = `
-      <span class="item-num">${indice + 1}</span>
-      <div class="item-contenido">
-        <div class="item-fila-top">
-          <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>
-          <div class="tarjeta-acciones">
-            <button class="icono-boton" data-accion="subir" title="Subir">▲</button>
-            <button class="icono-boton" data-accion="bajar" title="Bajar">▼</button>
-            <button class="icono-boton" data-accion="editar" title="Editar">✏️</button>
-            <button class="icono-boton" data-accion="borrar" title="Quitar">🗑️</button>
+
+    if (detalleModoEdicion) {
+      li.innerHTML = `
+        <span class="item-num">${indice + 1}</span>
+        <div class="item-contenido">
+          <div class="item-fila-top">
+            <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>
+            <div class="tarjeta-acciones">
+              <button class="icono-boton" data-accion="subir" title="Subir">▲</button>
+              <button class="icono-boton" data-accion="bajar" title="Bajar">▼</button>
+              <button class="icono-boton" data-accion="editar" title="Editar">✏️</button>
+              <button class="icono-boton" data-accion="borrar" title="Quitar">🗑️</button>
+            </div>
           </div>
+          <span class="tarjeta-nota">${escaparHtml(resumen)}</span>
         </div>
-        <span class="tarjeta-nota">${escaparHtml(resumen)}</span>
-      </div>
-    `;
-    li.querySelector('[data-accion="subir"]').addEventListener("click", () => {
-      moverItemRutina(rutinaAbiertaId, indice, -1);
-      pintarDetalle();
-    });
-    li.querySelector('[data-accion="bajar"]').addEventListener("click", () => {
-      moverItemRutina(rutinaAbiertaId, indice, 1);
-      pintarDetalle();
-    });
-    li.querySelector('[data-accion="editar"]').addEventListener("click", () => abrirFormItem(indice));
-    li.querySelector('[data-accion="borrar"]').addEventListener("click", async () => {
-      if (await confirmar(`¿Quitar "${nombre}" de la rutina?`, { aceptar: "Quitar", peligro: true })) {
-        quitarItemRutina(rutinaAbiertaId, indice);
+      `;
+      li.querySelector('[data-accion="subir"]').addEventListener("click", () => {
+        moverItemRutina(rutinaAbiertaId, indice, -1);
         pintarDetalle();
-      }
-    });
+      });
+      li.querySelector('[data-accion="bajar"]').addEventListener("click", () => {
+        moverItemRutina(rutinaAbiertaId, indice, 1);
+        pintarDetalle();
+      });
+      li.querySelector('[data-accion="editar"]').addEventListener("click", () => abrirFormItem(indice));
+      li.querySelector('[data-accion="borrar"]').addEventListener("click", async () => {
+        if (await confirmar(`¿Quitar "${nombre}" de la rutina?`, { aceptar: "Quitar", peligro: true })) {
+          quitarItemRutina(rutinaAbiertaId, indice);
+          pintarDetalle();
+        }
+      });
+    } else {
+      // Modo "ver": solo lectura + la mejor marca del último día
+      const ultima = mejorSerieUltimoDia(item.exerciseId);
+      const ultimaTexto = ultima
+        ? `última: ${String(ultima.peso).replace(".", ",")} kg × ${ultima.reps || "—"}`
+        : "";
+      li.innerHTML = `
+        <span class="item-num">${indice + 1}</span>
+        <div class="item-contenido">
+          <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>
+          <span class="tarjeta-nota">${escaparHtml(resumen)}</span>
+          ${ultimaTexto ? `<span class="ultima-vez">${escaparHtml(ultimaTexto)}</span>` : ""}
+        </div>
+      `;
+    }
+
     listaItemsEl.appendChild(li);
   });
 }

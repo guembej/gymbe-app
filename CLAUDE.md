@@ -24,6 +24,15 @@ js/app.js          Lógica principal
 assets/            Iconos, librerías locales
 ```
 
+## Navegación (v1.2.0+)
+4 pestañas: **Entrenar · Historial · Progreso · Tiempo**. "Entrenar" reúne lo que
+antes eran Rutinas + Entrenar: sub-conmutador Rutinas|Ejercicios; tocar una rutina
+abre su detalle en modo "ver" (ejercicios en solo lectura + botón "Empezar
+entrenamiento" + enlace "Editar rutina"); "Editar rutina" pasa a modo edición
+(`#rutina-detalle.modo-edicion`). Al empezar, el panel `#entrenar-activo` sustituye
+a la lista dentro de esa vista. Barra `#barra-entreno` ("entreno en curso") en las
+demás pestañas para volver. `.oculta` y `[hidden]` llevan `display:none!important`.
+
 ## Modelo de datos (real, clave localStorage `gym.datos.v1`)
 - `ejercicios`: [{ id, nombre, grupo, nota }]
   - `grupo` de lista fija `GRUPOS_MUSCULARES` (Pecho, Espalda, Pierna, Hombro, Bíceps, Tríceps, Core, Otro)

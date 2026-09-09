@@ -1,17 +1,19 @@
 // ==========================================================
 //  Pestaña "Entrenar" — registrar un entrenamiento
-//  - Elegir una rutina y empezar
-//  - Ir marcando cada serie (peso y repes reales)
-//  - El entreno en curso se guarda: puedes cerrar la app y seguir
+//  La lista de rutinas y su detalle los pinta rutinas.js. Aquí gestionamos
+//  el panel del entreno EN CURSO y qué panel se ve dentro de la vista "Rutinas":
+//    #rutinas-lista-panel  ·  #rutina-detalle  ·  #entrenar-activo
+//  El entreno en curso se guarda: puedes cerrar la app y seguir.
 // ==========================================================
 
-const panelElegir = document.getElementById("entrenar-elegir");
 const panelActivo = document.getElementById("entrenar-activo");
-const listaEmpezarEl = document.getElementById("lista-empezar");
+const panelListaRutinas = document.getElementById("rutinas-lista-panel");
+const panelDetalleRutina = document.getElementById("rutina-detalle");
 const activoNombreEl = document.getElementById("activo-nombre");
 const activoDivisionEl = document.getElementById("activo-division");
 const activoFechaEl = document.getElementById("activo-fecha");
 const activoEjerciciosEl = document.getElementById("activo-ejercicios");
+const barraEntrenoEl = document.getElementById("barra-entreno");
 
 // "12 mar · 18:30"
 function formatearFechaHora(iso) {
@@ -21,63 +23,57 @@ function formatearFechaHora(iso) {
   return `${fecha} · ${hora}`;
 }
 
-// Muestra el panel correcto según haya o no un entreno en curso
+// Asegura que dentro de "Entrenar" se ve la sub-vista "Rutinas" (no "Ejercicios")
+function irAVistaRutinas() {
+  document.querySelectorAll('.seccion[data-seccion="entrenar"] .vista').forEach((v) => {
+    v.classList.toggle("oculta", v.dataset.vista !== "mis-rutinas");
+  });
+  document.querySelectorAll('.seccion[data-seccion="entrenar"] .conmutador-boton').forEach((b) => {
+    b.classList.toggle("activo", b.dataset.vista === "mis-rutinas");
+  });
+}
+
+// Muestra el panel del entreno en curso (oculta lista y detalle)
+function mostrarPanelEntreno() {
+  if (!sesionActiva()) return renderEntrenar();
+  irAVistaRutinas();
+  panelListaRutinas.classList.add("oculta");
+  panelDetalleRutina.classList.add("oculta");
+  panelActivo.classList.remove("oculta");
+  pintarSesionActiva();
+  actualizarBarraEntreno();
+}
+
+// Vuelve a la lista de rutinas SIN descartar el entreno
+function volverAListaDesdeEntreno() {
+  panelActivo.classList.add("oculta");
+  panelDetalleRutina.classList.add("oculta");
+  panelListaRutinas.classList.remove("oculta");
+  if (typeof pintarRutinas === "function") pintarRutinas();
+  actualizarBarraEntreno();
+}
+
+// Al abrir la pestaña "Entrenar": si hay entreno en curso, su panel; si no, la lista
 function renderEntrenar() {
   if (sesionActiva()) {
-    panelElegir.classList.add("oculta");
-    panelActivo.classList.remove("oculta");
-    pintarSesionActiva();
+    mostrarPanelEntreno();
   } else {
     panelActivo.classList.add("oculta");
-    panelElegir.classList.remove("oculta");
-    pintarListaEmpezar();
+    panelDetalleRutina.classList.add("oculta");
+    panelListaRutinas.classList.remove("oculta");
+    if (typeof pintarRutinas === "function") pintarRutinas();
+    actualizarBarraEntreno();
   }
 }
 
-// ---- Elegir rutina ----
-
-function pintarListaEmpezar() {
-  const rutinas = listarRutinas();
-  listaEmpezarEl.innerHTML = "";
-
-  if (rutinas.length === 0) {
-    listaEmpezarEl.innerHTML =
-      '<li class="vacio">Crea una rutina en la pestaña «Rutinas».</li>';
-    return;
-  }
-
-  rutinas.forEach((rutina) => {
-    const n = rutina.items.length;
-    const li = document.createElement("li");
-    li.className = "tarjeta";
-    li.innerHTML = `
-      <div class="tarjeta-cuerpo">
-        <div class="tarjeta-encabezado">
-          <span class="tarjeta-titulo">${escaparHtml(rutina.nombre)}</span>
-          ${htmlEtiquetaDivision(rutina.division)}
-        </div>
-        <span class="tarjeta-nota">${n === 1 ? "1 ejercicio" : n + " ejercicios"}</span>
-      </div>
-    `;
-
-    const acciones = document.createElement("div");
-    acciones.className = "tarjeta-acciones";
-    const boton = document.createElement("button");
-    boton.className = "boton-primario";
-    boton.textContent = "Empezar";
-    if (n === 0) {
-      boton.disabled = true;
-      boton.title = "Añade ejercicios a la rutina primero";
-    } else {
-      boton.addEventListener("click", () => {
-        empezarSesion(rutina.id);
-        renderEntrenar();
-      });
-    }
-    acciones.appendChild(boton);
-    li.appendChild(acciones);
-    listaEmpezarEl.appendChild(li);
-  });
+// Barra "Entrenamiento en curso": visible si hay entreno y NO estás viéndolo
+function actualizarBarraEntreno() {
+  if (!barraEntrenoEl) return;
+  const hay = !!sesionActiva();
+  const seccion = document.querySelector(".seccion:not(.oculta)");
+  const enPanelEntreno = seccion && seccion.dataset.seccion === "entrenar"
+    && !panelActivo.classList.contains("oculta");
+  barraEntrenoEl.classList.toggle("oculta", !hay || enPanelEntreno);
 }
 
 // ---- Entreno en curso ----
@@ -260,6 +256,8 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
 
 // ---- Terminar / descartar ----
 
+document.getElementById("btn-volver-lista-entreno").addEventListener("click", volverAListaDesdeEntreno);
+
 document.getElementById("btn-descartar").addEventListener("click", async () => {
   if (await confirmar("¿Descartar este entreno? No se guardará nada.", { aceptar: "Descartar", peligro: true })) {
     descartarSesionActiva();
@@ -284,11 +282,9 @@ document.getElementById("btn-terminar").addEventListener("click", async () => {
 
   const guardada = terminarSesion();
   await avisar(`Entrenamiento guardado (${guardada.sets.length} ${guardada.sets.length === 1 ? "serie" : "series"}).`);
-  renderEntrenar();
+  volverAListaDesdeEntreno();
 });
 
 // ---- Arranque ----
-
-// Repintar al abrir la pestaña Entrenar (por si hay un entreno a medias)
-document.querySelector('[data-ir="entrenar"]').addEventListener("click", renderEntrenar);
+// (irA("entrenar") en app.js ya llama a renderEntrenar; aquí solo el primer pintado)
 renderEntrenar();

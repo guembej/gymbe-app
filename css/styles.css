@@ -1,11 +1,10 @@
 /* ---- Base ---- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* El atributo "hidden" siempre oculta, aunque luego una regla ponga display:flex/grid.
-   (Sin esto, .aviso-version { display:flex } ganaba a [hidden]{display:none} del
-   navegador por tener la misma especificidad y venir después: la barra "Versión
-   nueva" se veía siempre.) */
-[hidden] { display: none !important; }
+/* "hidden" y la clase .oculta SIEMPRE ocultan, aunque otra regla ponga
+   display:flex/grid con la misma especificidad y venga después (p. ej.
+   .barra-entreno { display:flex }). Sin el !important se veían igual. */
+[hidden], .oculta { display: none !important; }
 
 :root {
   --fondo: #111827;
@@ -149,7 +148,7 @@ body {
   padding: 16px;
   padding-bottom: calc(var(--alto-menu) + 24px);
 }
-.oculta { display: none; }
+/* (.oculta se define arriba, junto a [hidden], con !important) */
 
 .vacio {
   color: var(--texto-suave);
@@ -413,7 +412,8 @@ body {
 .bloque-ejercicio h3 { font-size: 16px; font-weight: 600; }
 .objetivo { font-size: 12px; color: var(--texto-suave); margin: 4px 0 12px; }
 .bloque-ejercicio .objetivo { margin-bottom: 2px; }
-.ultima-vez { font-size: 12px; color: var(--texto); margin: 0 0 12px; font-weight: 600; }
+.ultima-vez { display: block; font-size: 12px; color: var(--texto); margin: 0 0 12px; font-weight: 600; }
+.item-contenido .ultima-vez { margin: 0; }
 
 .serie-fila {
   display: grid;
@@ -462,12 +462,50 @@ body {
 .bloque-pie .boton-enlace { margin: 0; }
 .btn-temporizador { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
 
+/* Barra "Entrenamiento en curso" (fuera de la pestaña Entrenar) */
+.barra-entreno {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--alto-menu) + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 18px;
+  background: var(--acento);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 49;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+}
+.barra-entreno-flecha { font-size: 20px; line-height: 1; }
+/* deja hueco para que la barra no tape el final del contenido */
+body:has(.barra-entreno:not(.oculta)) #contenido {
+  padding-bottom: calc(var(--alto-menu) + 72px);
+}
+
+/* Detalle de rutina: modo "ver + Empezar" vs modo "editar" */
+#rutina-detalle:not(.modo-edicion) .detalle-solo-edicion { display: none; }
+#rutina-detalle.modo-edicion .detalle-solo-lectura { display: none; }
+.detalle-pie {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.detalle-pie .boton-enlace { margin: 0; }
+
 /* Píldora flotante del temporizador */
 .pildora-descanso {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--alto-menu) + env(safe-area-inset-bottom) + 12px);
+  bottom: calc(var(--alto-menu) + env(safe-area-inset-bottom) + 56px);
   background: var(--acento);
   color: #fff;
   border: none;

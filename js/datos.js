@@ -592,6 +592,13 @@ function mejorSerieUltimoDia(exerciseId) {
   return null;
 }
 
+// Al pulsar "Empezar entrenamiento" con una rutina, ¿qué relación tiene con el
+// entreno que ya haya en curso? "ninguna" | "misma" (misma rutina) | "otra".
+function conflictoDeSesion(sesion, rutinaId) {
+  if (!sesion) return "ninguna";
+  return sesion.routineId === rutinaId ? "misma" : "otra";
+}
+
 // ¿Hay que marcar sola esta serie? Sí cuando peso y reps tienen valor y aún no
 // está marcada. (Nunca se desmarca sola: eso es siempre manual con la casilla.)
 function debeMarcarSerie(fila) {

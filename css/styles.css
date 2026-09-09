@@ -491,14 +491,21 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 /* Detalle de rutina: modo "ver + Empezar" vs modo "editar" */
 #rutina-detalle:not(.modo-edicion) .detalle-solo-edicion { display: none; }
 #rutina-detalle.modo-edicion .detalle-solo-lectura { display: none; }
-.detalle-pie {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+#btn-fin-editar { display: block; margin: 14px auto 0; }
+
+/* Modo "ver": el botón "Empezar" va fijo abajo (no hay que hacer scroll).
+   El padding deja hueco para que no tape el último ejercicio. */
+#rutina-detalle:not(.modo-edicion) { padding-bottom: 78px; }
+.detalle-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--alto-menu) + env(safe-area-inset-bottom));
+  padding: 10px 16px;
+  background: var(--fondo);
+  border-top: 1px solid var(--borde);
+  z-index: 30;
 }
-.detalle-pie .boton-enlace { margin: 0; }
 
 /* Píldora flotante del temporizador */
 .pildora-descanso {

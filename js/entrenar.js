@@ -66,14 +66,19 @@ function renderEntrenar() {
   }
 }
 
-// Barra "Entrenamiento en curso": visible si hay entreno y NO estás viéndolo
+// Barra "Entrenamiento en curso": visible si hay entreno y estás en otra pantalla
+// (no en el panel del entreno ni en el detalle de una rutina, que ya tiene su
+// propio botón fijo "Empezar entrenamiento").
 function actualizarBarraEntreno() {
   if (!barraEntrenoEl) return;
   const hay = !!sesionActiva();
   const seccion = document.querySelector(".seccion:not(.oculta)");
-  const enPanelEntreno = seccion && seccion.dataset.seccion === "entrenar"
-    && !panelActivo.classList.contains("oculta");
-  barraEntrenoEl.classList.toggle("oculta", !hay || enPanelEntreno);
+  const enEntrenar = seccion && seccion.dataset.seccion === "entrenar";
+  const tapado = enEntrenar && (
+    !panelActivo.classList.contains("oculta") ||
+    !panelDetalleRutina.classList.contains("oculta")
+  );
+  barraEntrenoEl.classList.toggle("oculta", !hay || tapado);
 }
 
 // ---- Entreno en curso ----

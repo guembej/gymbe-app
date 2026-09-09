@@ -141,10 +141,15 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
+Versión 1.2.2 (2026-09-09):
+- Detalle de rutina: el botón "Empezar entrenamiento" va FIJO abajo (antes había
+  que hacer scroll hasta el final). "Editar rutina" pasa a un ✏️ en la cabecera.
+- Ventana flotante (PiP): tipografía a dos alturas — la fase arriba en versalitas
+  espaciadas y translúcidas, el tiempo abajo grande y en negrita.
+
 Versión 1.2.1 (2026-09-09): la ventana flotante (PiP) se pinta como la píldora de
-dentro de la app: fondo del color de la fase y "descanso · 1:12" en una línea,
-centrado y grande (Android redondea las esquinas). Proporción 2.39:1 (lo más plano
-que Chrome-Android permite). textoPiP() en tiempo.js.
+dentro de la app: fondo del color de la fase, centrado (Android redondea las
+esquinas). Proporción 2.39:1 (lo más plano que Chrome-Android permite).
 
 Versión 1.2.0 (2026-09-09):
 - Fusión Rutinas + Entrenar en una sola pestaña "Entrenar" (menú a 4 pestañas).

@@ -103,19 +103,20 @@
               <h2 id="detalle-nombre"></h2>
               <span id="detalle-division" class="etiqueta etiqueta-division"></span>
             </div>
-            <div class="tarjeta-acciones detalle-solo-edicion">
-              <button class="icono-boton" id="btn-editar-datos-rutina" title="Editar nombre y división">✏️</button>
-              <button class="icono-boton" id="btn-borrar-rutina" title="Borrar rutina">🗑️</button>
+            <div class="tarjeta-acciones">
+              <button class="icono-boton detalle-solo-lectura" id="btn-editar-rutina" title="Editar rutina">✏️</button>
+              <button class="icono-boton detalle-solo-edicion" id="btn-editar-datos-rutina" title="Editar nombre y división">✏️</button>
+              <button class="icono-boton detalle-solo-edicion" id="btn-borrar-rutina" title="Borrar rutina">🗑️</button>
             </div>
           </div>
 
           <ul id="lista-items" class="lista"></ul>
           <button id="btn-anadir-item" class="boton-secundario ancho-completo detalle-solo-edicion">+ Añadir ejercicio</button>
+          <button id="btn-fin-editar" class="boton-enlace detalle-solo-edicion">&larr; Listo de editar</button>
 
-          <div class="detalle-pie">
-            <button id="btn-empezar-entreno" class="boton-primario ancho-completo detalle-solo-lectura">Empezar entrenamiento</button>
-            <button id="btn-editar-rutina" class="boton-enlace detalle-solo-lectura">Editar rutina</button>
-            <button id="btn-fin-editar" class="boton-enlace detalle-solo-edicion">&larr; Listo</button>
+          <!-- CTA fija abajo (solo en modo "ver") -->
+          <div class="detalle-cta detalle-solo-lectura">
+            <button id="btn-empezar-entreno" class="boton-primario ancho-completo">Empezar entrenamiento</button>
           </div>
         </div>
 

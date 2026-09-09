@@ -141,6 +141,11 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
+Tests (2026-09-09, sin cambio de versión): +7 pruebas tapando huecos del harness —
+cargar() rellena defaults en datos antiguos / aguanta JSON roto, trim de reps/nota
+y del nombre de rutina, htmlEtiquetaDivision, terminarSesion sin sesión activa,
+empezarSesion con ejercicio borrado. 74 en total.
+
 Versión 1.4.0 (2026-09-09): al añadir un ejercicio a una rutina, el desplegable se
 cambia por un buscador: escribes y salen las coincidencias de tu biblioteca
 (ignora mayúsculas y tildes); si no hay ninguna igual, aparece "+ Crear «X»" que

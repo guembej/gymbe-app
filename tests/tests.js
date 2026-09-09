@@ -89,6 +89,10 @@ prueba("borrar una rutina la quita de la lista", () => {
   igual(listarRutinas().length, 0);
 });
 
+prueba("crearRutina recorta los espacios del nombre", () => {
+  igual(crearRutina({ nombre: "  Día 1  " }).nombre, "Día 1");
+});
+
 // ---- Ejercicios dentro de una rutina ----
 
 prueba("añadir un ejercicio a una rutina lo guarda con sus datos", () => {
@@ -129,6 +133,14 @@ prueba("editar un item cambia sus datos", () => {
   editarItemRutina(r.id, 0, { exerciseId: "x", series: 5, reps: "10", peso: 40, descansoSeg: 60 });
   igual(obtenerRutina(r.id).items[0].series, 5);
   igual(obtenerRutina(r.id).items[0].peso, 40);
+});
+
+prueba("el item recorta espacios en reps y nota", () => {
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: "x", series: 3, reps: "  8-12 ", nota: "  bajar despacio " });
+  const item = obtenerRutina(r.id).items[0];
+  igual(item.reps, "8-12");
+  igual(item.nota, "bajar despacio");
 });
 
 prueba("quitar un item lo elimina de la rutina", () => {
@@ -179,6 +191,40 @@ prueba("lo creado sigue en el almacenamiento (sobrevive a una recarga)", () => {
   igual(enDisco.rutinas[0].division, "Full Body");
 });
 
+prueba("cargar rellena las opciones y el temporizador que falten en datos antiguos", () => {
+  // datos de una versión vieja: prefs y temporizador incompletos
+  localStorage.setItem(window.GYM_CLAVE_ALMACEN, JSON.stringify({
+    ejercicios: [{ id: "a", nombre: "Press", grupo: "Pecho", nota: "" }],
+    rutinas: [], sesiones: [],
+    prefs: { tema: "claro", sonido: false },
+    temporizador: { numSeries: 8 },
+  }));
+  DATOS = cargar();
+  // lo que ya había se respeta
+  igual(DATOS.prefs.tema, "claro");
+  igual(DATOS.prefs.sonido, false);
+  igual(DATOS.temporizador.numSeries, 8);
+  igual(DATOS.ejercicios.length, 1);
+  // lo que faltaba se rellena con el valor por defecto
+  igual(DATOS.prefs.grupoPorDefecto, "Otro");
+  igual(DATOS.prefs.registroSimple, false);
+  igual(DATOS.prefs.vibracion, true);
+  igual(DATOS.temporizador.prepSeg, 5);
+  igual(DATOS.temporizador.descansoSeg, 90);
+});
+
+prueba("cargar sin nada guardado, o con un JSON roto, empieza de cero", () => {
+  localStorage.removeItem(window.GYM_CLAVE_ALMACEN);
+  let d = cargar();
+  igual(d.ejercicios, []);
+  igual(d.sesionActiva, null);
+  igual(d.prefs.grupoPorDefecto, "Otro");
+
+  localStorage.setItem(window.GYM_CLAVE_ALMACEN, "{ esto no es json");
+  d = cargar();
+  igual(d.ejercicios, []);
+});
+
 // ---- Entrenamientos ----
 
 prueba("empezar una sesión crea las filas en blanco, guardando el objetivo como referencia", () => {
@@ -213,6 +259,21 @@ prueba("descartar la sesión la deja en null", () => {
   empezarSesion(r.id);
   descartarSesionActiva();
   igual(sesionActiva(), null);
+});
+
+prueba("terminarSesion sin sesión activa devuelve null", () => {
+  igual(sesionActiva(), null);
+  igual(terminarSesion(), null);
+});
+
+prueba("empezarSesion con un ejercicio ya borrado lo marca como eliminado", () => {
+  const e = crearEjercicio({ nombre: "Fantasma", grupo: "Otro" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 2 });
+  borrarEjercicio(e.id);
+  empezarSesion(r.id);
+  igual(sesionActiva().ejercicios[0].exerciseNombre, "(ejercicio eliminado)");
+  igual(sesionActiva().ejercicios[0].filas.length, 2);
 });
 
 prueba("terminar guarda solo las series marcadas como hechas y limpia la activa", () => {
@@ -492,6 +553,13 @@ prueba("temaEfectivo respeta la preferencia guardada", () => {
 
 prueba("escaparHtml neutraliza etiquetas HTML", () => {
   igual(escaparHtml("<b>hola</b>"), "&lt;b&gt;hola&lt;/b&gt;");
+});
+
+prueba("htmlEtiquetaDivision: <span> con la división, o cadena vacía si no hay", () => {
+  igual(htmlEtiquetaDivision(""), "");
+  igual(htmlEtiquetaDivision(null), "");
+  const html = htmlEtiquetaDivision("Push");
+  esVerdad(html.includes('data-division="Push"') && html.includes(">Push<"));
 });
 
 // ---- Tiempo y preferencias ----

@@ -277,6 +277,22 @@ body {
 .item-fila-top .tarjeta-acciones { flex-shrink: 0; }
 .item-rutina .icono-boton { font-size: 15px; padding: 3px 4px; }
 
+/* Reordenar arrastrando (solo en modo edición) */
+#rutina-detalle.modo-edicion .item-rutina {
+  touch-action: pan-y;            /* deja hacer scroll vertical con el dedo */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#rutina-detalle.modo-edicion .item-rutina.arrastrando {
+  touch-action: none;
+  cursor: grabbing;
+  z-index: 20;
+  opacity: 0.97;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+body.reordenando { cursor: grabbing; }
+
 .etiqueta {
   align-self: flex-start;
   font-size: 11px;

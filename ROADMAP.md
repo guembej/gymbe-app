@@ -141,6 +141,11 @@ Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js
 sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
 Entrenar).
 
+Versión 1.3.0 (2026-09-09): en el editor de rutinas, los ejercicios se reordenan
+arrastrando (pulsación larga ~350 ms → el ejercicio sigue al dedo → soltar guarda
+el orden). Sin librerías, con eventos de puntero (dedo y ratón). Se quitan las
+flechas ▲▼. reordenarItem() en datos.js; la lógica de arrastre en rutinas.js.
+
 Versión 1.2.2 (2026-09-09):
 - Detalle de rutina: el botón "Empezar entrenamiento" va FIJO abajo (antes había
   que hacer scroll hasta el final). "Editar rutina" pasa a un ✏️ en la cabecera.

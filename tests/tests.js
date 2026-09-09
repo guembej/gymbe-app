@@ -134,6 +134,24 @@ prueba("mover un item cambia su orden (y no se sale de los límites)", () => {
   igual(obtenerRutina(r.id).items.map((i) => i.exerciseId), ["a", "c", "b"]);
 });
 
+prueba("reordenarItem coloca el ejercicio en la posición destino (arrastrar y soltar)", () => {
+  const r = crearRutina({ nombre: "D" });
+  ["a", "b", "c", "d"].forEach((x) => añadirItemRutina(r.id, { exerciseId: x }));
+  reordenarItem(r.id, 0, 2); // 'a' pasa a la posición 2
+  igual(obtenerRutina(r.id).items.map((i) => i.exerciseId), ["b", "c", "a", "d"]);
+  reordenarItem(r.id, 3, 0); // 'd' pasa al principio
+  igual(obtenerRutina(r.id).items.map((i) => i.exerciseId), ["d", "b", "c", "a"]);
+});
+
+prueba("reordenarItem ignora índices inválidos o iguales", () => {
+  const r = crearRutina({ nombre: "D" });
+  ["a", "b", "c"].forEach((x) => añadirItemRutina(r.id, { exerciseId: x }));
+  reordenarItem(r.id, 1, 1);
+  reordenarItem(r.id, 0, 9);
+  reordenarItem(r.id, -1, 0);
+  igual(obtenerRutina(r.id).items.map((i) => i.exerciseId), ["a", "b", "c"]);
+});
+
 // ---- Guardado en el dispositivo ----
 
 prueba("lo creado sigue en el almacenamiento (sobrevive a una recarga)", () => {

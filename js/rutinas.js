@@ -214,7 +214,7 @@ function pintarDetalle() {
   if (rutina.items.length === 0) {
     listaItemsEl.innerHTML = detalleModoEdicion
       ? '<li class="vacio">Esta rutina no tiene ejercicios todavía.</li>'
-      : '<li class="vacio">Esta rutina no tiene ejercicios. Pulsa «Editar rutina» para añadirlos.</li>';
+      : '<li class="vacio">Esta rutina no tiene ejercicios.<br />Pulsa ✏️ (arriba) para añadirlos.</li>';
     return;
   }
 

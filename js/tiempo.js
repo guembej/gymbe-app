@@ -428,19 +428,9 @@ const flotanteDisponible = !!(
   HTMLCanvasElement.prototype.captureStream
 );
 
-// Texto de la ventana flotante: igual que la píldora de dentro de la app,
-// "descanso · 1:12" / "serie 2 · 0:35" / "prepárate · 0:05".
-function textoPiP() {
-  if (temp.terminadoEn) return "¡entrenamiento hecho!";
-  const tramo = temp.segmentos[temp.indice];
-  if (!tramo) return "";
-  let nombre = (NOMBRE_FASE[tramo.fase] || "").toLowerCase();
-  if (tramo.fase === "serie") nombre = `serie ${tramo.serie}`;
-  return `${nombre} · ${formatearCuentaAtras(segRestantes())}`;
-}
-
-// Se pinta como la píldora: fondo del color de la fase y el texto en una línea,
-// centrado y lo más grande que quepa. Android redondea las esquinas -> pastilla.
+// Se pinta sobre el color de la fase, en dos alturas: la fase arriba (versalitas
+// espaciadas, algo translúcida) y el tiempo abajo, grande. Android redondea las
+// esquinas -> queda como una pastilla.
 function dibujarPiP() {
   if (!_pipCtx) return;
   const c = _pipCtx;
@@ -448,21 +438,31 @@ function dibujarPiP() {
   const h = _pipCanvas.height;
   const tramo = temp.segmentos[temp.indice];
   const fase = temp.terminadoEn ? "fin" : (tramo ? tramo.fase : "");
+  const conLS = "letterSpacing" in c;
 
   c.fillStyle = COLOR_FASE_PIP[fase] || "#1f2937";
   c.fillRect(0, 0, w, h);
-  c.fillStyle = "#fff";
   c.textAlign = "center";
   c.textBaseline = "middle";
 
-  const texto = textoPiP();
-  let px = 42;
-  do {
-    c.font = `bold ${px}px system-ui, -apple-system, sans-serif`;
-    px -= 2;
-  } while (px > 14 && c.measureText(texto).width > w - 28);
+  if (temp.terminadoEn) {
+    c.fillStyle = "#fff";
+    c.font = "bold 40px system-ui, -apple-system, sans-serif";
+    c.fillText("¡hecho!", w / 2, h / 2 + 1);
+    return;
+  }
 
-  c.fillText(texto, w / 2, h / 2 + 2);
+  let etiqueta = (NOMBRE_FASE[fase] || "").toUpperCase();
+  if (fase === "serie" && tramo) etiqueta = `SERIE ${tramo.serie} / ${temp.numSeries}`;
+  c.fillStyle = "rgba(255, 255, 255, 0.82)";
+  c.font = "600 18px system-ui, -apple-system, sans-serif";
+  if (conLS) c.letterSpacing = "3px";
+  c.fillText(etiqueta, w / 2 + (conLS ? 1.5 : 0), h * 0.30);
+  if (conLS) c.letterSpacing = "0px";
+
+  c.fillStyle = "#fff";
+  c.font = "bold 60px system-ui, -apple-system, sans-serif";
+  c.fillText(formatearCuentaAtras(segRestantes()), w / 2, h * 0.66);
 }
 
 async function abrirFlotante() {

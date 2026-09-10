@@ -202,20 +202,28 @@ function alEditarCasilla(evento) {
   if (!sesion) return;
 
   const fila = sesion.ejercicios[el.dataset.ej].filas[el.dataset.fila];
+
   if (el.dataset.campo === "hecha") {
     fila.hecha = el.checked;
     el.closest(".serie-fila").classList.toggle("serie-hecha", el.checked);
-  } else {
-    fila[el.dataset.campo] = el.value;
-    // Marcar la serie sola cuando ya tiene peso y reps (nunca la desmarca).
-    if (debeMarcarSerie(fila)) {
-      fila.hecha = true;
-      const filaEl = el.closest(".serie-fila");
-      filaEl.classList.add("serie-hecha");
-      const casilla = filaEl.querySelector('input[type="checkbox"]');
-      if (casilla) casilla.checked = true;
-    }
+    guardarSesionActiva({ inmediato: true }); // marcar una serie es un hito
+    return;
   }
+
+  fila[el.dataset.campo] = el.value;
+
+  // Marcar la serie sola cuando ya tiene peso y reps (nunca la desmarca).
+  if (debeMarcarSerie(fila)) {
+    fila.hecha = true;
+    const filaEl = el.closest(".serie-fila");
+    filaEl.classList.add("serie-hecha");
+    const casilla = filaEl.querySelector('input[type="checkbox"]');
+    if (casilla) casilla.checked = true;
+    guardarSesionActiva({ inmediato: true });
+    return;
+  }
+
+  // Solo estás tecleando: se guarda al parar, no en cada letra.
   guardarSesionActiva();
 }
 
@@ -245,7 +253,7 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
     const filas = sesion.ejercicios[anadir.dataset.anadirFila].filas;
     const ultima = filas[filas.length - 1] || { pesoReal: "", repsReal: "" };
     filas.push({ pesoReal: ultima.pesoReal, repsReal: ultima.repsReal, hecha: false });
-    guardarSesionActiva();
+    guardarSesionActiva({ inmediato: true });
     pintarSesionActiva();
     return;
   }
@@ -254,7 +262,7 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
   if (quitar) {
     const filas = sesion.ejercicios[quitar.dataset.quitarFila].filas;
     filas.splice(quitar.dataset.fila, 1);
-    guardarSesionActiva();
+    guardarSesionActiva({ inmediato: true });
     pintarSesionActiva();
   }
 });

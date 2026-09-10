@@ -137,6 +137,19 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 8 — PWA y pulido
 - [x] Fase 9 — Rutinas pregrabadas y uso real
 
+Versión 1.4.2 (2026-09-10): paso 2 del PLAN-MEJORAS.md (fase B, rendimiento).
+- B1: el entreno ya no se guarda en cada tecla. Al escribir peso/reps se guarda
+  400 ms después de la última pulsación; al marcar una serie, añadirla o quitarla
+  se guarda al instante. Red de seguridad en "pagehide" y "visibilitychange" a
+  oculto, por si cierras la app con algo en cola. Medido con ~1 año de historial
+  (626 KB): teclear "57.5" y "8" pasaba de 6 escrituras (~22 ms de bloqueo del
+  hilo principal) a 0 mientras tecleas y 1 al marcar la serie.
+- B5: el arranque ya no parsea todo el almacén para saber el tema. Se guarda un
+  espejo diminuto en "gym.tema" con la PREFERENCIA (no el color resuelto, para
+  que "sistema" siga al móvil); el script anti-parpadeo del <head> lo lee y solo
+  tira del almacén grande la primera vez, y ya parseándolo una sola vez en vez
+  de dos.
+
 Versión 1.4.1 (2026-09-10): los tres bugs latentes del PLAN-MEJORAS.md (fase A).
 - `guardar()` ya no revienta si el almacenamiento está lleno: devuelve `false`,
   avisa una sola vez (exporta una copia / borra historial) y la app sigue viva

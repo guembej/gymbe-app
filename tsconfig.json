@@ -1,0 +1,19 @@
+{
+  // Comprobación de tipos SIN paso de compilación: no genera nada (noEmit) y la
+  // app sigue siendo JavaScript normal. TypeScript es solo una herramienta de
+  // desarrollo (devDependency), como Playwright.
+  //
+  // checkJs va en false a propósito: los archivos se apuntan de uno en uno con
+  // un "// @ts-check" arriba. Así se revisa la lógica (datos.js) sin llenar las
+  // vistas de anotaciones de tipos que las harían más difíciles de leer.
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": false,
+    "types": []
+  },
+  "include": ["js/**/*.js", "types/**/*.d.ts"]
+}

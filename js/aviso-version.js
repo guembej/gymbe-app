@@ -1,3 +1,4 @@
+// @ts-check
 // ==========================================================
 //  Lógica de la actualización de versión.
 //  En su propio archivo para poder probarla (tests/tests.js).
@@ -13,9 +14,4 @@
 function decidirActualizacion({ habiaControlador, hayEntrenoEnCurso, yaHecho }) {
   if (yaHecho || !habiaControlador) return "nada";
   return hayEntrenoEnCurso ? "avisar" : "recargar";
-}
-
-// Para Node/otros entornos (las pruebas corren en navegador).
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { decidirActualizacion };
 }

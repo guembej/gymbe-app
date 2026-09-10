@@ -137,6 +137,19 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 8 — PWA y pulido
 - [x] Fase 9 — Rutinas pregrabadas y uso real
 
+Versión 1.4.4 (2026-09-11): paso 4 del PLAN-MEJORAS.md (fase E, herramientas).
+- E1: comprobación de tipos con "npm run tipos" (TypeScript en modo revisión, sin
+  compilar nada: la app sigue siendo JavaScript normal y sin dependencias en
+  tiempo de ejecución). Se aplica ARCHIVO A ARCHIVO con "// @ts-check": de momento
+  datos.js y aviso-version.js, que son la lógica. Las vistas se quedan fuera a
+  propósito: exigirían ~60 anotaciones de tipos del DOM y harían el código más
+  difícil de leer, que va contra el principio número uno del proyecto.
+  Nota honesta: al activarlo NO aparecía ningún bug real. Su valor es preventivo.
+- E3: smoke test en el CI. Abre la app de verdad y falla si suelta cualquier error
+  de consola o excepción, y comprueba que arranca (versión, 4 pestañas, rutinas
+  sembradas). Comprobado que caza tanto un console.error como una excepción.
+- Se quita un bloque "module.exports" muerto de aviso-version.js (nada lo usaba).
+
 Versión 1.4.3 (2026-09-11): paso 3 del PLAN-MEJORAS.md (fase D, diseño).
 - D1: el texto sobre el naranja de marca pasa de blanco (3,16:1, NO cumple AA) al
   token --sobre-acento que ya existía (5,72:1). Afectaba a TODOS los botones

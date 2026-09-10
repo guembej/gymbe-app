@@ -1,3 +1,4 @@
+// @ts-check
 // ==========================================================
 //  Capa de datos — todo lo que la app guarda en el dispositivo
 //  Se usa localStorage: una "libretita" que vive en el navegador,
@@ -275,6 +276,10 @@ function formatearCuentaAtras(seg) {
 
 // Etiqueta del ejercicio para el temporizador: "Press banca · 8-12 reps · 60 kg".
 // Devuelve "" si no viene ejercicio (temporizador usado suelto).
+/**
+ * @param {{ ejercicio?: string, reps?: string, peso?: number }} [datos]
+ * @returns {string}
+ */
 function construirEtiquetaTemp({ ejercicio, reps, peso } = {}) {
   if (!ejercicio) return "";
   const partes = [ejercicio];

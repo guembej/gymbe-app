@@ -65,4 +65,8 @@ demás pestañas para volver. `.oculta` y `[hidden]` llevan `display:none!import
   worker nuevo se activa solo (`skipWaiting` + `clients.claim`) y `js/app.js`
   recarga la página al tomar el control (o muestra la barra "Actualizar" si hay
   un entreno a medias). Si no cambias el `CACHE`, la actualización no se detecta.
-- `npm test` en verde antes de mergear.
+- `npm test` en verde antes de mergear (incluye el smoke test: la app tiene que
+  arrancar sin ningún error de consola).
+- `npm run tipos` también en verde. Revisa los archivos marcados con `// @ts-check`
+  (ahora `datos.js` y `aviso-version.js`). No compila nada: la app sigue siendo JS
+  normal. `npm run comprobar` hace las dos cosas.

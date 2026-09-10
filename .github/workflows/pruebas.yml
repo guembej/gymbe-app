@@ -16,6 +16,12 @@ jobs:
 
       - run: npm install
 
+      # Comprobación de tipos: no compila nada, solo revisa los archivos
+      # marcados con "// @ts-check". Es rápida, así que va antes.
+      - name: Comprobar tipos
+        run: npm run tipos
+
       - run: npx playwright install --with-deps chromium
 
+      # Pruebas de lógica + smoke test (la app arranca sin errores de consola)
       - run: npm test

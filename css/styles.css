@@ -76,10 +76,15 @@ body {
   background: none;
   border: none;
   color: #9ca3af;
-  padding: 4px;
+  /* objetivo tactil: antes era 30x30 */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .ajustes-boton.activo { color: var(--acento); }
 .logo-boton {
@@ -123,21 +128,21 @@ body {
   gap: 12px;
   padding: 10px 16px;
   background: var(--acento);
-  color: #fff;
+  color: var(--sobre-acento);
   font-size: 14px;
   font-weight: 600;
 }
 .aviso-version-acciones { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .aviso-version .boton-primario {
   background: #fff;
-  color: var(--acento);
+  color: var(--marca-marino);
   padding: 6px 14px;
   font-size: 13px;
 }
 .aviso-version-cerrar {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--sobre-acento);
   font-size: 16px;
   padding: 4px 6px;
   cursor: pointer;
@@ -221,7 +226,7 @@ body {
   font-size: 15px;
   cursor: pointer;
 }
-.boton-primario { background: var(--acento); color: #fff; font-weight: 600; }
+.boton-primario { background: var(--acento); color: var(--sobre-acento); font-weight: 600; }
 .boton-secundario { background: none; color: var(--texto); border-color: var(--borde); }
 .boton-primario:disabled,
 .boton-secundario:disabled { opacity: 0.45; cursor: default; }
@@ -231,7 +236,14 @@ body {
   background: none;
   border: none;
   font-size: 17px;
-  padding: 6px 8px;
+  /* Objetivo tactil comodo con el movil en la mano: 40x40 minimo.
+     Antes eran 29x26 y en las rutinas ✏️ y 🗑️ quedaban pegados. */
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: var(--texto);
 }
@@ -253,7 +265,7 @@ body {
 .tarjeta-encabezado { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .tarjeta-titulo { font-size: 15px; font-weight: 600; }
 .tarjeta-nota { font-size: 13px; color: var(--texto-suave); }
-.tarjeta-acciones { display: flex; flex-shrink: 0; }
+.tarjeta-acciones { display: flex; flex-shrink: 0; gap: 4px; }
 
 /* Ejercicios dentro de una rutina: lista numerada; nombre y acciones en la misma línea */
 .item-rutina { align-items: flex-start; gap: 10px; }
@@ -275,7 +287,10 @@ body {
 }
 .item-fila-top .tarjeta-titulo { min-width: 0; }
 .item-fila-top .tarjeta-acciones { flex-shrink: 0; }
-.item-rutina .icono-boton { font-size: 15px; padding: 3px 4px; }
+.item-rutina .icono-boton { font-size: 16px; }
+/* Los 40x40 del area tactil no deben estirar la fila: se salen del hueco
+   sin ocupar alto extra, asi el nombre y el resumen siguen juntos. */
+.item-fila-top .tarjeta-acciones { margin: -9px -6px -9px 0; }
 
 /* Reordenar arrastrando (solo en modo edición) */
 #rutina-detalle.modo-edicion .item-rutina {
@@ -523,7 +538,7 @@ body.reordenando { cursor: grabbing; }
   gap: 8px;
   padding: 11px 18px;
   background: var(--acento);
-  color: #fff;
+  color: var(--sobre-acento);
   border: none;
   font-size: 14px;
   font-weight: 600;
@@ -563,7 +578,7 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   transform: translateX(-50%);
   bottom: calc(var(--alto-menu) + env(safe-area-inset-bottom) + 56px);
   background: var(--acento);
-  color: #fff;
+  color: var(--sobre-acento);
   border: none;
   border-radius: 999px;
   padding: 10px 20px;

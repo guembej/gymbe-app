@@ -137,6 +137,20 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 8 — PWA y pulido
 - [x] Fase 9 — Rutinas pregrabadas y uso real
 
+Versión 1.4.3 (2026-09-11): paso 3 del PLAN-MEJORAS.md (fase D, diseño).
+- D1: el texto sobre el naranja de marca pasa de blanco (3,16:1, NO cumple AA) al
+  token --sobre-acento que ya existía (5,72:1). Afectaba a TODOS los botones
+  primarios, la píldora del descanso, la barra "Entrenamiento en curso" y el
+  aviso de versión. El conmutador activo ya lo usaba, así que ahora es coherente.
+  El botón "Actualizar" del aviso (naranja sobre blanco, también 3,16:1) pasa a
+  marino sobre blanco. El rojo de peligro se queda con blanco: ya daba 4,83:1.
+- D2: los botones de icono pasan de 29x26 px a 40x40 y con 4 px de separación.
+  En el editor de rutinas ✏️ y 🗑️ estaban pegados (0 px): era fácil borrar un
+  ejercicio queriendo editarlo. El engranaje de la cabecera, de 30x30 a 44x44.
+  Un margen negativo evita que el área táctil mayor estire las filas.
+- 2 pruebas nuevas que miden el contraste y el tamaño reales inyectando el CSS,
+  así que la regresión no puede colarse.
+
 Versión 1.4.2 (2026-09-10): paso 2 del PLAN-MEJORAS.md (fase B, rendimiento).
 - B1: el entreno ya no se guarda en cada tecla. Al escribir peso/reps se guarda
   400 ms después de la última pulsación; al marcar una serie, añadirla o quitarla

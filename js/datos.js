@@ -86,23 +86,59 @@ function cargar() {
   }
 }
 
-// Escribe la libretita del navegador
+// Tras "Borrar todos mis datos" el almacén queda como recién instalado. Si algo
+// guardara antes de que la página se recargue, la clave volvería a existir y al
+// recargar ES_PRIMERA_VEZ sería false: no volverían las rutinas iniciales y te
+// quedarías sin biblioteca de ejercicios. Por eso bloqueamos el guardado hasta
+// la recarga.
+let _borradoEsperandoRecarga = false;
+
+// Cuántas veces seguidas ha fallado el guardado (para avisar solo la primera).
+let _fallosSeguidosAlGuardar = 0;
+
+// Escribe la libretita del navegador. Devuelve true si lo consiguió.
+// Si el almacenamiento está lleno o bloqueado NO revienta la app: avisa una vez
+// y sigue funcionando en memoria (los datos siguen ahí hasta cerrar la app).
 function guardar() {
-  localStorage.setItem(CLAVE_ALMACEN, JSON.stringify(DATOS));
+  if (_borradoEsperandoRecarga) return false;
+  try {
+    localStorage.setItem(CLAVE_ALMACEN, JSON.stringify(DATOS));
+    _fallosSeguidosAlGuardar = 0;
+    return true;
+  } catch (e) {
+    _fallosSeguidosAlGuardar++;
+    console.error("No se pudieron guardar los datos.", e);
+    if (_fallosSeguidosAlGuardar === 1 && typeof avisar === "function") {
+      avisar(
+        "No se han podido guardar los cambios: el almacenamiento del navegador está lleno. " +
+        "Exporta una copia desde Ajustes y borra entrenamientos antiguos del Historial."
+      );
+    }
+    return false;
+  }
 }
 
 // Deja los datos a cero. Lo usa la página de pruebas antes de cada prueba.
 function _reiniciarDatos() {
+  _borradoEsperandoRecarga = false;
+  _fallosSeguidosAlGuardar = 0;
   DATOS = datosVacios();
   guardar();
 }
 
 // Borra TODO (rutinas, ejercicios, historial, entreno en curso). Botón en Ajustes.
 // Deja el almacenamiento como recién instalado: al recargar se vuelven a cargar
-// los datos de ejemplo.
+// las rutinas iniciales.
 function borrarTodosLosDatos() {
   DATOS = datosVacios();
-  localStorage.removeItem(CLAVE_ALMACEN);
+  _borradoEsperandoRecarga = true; // que nada lo vuelva a crear antes de recargar
+  try {
+    localStorage.removeItem(CLAVE_ALMACEN);
+    // El temporizador guarda aparte: "borrar todos mis datos" también lo incluye.
+    if (typeof CLAVE_TIEMPO === "string") localStorage.removeItem(CLAVE_TIEMPO);
+  } catch (e) {
+    console.error("No se pudo borrar el almacenamiento.", e);
+  }
 }
 
 // Identificador único para cada ejercicio / rutina / sesión.
@@ -330,10 +366,13 @@ function obtenerEjercicio(id) {
   return DATOS.ejercicios.find((e) => e.id === id) || null;
 }
 
-// Pasa a minúsculas y quita las tildes, para buscar sin que estorben
+// Pasa a minusculas y quita las tildes, para buscar sin que estorben.
+// normalize("NFD") separa la letra de su tilde, y \u0300-\u036f es el rango de
+// esas marcas sueltas. Se escriben como escapes a proposito: como caracteres
+// literales son invisibles en el editor y se pierden si el archivo se reguarda
+// con otra codificacion.
 function _sinTildes(texto) {
-  // NFD separa la letra de su tilde; ̀-ͯ son esas marcas sueltas
-  return (texto || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return (texto || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 // Ejercicios cuyo nombre contiene 'texto' (ignora mayúsculas y tildes).

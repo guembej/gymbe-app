@@ -8,7 +8,7 @@
 //
 // IMPORTANTE: subir la versión en cada publicación (y ponerla igual en js/version.js).
 
-const CACHE = "gymbe-v1.4.4";
+const CACHE = "gymbe-v1.4.5";
 
 const ARCHIVOS = [
   ".",
@@ -16,7 +16,12 @@ const ARCHIVOS = [
   "manifest.webmanifest",
   "css/styles.css",
   "js/version.js",
+  "js/formato.js",
+  "js/grafica.js",
   "js/datos.js",
+  "js/temporizador.js",
+  "js/entidades.js",
+  "js/consultas.js",
   "js/ejemplos.js",
   "js/dialogos.js",
   "js/ejercicios.js",

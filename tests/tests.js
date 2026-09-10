@@ -46,6 +46,15 @@ prueba("borrar un ejercicio lo quita de la lista", () => {
   igual(listarEjercicios().length, 0);
 });
 
+prueba("_sinTildes quita tildes y diéresis (el buscador depende de esto)", () => {
+  igual(_sinTildes("Extensión"), "extension");
+  igual(_sinTildes("TRÍCEPS"), "triceps");
+  igual(_sinTildes("Pájaros"), "pajaros");
+  igual(_sinTildes("Bíceps"), "biceps");
+  igual(_sinTildes(""), "");
+  igual(_sinTildes(null), "");
+});
+
 prueba("filtrarEjercicios encuentra por trozo de nombre ignorando mayúsculas y tildes", () => {
   crearEjercicio({ nombre: "Press banca", grupo: "Pecho" });
   crearEjercicio({ nombre: "Press militar", grupo: "Hombro" });
@@ -211,6 +220,37 @@ prueba("cargar rellena las opciones y el temporizador que falten en datos antigu
   igual(DATOS.prefs.vibracion, true);
   igual(DATOS.temporizador.prepSeg, 5);
   igual(DATOS.temporizador.descansoSeg, 90);
+});
+
+prueba("guardar() no revienta si el almacenamiento está lleno: devuelve false", () => {
+  const original = localStorage.setItem;
+  localStorage.setItem = function () {
+    throw new DOMException("almacén lleno", "QuotaExceededError");
+  };
+  let lanzo = false;
+  let resultado = null;
+  try {
+    resultado = guardar();
+  } catch (e) {
+    lanzo = true;
+  } finally {
+    localStorage.setItem = original;
+  }
+  esVerdad(!lanzo, "guardar() NO debe propagar la excepción (rompería toda la app)");
+  igual(resultado, false, "devuelve false cuando no ha podido guardar");
+  igual(guardar(), true, "y vuelve a funcionar cuando el almacén responde");
+});
+
+prueba("borrarTodosLosDatos bloquea guardados hasta recargar (si no, no se re-siembra)", () => {
+  cargarDatosEjemplo();
+  borrarTodosLosDatos();
+  igual(localStorage.getItem(window.GYM_CLAVE_ALMACEN), null, "el almacén queda vacío");
+
+  // Si algo guardara ahora, la clave volvería a existir y al recargar
+  // ES_PRIMERA_VEZ sería false -> te quedarías sin rutinas ni ejercicios.
+  crearEjercicio({ nombre: "Colado", grupo: "Otro" });
+  igual(guardar(), false, "el guardado está bloqueado");
+  igual(localStorage.getItem(window.GYM_CLAVE_ALMACEN), null, "sigue sin haber nada guardado");
 });
 
 prueba("cargar sin nada guardado, o con un JSON roto, empieza de cero", () => {

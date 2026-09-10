@@ -137,9 +137,17 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 8 — PWA y pulido
 - [x] Fase 9 — Rutinas pregrabadas y uso real
 
-Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js/ejemplos.js),
-sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
-Entrenar).
+Versión 1.4.1 (2026-09-10): los tres bugs latentes del PLAN-MEJORAS.md (fase A).
+- `guardar()` ya no revienta si el almacenamiento está lleno: devuelve `false`,
+  avisa una sola vez (exporta una copia / borra historial) y la app sigue viva
+  en memoria. Antes, un `QuotaExceededError` subía por las 25 llamadas a guardar.
+- `borrarTodosLosDatos()` bloquea cualquier guardado hasta la recarga. Si algo
+  guardaba entremedias, la clave volvía a existir, `ES_PRIMERA_VEZ` pasaba a
+  false y no se re-sembraban las rutinas iniciales. También borra ya la clave
+  del temporizador (`gym.tiempo.v1`), que antes sobrevivía a "borrar todo".
+- `_sinTildes()` usa escapes Unicode (`\u0300-\u036f`) en vez de las marcas
+  combinantes escritas literales, que son invisibles en el editor y se pierden
+  si el archivo se reguarda con otra codificación (rompería el buscador).
 
 Tests (2026-09-09, sin cambio de versión): +7 pruebas tapando huecos del harness —
 cargar() rellena defaults en datos antiguos / aguanta JSON roto, trim de reps/nota
@@ -196,3 +204,8 @@ atributo `hidden` no ocultaba nada. Solución: regla global `[hidden]{display:no
 Además, mejora del service worker: ya no espera, se activa solo (skipWaiting + clients.claim)
 y js/app.js recarga la página cuando el SW nuevo toma el control (decidirActualizacion en
 js/aviso-version.js) — salvo que haya un entreno en curso, entonces muestra la barra.
+
+Versión 1.0 (2026-09-07): 9 rutinas reales del usuario como datos iniciales (js/ejemplos.js),
+sin historial de ejemplo. Opción "registro simple" en Ajustes (una fila por ejercicio en
+Entrenar).
+

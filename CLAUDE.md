@@ -18,11 +18,27 @@ y el usuario la entienda. Marcar el progreso en la sección "Estado actual" de `
 
 ## Estructura
 ```
-index.html        Punto de entrada
-css/styles.css     Estilos
-js/app.js          Lógica principal
-assets/            Iconos, librerías locales
+index.html          Punto de entrada (todas las pantallas y diálogos)
+css/styles.css      Estilos
+assets/             Iconos
+js/
+  version.js        APP_VERSION
+  formato.js        texto, números y tiempo (funciones puras)
+  grafica.js        matemática de los ejes de Progreso
+  datos.js          el almacén: cargar/guardar, preferencias, tema, export/import
+  temporizador.js   configuración, tramos y avisos del temporizador de series
+  entidades.js      ejercicios · rutinas · entrenamientos (crear/editar/borrar)
+  consultas.js      lecturas derivadas del historial (progreso, última marca)
+  ejemplos.js       rutinas iniciales
+  dialogos.js       confirmar() / avisar()
+  ejercicios.js · rutinas.js · entrenar.js · historial.js · progreso.js · tiempo.js
+  aviso-version.js  decidirActualizacion()
+  ajustes.js
+  app.js            navegación + service worker
 ```
+El orden de los `<script>` en `index.html` importa: son scripts normales que
+comparten ámbito global. `formato` y `grafica` van antes que `datos`, y `datos`
+antes que `entidades`.
 
 ## Navegación (v1.2.0+)
 4 pestañas: **Entrenar · Historial · Progreso · Tiempo**. "Entrenar" reúne lo que

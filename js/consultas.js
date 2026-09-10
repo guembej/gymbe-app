@@ -1,0 +1,93 @@
+// @ts-check
+// ==========================================================
+//  Consultas derivadas del historial
+//  Solo leen: progreso, ultima marca, si una serie se marca sola.
+// ==========================================================
+
+// Ejercicios cuyo nombre contiene 'texto' (ignora mayúsculas y tildes).
+// Devuelve { coincidencias: [...], hayExacto } — hayExacto = ya existe uno igual.
+function filtrarEjercicios(texto, limite = 6) {
+  const t = _sinTildes(texto).trim();
+  if (!t) return { coincidencias: [], hayExacto: false };
+  const todos = listarEjercicios();
+  return {
+    coincidencias: todos.filter((e) => _sinTildes(e.nombre).includes(t)).slice(0, limite),
+    hayExacto: todos.some((e) => _sinTildes(e.nombre).trim() === t),
+  };
+}
+
+// ----------------------------------------------------------
+//  Progreso: evolución de un ejercicio a lo largo del historial
+//  Devuelve un punto por sesión (orden: de más antigua a más reciente):
+//    { fecha, sesionId, pesoMax, volumen, rm }
+//  - pesoMax: el peso más alto levantado ese día
+//  - volumen: suma de peso x repeticiones
+//  - rm: 1RM estimado (Epley) de la mejor serie: peso x (1 + reps/30)
+// ----------------------------------------------------------
+// La mejor serie del día más reciente en que se registró este ejercicio.
+// "Mejor" = más peso; a igualdad de peso, más repeticiones.
+// Devuelve { peso, reps, fecha } o null si no hay ningún registro.
+function mejorSerieUltimoDia(exerciseId) {
+  const sesiones = [...DATOS.sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  for (const sesion of sesiones) {
+    const sets = sesion.sets.filter((s) => s.exerciseId === exerciseId);
+    if (sets.length === 0) continue;
+
+    let mejor = null;
+    sets.forEach((s) => {
+      const peso = _num(s.pesoReal, 0, 0);
+      const reps = parseInt(s.repsReal, 10) || 0;
+      if (!mejor || peso > mejor.peso || (peso === mejor.peso && reps > mejor.reps)) {
+        mejor = { peso, reps };
+      }
+    });
+    return { peso: mejor.peso, reps: mejor.reps, fecha: sesion.fecha };
+  }
+  return null;
+}
+
+// Al pulsar "Empezar entrenamiento" con una rutina, ¿qué relación tiene con el
+// entreno que ya haya en curso? "ninguna" | "misma" (misma rutina) | "otra".
+function conflictoDeSesion(sesion, rutinaId) {
+  if (!sesion) return "ninguna";
+  return sesion.routineId === rutinaId ? "misma" : "otra";
+}
+
+// ¿Hay que marcar sola esta serie? Sí cuando peso y reps tienen valor y aún no
+// está marcada. (Nunca se desmarca sola: eso es siempre manual con la casilla.)
+function debeMarcarSerie(fila) {
+  return !fila.hecha
+    && String(fila.pesoReal == null ? "" : fila.pesoReal).trim() !== ""
+    && String(fila.repsReal == null ? "" : fila.repsReal).trim() !== "";
+}
+
+function progresoDeEjercicio(exerciseId) {
+  const puntos = [];
+
+  DATOS.sesiones.forEach((sesion) => {
+    const sets = sesion.sets.filter((s) => s.exerciseId === exerciseId);
+    if (sets.length === 0) return;
+
+    let pesoMax = 0;
+    let volumen = 0;
+    let rm = 0;
+    sets.forEach((set) => {
+      const peso = _num(set.pesoReal, 0, 0);
+      const reps = parseInt(set.repsReal, 10) || 0;
+      if (peso > pesoMax) pesoMax = peso;
+      volumen += peso * reps;
+      const rmSet = reps > 0 ? peso * (1 + reps / 30) : peso;
+      if (rmSet > rm) rm = rmSet;
+    });
+
+    puntos.push({
+      fecha: sesion.fecha,
+      sesionId: sesion.id,
+      pesoMax: Math.round(pesoMax * 10) / 10,
+      volumen: Math.round(volumen),
+      rm: Math.round(rm * 10) / 10,
+    });
+  });
+
+  return puntos.sort((a, b) => a.fecha.localeCompare(b.fecha));
+}

@@ -137,6 +137,19 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 8 — PWA y pulido
 - [x] Fase 9 — Rutinas pregrabadas y uso real
 
+Versión 1.4.5 (2026-09-11): paso 5 del PLAN-MEJORAS.md (C2, arquitectura).
+datos.js pasa de 674 líneas con 8 responsabilidades mezcladas a seis archivos:
+  datos.js (265)        el almacén: cargar/guardar, preferencias, tema, export/import
+  entidades.js (258)    ejercicios, rutinas y entrenamientos (el CRUD)
+  consultas.js (93)     lecturas derivadas: progreso, mejor marca, filtros
+  formato.js (70)       texto, números y tiempo (funciones puras)
+  grafica.js (58)       matemática de los ejes
+  temporizador.js (45)  configuración, tramos y avisos
+Sin cambios de comportamiento: se movió código, no se reescribió (verificado con un
+recuento línea a línea: 0 perdidas). El smoke test cazó en su primer uso real un
+fallo de la partición (un listener quedaba en un archivo que cargaba antes que la
+función que usaba).
+
 Versión 1.4.4 (2026-09-11): paso 4 del PLAN-MEJORAS.md (fase E, herramientas).
 - E1: comprobación de tipos con "npm run tipos" (TypeScript en modo revisión, sin
   compilar nada: la app sigue siendo JavaScript normal y sin dependencias en

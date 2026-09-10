@@ -247,6 +247,7 @@ function terminarSesion() {
 
   DATOS.sesiones.push(sesion);
   DATOS.sesionActiva = null;
+  invalidarIndiceSets();
   guardar();
   return sesion;
 }
@@ -262,5 +263,6 @@ function obtenerSesion(id) {
 
 function borrarSesion(id) {
   DATOS.sesiones = DATOS.sesiones.filter((s) => s.id !== id);
+  invalidarIndiceSets();
   guardar();
 }

@@ -582,6 +582,41 @@ prueba("un guardado explicito cancela el que estuviera aplazado", () => {
     "no deberia quedar ningun guardado en cola");
 });
 
+// ---- Copias corruptas (validacion de forma) ----
+
+prueba("importarDatos rechaza una copia con la forma equivocada", () => {
+  crearEjercicio({ nombre: "Importante", grupo: "Otro" });
+
+  const malos = [
+    { ejercicios: [{ nombre: "sin id" }], rutinas: [], sesiones: [] },
+    { ejercicios: [], rutinas: [{ id: "r", nombre: "R" }], sesiones: [] },   // items no es lista
+    { ejercicios: [], rutinas: [], sesiones: [{ id: "s", fecha: "x" }] },    // sets no es lista
+  ];
+  malos.forEach((copia, i) => {
+    const r = importarDatos(JSON.stringify(copia));
+    igual(r.ok, false, "la copia mala " + (i + 1) + " deberia rechazarse");
+    esVerdad(typeof r.error === "string" && r.error.length > 0, "y decir por que");
+  });
+  igual(listarEjercicios().length, 1, "los datos de antes siguen intactos");
+});
+
+// ---- Guardado aplazado: ahora si podemos esperar de verdad (runner async) ----
+
+prueba("el guardado aplazado acaba escribiendo solo, sin tocar nada mas", async () => {
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: "x", series: 1 });
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0].pesoReal = "72.5";
+
+  localStorage.removeItem(window.GYM_CLAVE_ALMACEN);
+  guardarSesionActiva();
+  igual(localStorage.getItem(window.GYM_CLAVE_ALMACEN), null, "aun no");
+
+  await new Promise((res) => setTimeout(res, RETARDO_GUARDADO + 150));
+  const enDisco = JSON.parse(localStorage.getItem(window.GYM_CLAVE_ALMACEN));
+  igual(enDisco.sesionActiva.ejercicios[0].filas[0].pesoReal, "72.5", "y ahora si");
+});
+
 // ---- Espejo del tema (arranque sin parpadeo, sin parsear todo el almacen) ----
 
 prueba("aplicarTema guarda la PREFERENCIA en la clave espejo, no el color resuelto", () => {

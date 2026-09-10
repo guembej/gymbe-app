@@ -535,6 +535,75 @@ prueba("borrarTodosLosDatos deja todo vacío", () => {
   igual(sesionActiva(), null);
 });
 
+// ---- Guardado aplazado del entreno (no escribir en cada tecla) ----
+
+function _prepararEntreno() {
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: "x", series: 1 });
+  empezarSesion(r.id);
+  return r;
+}
+
+prueba("guardarSesionActiva() aplaza la escritura; con { inmediato } escribe ya", () => {
+  _prepararEntreno();
+  sesionActiva().ejercicios[0].filas[0].pesoReal = "60";
+
+  // borramos la clave para ver si el guardado normal la recrea al momento
+  localStorage.removeItem(window.GYM_CLAVE_ALMACEN);
+  guardarSesionActiva();
+  igual(localStorage.getItem(window.GYM_CLAVE_ALMACEN), null,
+    "tecleando NO debe escribir en cada letra");
+
+  guardarSesionActiva({ inmediato: true });
+  const enDisco = JSON.parse(localStorage.getItem(window.GYM_CLAVE_ALMACEN));
+  igual(enDisco.sesionActiva.ejercicios[0].filas[0].pesoReal, "60");
+});
+
+prueba("al esconder o cerrar la app se fuerza el guardado que estuviera en cola", () => {
+  _prepararEntreno();
+  sesionActiva().ejercicios[0].filas[0].repsReal = "8";
+
+  localStorage.removeItem(window.GYM_CLAVE_ALMACEN);
+  guardarSesionActiva();                       // queda en cola
+  igual(localStorage.getItem(window.GYM_CLAVE_ALMACEN), null);
+
+  _guardarPendienteYa();                       // lo que hacen pagehide / visibilitychange
+  const enDisco = JSON.parse(localStorage.getItem(window.GYM_CLAVE_ALMACEN));
+  igual(enDisco.sesionActiva.ejercicios[0].filas[0].repsReal, "8");
+});
+
+prueba("un guardado explicito cancela el que estuviera aplazado", () => {
+  _prepararEntreno();
+  guardarSesionActiva();                       // deja uno en cola
+  guardar();                                   // lo cancela y escribe
+  localStorage.removeItem(window.GYM_CLAVE_ALMACEN);
+  _guardarPendienteYa();                       // ya no queda nada pendiente
+  igual(localStorage.getItem(window.GYM_CLAVE_ALMACEN), null,
+    "no deberia quedar ningun guardado en cola");
+});
+
+// ---- Espejo del tema (arranque sin parpadeo, sin parsear todo el almacen) ----
+
+prueba("aplicarTema guarda la PREFERENCIA en la clave espejo, no el color resuelto", () => {
+  guardarPref("tema", "claro");
+  aplicarTema();
+  igual(localStorage.getItem(CLAVE_TEMA), "claro");
+
+  // con "sistema" debe guardarse "sistema" (si no, dejaria de seguir al movil)
+  guardarPref("tema", "sistema");
+  aplicarTema();
+  igual(localStorage.getItem(CLAVE_TEMA), "sistema");
+  esVerdad(["claro", "oscuro"].includes(temaEfectivo()), "pero el tema aplicado se resuelve");
+});
+
+prueba("borrarTodosLosDatos tambien se lleva el espejo del tema", () => {
+  guardarPref("tema", "oscuro");
+  aplicarTema();
+  esVerdad(localStorage.getItem(CLAVE_TEMA) !== null);
+  borrarTodosLosDatos();
+  igual(localStorage.getItem(CLAVE_TEMA), null);
+});
+
 // ---- Exportar / importar ----
 
 prueba("exportarDatos incluye los datos y las opciones, no el entreno en curso", () => {

@@ -12,11 +12,18 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/styles.css" />
   <script>
-    /* Aplica el tema antes de dibujar, para que no haya parpadeo oscuro->claro */
+    /* Aplica el tema antes de dibujar, para que no haya parpadeo oscuro->claro.
+       Lee una clave diminuta ("gym.tema"). Solo la primera vez, si aun no
+       existe, tira del almacen grande y lo parsea UNA vez (antes se parseaba
+       dos, y ese almacen crece con cada entrenamiento). */
     (function () {
       try {
-        var guardado = localStorage.getItem("gym.datos.v1");
-        var tema = guardado && JSON.parse(guardado).prefs && JSON.parse(guardado).prefs.tema;
+        var tema = localStorage.getItem("gym.tema");
+        if (!tema) {
+          var guardado = localStorage.getItem("gym.datos.v1");
+          var datos = guardado ? JSON.parse(guardado) : null;
+          tema = datos && datos.prefs && datos.prefs.tema;
+        }
         if (!tema || tema === "sistema") {
           tema = matchMedia("(prefers-color-scheme: light)").matches ? "claro" : "oscuro";
         }

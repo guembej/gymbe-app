@@ -10,6 +10,15 @@
 const CLAVE_ALMACEN =
   (typeof window !== "undefined" && window.GYM_CLAVE_ALMACEN) || "gym.datos.v1";
 
+// Espejo diminuto del tema. El script anti-parpadeo del <head> lo lee para no
+// tener que parsear TODO el almacen (que crece con el historial) antes del
+// primer pixel. Guarda la PREFERENCIA ("sistema"/"claro"/"oscuro"), no el color
+// resuelto, para que "sistema" siga al movil.
+const CLAVE_TEMA =
+  (typeof window !== "undefined" && window.GYM_CLAVE_ALMACEN)
+    ? window.GYM_CLAVE_ALMACEN + ".tema"
+    : "gym.tema";
+
 // Grupos musculares disponibles (lista fija)
 const GRUPOS_MUSCULARES = [
   "Pecho", "Espalda", "Pierna", "Hombro",
@@ -93,6 +102,17 @@ function cargar() {
 // la recarga.
 let _borradoEsperandoRecarga = false;
 
+// Guardado aplazado: al teclear peso/reps no escribimos en cada letra, sino
+// RETARDO_GUARDADO ms después de la última. Ver guardarSesionActiva().
+const RETARDO_GUARDADO = 400;
+let _guardadoAplazado = null;
+
+function cancelarGuardadoAplazado() {
+  if (!_guardadoAplazado) return;
+  clearTimeout(_guardadoAplazado);
+  _guardadoAplazado = null;
+}
+
 // Cuántas veces seguidas ha fallado el guardado (para avisar solo la primera).
 let _fallosSeguidosAlGuardar = 0;
 
@@ -100,6 +120,7 @@ let _fallosSeguidosAlGuardar = 0;
 // Si el almacenamiento está lleno o bloqueado NO revienta la app: avisa una vez
 // y sigue funcionando en memoria (los datos siguen ahí hasta cerrar la app).
 function guardar() {
+  cancelarGuardadoAplazado(); // un guardado explicito deja sin sentido al que espera
   if (_borradoEsperandoRecarga) return false;
   try {
     localStorage.setItem(CLAVE_ALMACEN, JSON.stringify(DATOS));
@@ -130,11 +151,13 @@ function _reiniciarDatos() {
 // Deja el almacenamiento como recién instalado: al recargar se vuelven a cargar
 // las rutinas iniciales.
 function borrarTodosLosDatos() {
+  cancelarGuardadoAplazado();
   DATOS = datosVacios();
   _borradoEsperandoRecarga = true; // que nada lo vuelva a crear antes de recargar
   try {
     localStorage.removeItem(CLAVE_ALMACEN);
     // El temporizador guarda aparte: "borrar todos mis datos" también lo incluye.
+    localStorage.removeItem(CLAVE_TEMA);
     if (typeof CLAVE_TIEMPO === "string") localStorage.removeItem(CLAVE_TIEMPO);
   } catch (e) {
     console.error("No se pudo borrar el almacenamiento.", e);
@@ -187,6 +210,9 @@ function temaEfectivo() {
 
 function aplicarTema() {
   document.documentElement.dataset.tema = temaEfectivo();
+  try {
+    localStorage.setItem(CLAVE_TEMA, DATOS.prefs.tema || "sistema");
+  } catch (e) { /* si no se puede, el <head> tira del almacen grande */ }
 }
 
 // ---- Exportar / importar copia ----
@@ -225,6 +251,7 @@ function importarDatos(texto) {
 
   DATOS = nuevos;
   guardar();
+  if (typeof document !== "undefined") aplicarTema(); // refresca el espejo del tema
   return { ok: true };
 }
 
@@ -570,9 +597,31 @@ function empezarSesion(routineId) {
   return DATOS.sesionActiva;
 }
 
-// Guarda cambios en la sesión en curso (lo que se va marcando durante el entreno)
-function guardarSesionActiva() {
-  guardar();
+// Guarda los cambios del entreno en curso.
+// Por defecto ESPERA un poco: al escribir peso/reps se pulsan muchas teclas
+// seguidas y serializar todo el almacén en cada una da tirones en el móvil.
+// Con { inmediato: true } guarda ya (marcar una serie, añadirla, quitarla...).
+function guardarSesionActiva({ inmediato = false } = {}) {
+  if (inmediato) return guardar();
+  cancelarGuardadoAplazado();
+  _guardadoAplazado = setTimeout(() => {
+    _guardadoAplazado = null;
+    guardar();
+  }, RETARDO_GUARDADO);
+  return true;
+}
+
+// Fuerza el guardado que estuviera esperando (al esconder o cerrar la app).
+function _guardarPendienteYa() {
+  if (_guardadoAplazado) guardar(); // guardar() ya cancela el temporizador
+}
+
+// En el movil "pagehide" no siempre llega; "visibilitychange" a oculto si.
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", _guardarPendienteYa);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") _guardarPendienteYa();
+  });
 }
 
 // Abandona la sesión en curso sin registrarla

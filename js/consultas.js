@@ -4,6 +4,34 @@
 //  Solo leen: progreso, ultima marca, si una serie se marca sola.
 // ==========================================================
 
+// ----------------------------------------------------------
+//  Indice de sets por ejercicio
+//  Sin el, cada consulta recorria y REORDENABA todo el historial, y eso pasa
+//  una vez por ejercicio y por repintado. Se construye a demanda y se tira
+//  cuando cambia el historial.
+// ----------------------------------------------------------
+
+let _indiceSets = null;
+
+function _indice() {
+  if (_indiceSets) return _indiceSets;
+  _indiceSets = new Map();
+  [...DATOS.sesiones]
+    .sort((a, b) => b.fecha.localeCompare(a.fecha)) // de mas reciente a mas antigua
+    .forEach((sesion) => {
+      sesion.sets.forEach((set) => {
+        if (!_indiceSets.has(set.exerciseId)) _indiceSets.set(set.exerciseId, []);
+        _indiceSets.get(set.exerciseId).push({ set, fecha: sesion.fecha, sesionId: sesion.id });
+      });
+    });
+  return _indiceSets;
+}
+
+// Lo llaman terminarSesion(), borrarSesion() e importarDatos().
+function invalidarIndiceSets() {
+  _indiceSets = null;
+}
+
 // Ejercicios cuyo nombre contiene 'texto' (ignora mayúsculas y tildes).
 // Devuelve { coincidencias: [...], hayExacto } — hayExacto = ya existe uno igual.
 function filtrarEjercicios(texto, limite = 6) {
@@ -28,22 +56,21 @@ function filtrarEjercicios(texto, limite = 6) {
 // "Mejor" = más peso; a igualdad de peso, más repeticiones.
 // Devuelve { peso, reps, fecha } o null si no hay ningún registro.
 function mejorSerieUltimoDia(exerciseId) {
-  const sesiones = [...DATOS.sesiones].sort((a, b) => b.fecha.localeCompare(a.fecha));
-  for (const sesion of sesiones) {
-    const sets = sesion.sets.filter((s) => s.exerciseId === exerciseId);
-    if (sets.length === 0) continue;
+  const entradas = _indice().get(exerciseId);
+  if (!entradas || entradas.length === 0) return null;
 
-    let mejor = null;
-    sets.forEach((s) => {
-      const peso = _num(s.pesoReal, 0, 0);
-      const reps = parseInt(s.repsReal, 10) || 0;
-      if (!mejor || peso > mejor.peso || (peso === mejor.peso && reps > mejor.reps)) {
-        mejor = { peso, reps };
-      }
-    });
-    return { peso: mejor.peso, reps: mejor.reps, fecha: sesion.fecha };
+  // El indice viene ordenado: la primera entrada marca el dia mas reciente.
+  const fecha = entradas[0].fecha;
+  let mejor = null;
+  for (const e of entradas) {
+    if (e.fecha !== fecha) break;
+    const peso = _num(e.set.pesoReal, 0, 0);
+    const reps = parseInt(e.set.repsReal, 10) || 0;
+    if (!mejor || peso > mejor.peso || (peso === mejor.peso && reps > mejor.reps)) {
+      mejor = { peso, reps };
+    }
   }
-  return null;
+  return { peso: mejor.peso, reps: mejor.reps, fecha };
 }
 
 // Al pulsar "Empezar entrenamiento" con una rutina, ¿qué relación tiene con el

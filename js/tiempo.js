@@ -142,11 +142,13 @@ cronoToggle.addEventListener("click", () => {
     cronoToggle.textContent = "Pausar";
   }
   guardarEstadoTiempo();
+  ajustarBucle();
 });
 cronoReset.addEventListener("click", () => {
   crono = { corriendo: false, acumuladoMs: 0, inicioMs: 0 };
   cronoToggle.textContent = "Empezar";
   guardarEstadoTiempo();
+  ajustarBucle();
 });
 
 // ==========================================================
@@ -264,6 +266,7 @@ function empezarTemporizador() {
   reprogramarAvisos();
   guardarEstadoTiempo();
   pintarTemporizador();
+  ajustarBucle();
 }
 
 function pararTemporizador() {
@@ -280,6 +283,7 @@ function pararTemporizador() {
   bloqueTemporizador.dataset.fase = "";
   if (tempEtiquetaEl) pintarEtiquetaTemp();
   guardarEstadoTiempo();
+  ajustarBucle();
 }
 
 function avanzarTramo() {
@@ -370,6 +374,7 @@ tempToggle.addEventListener("click", () => {
   }
   guardarEstadoTiempo();
   pintarTemporizador();
+  ajustarBucle();
 });
 
 tempSaltar.addEventListener("click", () => {
@@ -532,17 +537,48 @@ pildora.addEventListener("click", () => irA("cronometro"));
 //  Bucle de pintado (10 veces por segundo)
 // ==========================================================
 
+// El bucle solo corre cuando hay algo que pintar. Antes daba 10 vueltas por
+// segundo siempre, aunque estuvieras en Historial sin nada en marcha.
+let _bucle = null;
+let _ajustando = false;
+let _ultimoSegundoPiP = null;
+
+function hayQuePintar() {
+  return crono.corriendo
+    || temp.corriendo
+    || (!!temp.terminadoEn && Date.now() - temp.terminadoEn < 7000);
+}
+
+function ajustarBucle() {
+  if (_ajustando) return;          // tick() nos vuelve a llamar: no reentrar
+  _ajustando = true;
+  const falta = hayQuePintar();
+  if (falta && !_bucle) _bucle = setInterval(tick, 100);
+  if (!falta && _bucle) { clearInterval(_bucle); _bucle = null; }
+  if (!falta) tick();              // un ultimo pintado para dejarlo coherente
+  _ajustando = false;
+}
+
 function tick() {
   cronoDisplay.textContent = formatearCronometro(cronoMs(), obtenerPref("cronDecimas"));
   if (temp.corriendo || temp.terminadoEn) pintarTemporizador();
   pintarEtiquetaTemp();
   pintarPildora();
-  if (document.pictureInPictureElement) dibujarPiP();
+
+  // La ventana flotante solo se redibuja cuando cambia el segundo que muestra,
+  // no diez veces por segundo.
+  if (document.pictureInPictureElement) {
+    const ahora = temp.terminadoEn ? "fin" : formatearCuentaAtras(segRestantes());
+    if (ahora !== _ultimoSegundoPiP) { _ultimoSegundoPiP = ahora; dibujarPiP(); }
+  } else {
+    _ultimoSegundoPiP = null;
+  }
+
+  ajustarBucle();
 }
-setInterval(tick, 100);
 
 // Arranque
 restaurarEstadoTiempo();
 pintarConfig();
 pintarEtiquetaTemp();
-tick();
+ajustarBucle();   // arranca el bucle solo si hace falta

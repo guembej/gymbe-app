@@ -194,6 +194,22 @@ function exportarDatos() {
   return JSON.stringify(salida, null, 2);
 }
 
+// Revisa por encima que los elementos tengan la forma esperada.
+// Devuelve un texto con el problema, o null si todo bien.
+function _revisarFormaDeCopia(obj) {
+  const esTexto = (v) => typeof v === "string";
+  if (!obj.ejercicios.every((e) => e && esTexto(e.id) && esTexto(e.nombre))) {
+    return "La copia tiene ejercicios con un formato que no reconozco.";
+  }
+  if (!obj.rutinas.every((r) => r && esTexto(r.id) && esTexto(r.nombre) && Array.isArray(r.items))) {
+    return "La copia tiene rutinas con un formato que no reconozco.";
+  }
+  if (!obj.sesiones.every((s) => s && esTexto(s.id) && esTexto(s.fecha) && Array.isArray(s.sets))) {
+    return "La copia tiene entrenamientos con un formato que no reconozco.";
+  }
+  return null;
+}
+
 // Reemplaza TODOS los datos con los de una copia. { ok } o { ok:false, error }
 function importarDatos(texto) {
   let obj;
@@ -210,6 +226,11 @@ function importarDatos(texto) {
     return { ok: false, error: "El archivo no parece una copia de Gymbe." };
   }
 
+  // No basta con que existan las tres listas: si el contenido tiene otra forma,
+  // la app se rompe DESPUES, al pintar, y sin saber por que.
+  const problema = _revisarFormaDeCopia(obj);
+  if (problema) return { ok: false, error: problema };
+
   const nuevos = datosVacios();
   CLAVES_EXPORTABLES.forEach((clave) => {
     if (obj[clave] !== undefined) nuevos[clave] = obj[clave];
@@ -218,6 +239,7 @@ function importarDatos(texto) {
   nuevos.temporizador = Object.assign(datosVacios().temporizador, nuevos.temporizador || {});
 
   DATOS = nuevos;
+  if (typeof invalidarIndiceSets === "function") invalidarIndiceSets();
   guardar();
   if (typeof document !== "undefined") aplicarTema(); // refresca el espejo del tema
   return { ok: true };

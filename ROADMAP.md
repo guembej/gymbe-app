@@ -137,6 +137,27 @@ App personal para registrar y seguir mi progreso en el gimnasio.
 - [x] Fase 8 — PWA y pulido
 - [x] Fase 9 — Rutinas pregrabadas y uso real
 
+Versión 1.5.0 (2026-09-11): cierre del PLAN-MEJORAS.md (fase B y remates).
+- B2: índice de sets por ejercicio en consultas.js. mejorSerieUltimoDia pasa de
+  recorrer y reordenar TODO el historial una vez por ejercicio y por repintado a
+  una búsqueda directa. Medido con 200 sesiones: 2,47 ms -> 0,005 ms por
+  repintado (el primero sigue costando 2,4 ms, que es construir el índice).
+- B3: el bucle de pintado (10 veces por segundo) solo corre cuando hay cronómetro
+  o temporizador en marcha. Antes no paraba nunca, ni en Historial sin nada activo.
+- B4: la ventana flotante se redibuja solo cuando cambia el segundo que muestra.
+- A4: importarDatos comprueba la FORMA de la copia, no solo que existan las tres
+  listas. Una copia corrupta se rechaza diciendo qué falla, en vez de entrar y
+  romper la app después al pintar.
+- E2: el runner de pruebas admite funciones async (se pueden probar esperas).
+- D4/D5: foco visible con teclado (:focus-visible), aria-live en la cuenta atrás y
+  respeto a prefers-reduced-motion.
+
+Corrección al propio plan: decía que cada tick hacía un document.querySelector
+dentro de pintarPildora. Es FALSO, las referencias ya estaban cacheadas.
+
+NO se hace C1 (módulos ES), C3 (bus de eventos), C4 (delegación) ni A3
+(migraciones), a propósito. Ver la nota al final de PLAN-MEJORAS.md.
+
 Versión 1.4.5 (2026-09-11): paso 5 del PLAN-MEJORAS.md (C2, arquitectura).
 datos.js pasa de 674 líneas con 8 responsabilidades mezcladas a seis archivos:
   datos.js (265)        el almacén: cargar/guardar, preferencias, tema, export/import

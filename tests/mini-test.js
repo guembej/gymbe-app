@@ -31,16 +31,18 @@ function esVerdad(valor, mensaje) {
   if (!valor) throw new Error(mensaje || "esperaba un valor verdadero");
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   const lista = document.getElementById("resultados");
   const resumen = document.getElementById("resumen");
   let pasadas = 0;
 
-  _pruebas.forEach(({ nombre, fn }) => {
+  // "await" acepta tanto funciones normales como async: asi se pueden probar
+  // cosas que tardan (temporizadores, esperas) sin cambiar las que ya habia.
+  for (const { nombre, fn } of _pruebas) {
     const li = document.createElement("li");
     try {
-      if (_antesDeCada) _antesDeCada();
-      fn();
+      if (_antesDeCada) await _antesDeCada();
+      await fn();
       li.className = "ok";
       li.textContent = "✅ " + nombre;
       pasadas++;
@@ -49,7 +51,7 @@ window.addEventListener("DOMContentLoaded", () => {
       li.textContent = "❌ " + nombre + "  —  " + error.message;
     }
     lista.appendChild(li);
-  });
+  }
 
   const total = _pruebas.length;
   resumen.textContent = `${pasadas} de ${total} pruebas pasan`;

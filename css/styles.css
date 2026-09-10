@@ -6,6 +6,23 @@
    .barra-entreno { display:flex }). Sin el !important se veían igual. */
 [hidden], .oculta { display: none !important; }
 
+/* Foco visible al navegar con teclado (no molesta al tocar con el dedo). */
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Si el sistema pide menos movimiento, se lo damos. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 :root {
   --fondo: #111827;
   --fondo-2: #1f2937;

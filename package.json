@@ -1,13 +1,16 @@
 {
   "name": "gymbe-app",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "private": true,
   "description": "PWA personal para registrar y seguir el progreso en el gimnasio. Sin frameworks, sin nube, funciona sin conexión.",
   "scripts": {
     "start": "node server.js",
-    "test": "node tests/run-ci.mjs"
+    "test": "node tests/run-ci.mjs",
+    "tipos": "tsc",
+    "comprobar": "npm run tipos && npm test"
   },
   "devDependencies": {
-    "playwright": "^1.48.0"
+    "playwright": "^1.48.0",
+    "typescript": "^7.0.2"
   }
 }

@@ -798,6 +798,44 @@ prueba("index.html: una sola pestaña Entrenar (sin sección 'rutinas', 4 botone
   esVerdad(/id="barra-entreno"/.test(html), "existe la barra 'entreno en curso'");
 });
 
+// Helper: mete styles.css de verdad y mide un elemento con esas clases
+function _conEstilosReales(clases, fn) {
+  const style = document.createElement("style");
+  style.textContent = _leerArchivo("../css/styles.css");
+  document.head.appendChild(style);
+  const el = document.createElement("button");
+  el.className = clases;
+  el.textContent = "Aa";
+  document.body.appendChild(el);
+  try { return fn(el); } finally { el.remove(); style.remove(); }
+}
+
+function _contrasteDe(el) {
+  const canal = (v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
+  const lum = (css) => {
+    const [r, g, b] = css.match(/\d+/g).slice(0, 3).map(Number);
+    return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+  };
+  const cs = getComputedStyle(el);
+  const [claro, oscuro] = [lum(cs.color), lum(cs.backgroundColor)].sort((a, b) => b - a);
+  return (claro + 0.05) / (oscuro + 0.05);
+}
+
+prueba("styles.css: el texto sobre el naranja de marca pasa AA (4,5:1)", () => {
+  // Blanco sobre #ff5722 da 3,16:1 y NO pasa. El token --sobre-acento da 5,72:1.
+  ["boton-primario", "pildora-descanso", "barra-entreno", "aviso-version"].forEach((clase) => {
+    const c = _conEstilosReales(clase, _contrasteDe);
+    esVerdad(c >= 4.5, clase + " deberia pasar AA y da " + c.toFixed(2) + ":1");
+  });
+});
+
+prueba("styles.css: los botones de icono tienen area tactil comoda (40x40 minimo)", () => {
+  // Eran 29x26 y en las rutinas ✏️ y 🗑️ quedaban pegados: facil borrar sin querer.
+  const r = _conEstilosReales("icono-boton", (el) => el.getBoundingClientRect());
+  esVerdad(r.width >= 40 && r.height >= 40,
+    "mide " + Math.round(r.width) + "x" + Math.round(r.height) + ", minimo 40x40");
+});
+
 prueba("styles.css: el atributo 'hidden' oculta DE VERDAD la barra de aviso", () => {
   // Bug real de la barra pegada: .aviso-version { display:flex } ganaba a
   // [hidden]{display:none}, así que la barra se veía siempre pasara lo que pasara.

@@ -10,7 +10,7 @@
 :focus-visible {
   outline: 2px solid var(--acento);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--r-s);
 }
 
 /* Si el sistema pide menos movimiento, se lo damos. */
@@ -35,6 +35,41 @@
   --peligro: #f87171;
   --peligro-borde: #7f1d1d;
   --alto-menu: 64px;
+
+  /* ---- Escalas ----
+     Antes cada regla elegia su numero a ojo: habia 12 tamanos de letra,
+     11 rellenos y 6 redondeos distintos. Eso se nota como desorden aunque
+     no sepas senalar por que. Ahora todo sale de estas escalas. */
+
+  /* Letra: 5 pasos (+ el numerote del cronometro) */
+  --t-xs: 11px;    /* etiquetas en mayusculas, menu inferior */
+  --t-s: 13px;     /* texto secundario */
+  --t-m: 15px;     /* texto normal, campos, botones */
+  --t-l: 18px;     /* titulos de bloque */
+  --t-xl: 22px;    /* titulo de pantalla */
+  --t-crono: 54px; /* solo el cronometro */
+
+  /* Espacio: 6 pasos. Los valores de 2-3px que quedan sueltos son ajustes
+     opticos de un sitio concreto, no huecos de la maquetacion. */
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 24px;
+  --e-6: 32px;
+
+  /* Redondeo: 3 pasos + pastilla */
+  --r-s: 8px;
+  --r-m: 12px;
+  --r-l: 16px;
+  --r-full: 999px;
+
+  /* Profundidad: dos niveles suaves para que las tarjetas despeguen del fondo */
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.20);
+  --sombra-2: 0 4px 14px rgba(0, 0, 0, 0.30);
+
+  /* Una sola duracion para toda la app (el modo "menos movimiento" ya la anula) */
+  --transicion: 150ms ease;
 }
 
 /* Tema claro: solo cambian fondos, textos y bordes; el naranja y el marino se mantienen */
@@ -46,14 +81,22 @@
   --borde: #d8dbe0;
   --peligro: #dc2626;
   --peligro-borde: #fca5a5;
+  --sombra-1: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --sombra-2: 0 4px 14px rgba(16, 24, 40, 0.10);
 }
 
 body {
   background: var(--fondo);
   color: var(--texto);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--t-m);
+  line-height: 1.45;
   min-height: 100vh;
 }
+
+/* Los titulos van mas apretados que el texto corrido: con el 1.45 del cuerpo
+   quedaban despegados y las tarjetas crecian sin necesidad. */
+h1, h2, h3, .tarjeta-titulo, .tiempo-display, #temp-fase { line-height: 1.2; }
 
 /* ---- Pantalla de bienvenida ---- */
 #splash {
@@ -65,15 +108,15 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: var(--e-3);
   transition: opacity 0.4s ease;
 }
 #splash.oculto { opacity: 0; pointer-events: none; }
 #splash .iso { width: 68px; height: 26px; color: #f2f4f7; }
-#splash .lockup-texto { font-size: 22px; letter-spacing: 0.5px; color: #f2f4f7; }
+#splash .lockup-texto { font-size: var(--t-xl); letter-spacing: 0.5px; color: #f2f4f7; }
 #splash .lockup-texto b { font-weight: 600; }
 #splash .lockup-texto span { color: var(--acento); }
-#splash .splash-nota { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+#splash .splash-nota { font-size: var(--t-s); color: #9ca3af; margin-top: 2px; }
 
 /* ---- Cabecera ---- */
 .cabecera {
@@ -81,14 +124,14 @@ body {
   top: 0;
   background: var(--marca-marino);
   border-bottom: 1px solid var(--borde);
-  padding: 14px 16px;
-  padding-top: max(14px, env(safe-area-inset-top));
+  padding: var(--e-4) var(--e-4);
+  padding-top: max(var(--e-4), env(safe-area-inset-top));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--e-3);
 }
-.marca { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.marca { display: flex; align-items: center; gap: var(--e-3); min-width: 0; }
 .ajustes-boton {
   background: none;
   border: none;
@@ -113,62 +156,61 @@ body {
   flex-shrink: 0;
 }
 .marca .iso { width: 44px; height: 17px; color: #f2f4f7; flex-shrink: 0; }
-.cabecera h1 { font-size: 20px; font-weight: 600; color: #f9fafb; }
+.cabecera h1 { font-size: var(--t-xl); font-weight: 600; color: #f9fafb; }
 
 /* ---- Logo (isotipo reutilizable vía <use>) ---- */
 .iso { display: block; }
 
 /* ---- Marca en Ajustes ---- */
 .pie-marca {
-  margin-top: 48px;
-  padding-top: 24px;
+  margin-top: var(--e-6);
+  padding-top: var(--e-5);
   border-top: 1px solid var(--borde);
   text-align: center;
 }
 .lockup {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: var(--e-3);
+  margin-bottom: var(--e-2);
 }
 .lockup .iso { width: 56px; height: 21px; color: var(--texto); }
-.lockup-texto { font-size: 20px; letter-spacing: 0.5px; }
+.lockup-texto { font-size: var(--t-xl); letter-spacing: 0.5px; }
 .lockup-texto b { font-weight: 600; }
 .lockup-texto span { color: var(--acento); }
-.pie-version { font-size: 12px; color: var(--texto-suave); }
+.pie-version { font-size: var(--t-s); color: var(--texto-suave); }
 
 /* ---- Aviso de versión nueva ---- */
 .aviso-version {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 16px;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
   background: var(--acento);
   color: var(--sobre-acento);
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
 }
-.aviso-version-acciones { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.aviso-version-acciones { display: flex; align-items: center; gap: var(--e-2); flex-shrink: 0; }
 .aviso-version .boton-primario {
   background: #fff;
   color: var(--marca-marino);
-  padding: 6px 14px;
-  font-size: 13px;
+  padding: var(--e-2) var(--e-4);
+  font-size: var(--t-s);
 }
 .aviso-version-cerrar {
   background: none;
   border: none;
   color: var(--sobre-acento);
-  font-size: 16px;
-  padding: 4px 6px;
+  padding: var(--e-1) var(--e-2);
   cursor: pointer;
 }
 
 /* ---- Contenido ---- */
 #contenido {
-  padding: 16px;
-  padding-bottom: calc(var(--alto-menu) + 24px);
+  padding: var(--e-4);
+  padding-bottom: calc(var(--alto-menu) + var(--e-5));
 }
 /* (.oculta se define arriba, junto a [hidden], con !important) */
 
@@ -176,7 +218,7 @@ body {
   color: var(--texto-suave);
   text-align: center;
   line-height: 1.6;
-  margin-top: 40px;
+  margin-top: var(--e-6);
 }
 
 /* ---- Menú inferior ---- */
@@ -201,31 +243,33 @@ body {
   background: none;
   border: none;
   color: var(--texto-suave);
-  font-size: 11px;
+  font-size: var(--t-xs);
   cursor: pointer;
 }
+.menu-boton { transition: color var(--transicion); }
 .menu-boton.activo { color: var(--acento); }
 .menu-icono { width: 23px; height: 23px; }
 
 /* ---- Conmutador Rutinas / Ejercicios ---- */
 .conmutador {
   display: flex;
-  gap: 4px;
+  gap: var(--e-1);
   background: var(--fondo-2);
   border: 1px solid var(--borde);
-  border-radius: 10px;
-  padding: 4px;
-  margin-bottom: 16px;
+  border-radius: var(--r-m);
+  padding: var(--e-1);
+  margin-bottom: var(--e-4);
 }
 .conmutador-boton {
   flex: 1;
-  padding: 8px;
+  padding: var(--e-2);
   border: none;
-  border-radius: 7px;
+  border-radius: var(--r-s);
   background: none;
   color: var(--texto-suave);
-  font-size: 14px;
+  font-size: var(--t-m);
   cursor: pointer;
+  transition: background var(--transicion), color var(--transicion);
 }
 .conmutador-boton.activo {
   background: var(--acento);
@@ -237,11 +281,12 @@ body {
 /* ---- Botones ---- */
 .boton-primario,
 .boton-secundario {
-  padding: 12px 16px;
-  border-radius: 10px;
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-m);
   border: 1px solid transparent;
-  font-size: 15px;
+  font-size: var(--t-m);
   cursor: pointer;
+  transition: opacity var(--transicion), border-color var(--transicion);
 }
 .boton-primario { background: var(--acento); color: var(--sobre-acento); font-weight: 600; }
 .boton-secundario { background: none; color: var(--texto); border-color: var(--borde); }
@@ -252,7 +297,6 @@ body {
 .icono-boton {
   background: none;
   border: none;
-  font-size: 17px;
   /* Objetivo tactil comodo con el movil en la mano: 40x40 minimo.
      Antes eran 29x26 y en las rutinas ✏️ y 🗑️ quedaban pegados. */
   min-width: 40px;
@@ -288,32 +332,34 @@ body {
 .quitar-serie { color: var(--texto-suave); }
 
 /* ---- Listas de tarjetas ---- */
-.lista { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.lista { list-style: none; margin-top: var(--e-4); display: flex; flex-direction: column; gap: var(--e-2); }
 
 .tarjeta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--e-2);
   background: var(--fondo-2);
   border: 1px solid var(--borde);
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-3);
+  box-shadow: var(--sombra-1);
+  transition: border-color var(--transicion), background var(--transicion);
 }
 .tarjeta-cuerpo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.tarjeta-encabezado { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.tarjeta-titulo { font-size: 15px; font-weight: 600; }
-.tarjeta-nota { font-size: 13px; color: var(--texto-suave); }
-.tarjeta-acciones { display: flex; flex-shrink: 0; gap: 4px; }
+.tarjeta-encabezado { display: flex; align-items: center; gap: var(--e-2); flex-wrap: wrap; }
+.tarjeta-titulo { font-size: var(--t-m); font-weight: 600; }
+.tarjeta-nota { font-size: var(--t-s); color: var(--texto-suave); }
+.tarjeta-acciones { display: flex; flex-shrink: 0; gap: var(--e-1); }
 
 /* Ejercicios dentro de una rutina: lista numerada; nombre y acciones en la misma línea */
-.item-rutina { align-items: flex-start; gap: 10px; }
+.item-rutina { align-items: flex-start; gap: var(--e-3); }
 .item-num {
   flex-shrink: 0;
   min-width: 18px;
   text-align: center;
   padding-top: 2px;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   color: var(--texto-suave);
 }
@@ -322,11 +368,10 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 6px;
+  gap: var(--e-2);
 }
 .item-fila-top .tarjeta-titulo { min-width: 0; }
 .item-fila-top .tarjeta-acciones { flex-shrink: 0; }
-.item-rutina .icono-boton { font-size: 16px; }
 /* Los 40x40 del area tactil no deben estirar la fila: se salen del hueco
    sin ocupar alto extra, asi el nombre y el resumen siguen juntos. */
 .item-fila-top .tarjeta-acciones { margin: -9px -6px -9px 0; }
@@ -349,13 +394,13 @@ body.reordenando { cursor: grabbing; }
 
 .etiqueta {
   align-self: flex-start;
-  font-size: 11px;
+  font-size: var(--t-xs);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--texto-suave);
   border: 1px solid var(--borde);
-  border-radius: 999px;
-  padding: 2px 8px;
+  border-radius: var(--r-full);
+  padding: 2px var(--e-2);
   white-space: nowrap;
 }
 .tarjeta-encabezado .etiqueta { align-self: center; }
@@ -386,21 +431,22 @@ body.reordenando { cursor: grabbing; }
 .dialogo {
   margin: auto; /* centrar: el reset de arriba quita el margin:auto por defecto */
   border: 1px solid var(--borde);
-  border-radius: 14px;
+  border-radius: var(--r-l);
   background: var(--fondo-2);
   color: var(--texto);
-  padding: 20px;
+  box-shadow: var(--sombra-2);
+  padding: var(--e-5);
   width: min(420px, calc(100vw - 32px));
 }
 .dialogo::backdrop { background: rgba(0, 0, 0, 0.6); }
 
-.formulario { display: flex; flex-direction: column; gap: 14px; }
-.formulario h2 { font-size: 18px; }
+.formulario { display: flex; flex-direction: column; gap: var(--e-4); }
+.formulario h2 { font-size: var(--t-l); }
 .formulario label {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
+  gap: var(--e-2);
+  font-size: var(--t-s);
   color: var(--texto-suave);
 }
 .formulario input,
@@ -410,38 +456,38 @@ body.reordenando { cursor: grabbing; }
   min-width: 0;
   background: var(--fondo);
   border: 1px solid var(--borde);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: var(--r-s);
+  padding: var(--e-3);
   color: var(--texto);
-  font-size: 15px;
+  font-size: var(--t-m);
   font-family: inherit;
 }
 .formulario textarea { resize: vertical; }
 
 .dialogo-mensaje-texto {
-  font-size: 15px;
+  font-size: var(--t-m);
   line-height: 1.5;
   color: var(--texto);
-  margin-bottom: 18px;
+  margin-bottom: var(--e-5);
 }
 .boton-primario.peligro { background: #dc2626; color: #fff; }
 
-.form-acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+.form-acciones { display: flex; gap: var(--e-2); justify-content: flex-end; margin-top: var(--e-1); }
 .form-acciones .boton-primario,
 .form-acciones .boton-secundario { flex: 1; }
 
-.fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--e-3); }
 .fila-2 label { min-width: 0; }
 
 /* Buscador de ejercicio (elegir uno o crear al vuelo) */
-.combo-ejercicio { display: flex; flex-direction: column; gap: 10px; }
+.combo-ejercicio { display: flex; flex-direction: column; gap: var(--e-3); }
 .sugerencias {
   list-style: none;
   margin: 0;
-  padding: 4px;
+  padding: var(--e-1);
   background: var(--fondo);
   border: 1px solid var(--borde);
-  border-radius: 10px;
+  border-radius: var(--r-m);
   max-height: 230px;
   overflow-y: auto;
 }
@@ -449,17 +495,17 @@ body.reordenando { cursor: grabbing; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 11px 12px;
-  border-radius: 8px;
-  font-size: 15px;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-3);
+  border-radius: var(--r-s);
+  font-size: var(--t-m);
   color: var(--texto);
   cursor: pointer;
 }
 .sugerencia:hover, .sugerencia:active { background: var(--fondo-2); }
 .sugerencia-grupo {
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: var(--t-xs);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--texto-suave);
@@ -467,14 +513,14 @@ body.reordenando { cursor: grabbing; }
 .sugerencia-crear { color: var(--acento); font-weight: 600; }
 
 /* Botones rápidos (chips) */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--e-2); margin-top: -4px; }
 .chips button {
   background: var(--fondo);
   border: 1px solid var(--borde);
   color: var(--texto-suave);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 13px;
+  border-radius: var(--r-full);
+  padding: var(--e-2) var(--e-3);
+  font-size: var(--t-s);
   cursor: pointer;
 }
 .chips button:active { border-color: var(--acento); color: var(--acento); }
@@ -484,55 +530,56 @@ body.reordenando { cursor: grabbing; }
   background: none;
   border: none;
   color: var(--acento);
-  font-size: 14px;
-  padding: 4px 0;
-  margin-bottom: 12px;
+  font-size: var(--t-m);
+  padding: var(--e-1) 0;
+  margin-bottom: var(--e-3);
   cursor: pointer;
 }
 .detalle-cabecera {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: var(--e-2);
+  margin-bottom: var(--e-1);
 }
-.detalle-titulo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.detalle-titulo h2 { font-size: 18px; font-weight: 600; }
+.detalle-titulo { display: flex; flex-direction: column; gap: var(--e-2); min-width: 0; }
+.detalle-titulo h2 { font-size: var(--t-l); font-weight: 600; }
 
 .tarjeta-pulsable .tarjeta-cuerpo { cursor: pointer; flex: 1; }
-.chevron { font-size: 22px; color: var(--texto-suave); cursor: pointer; padding: 0 4px; }
+.chevron { font-size: var(--t-xl); color: var(--texto-suave); cursor: pointer; padding: 0 var(--e-1); }
 
 /* ---- Entrenar ---- */
-.ayuda { color: var(--texto-suave); font-size: 14px; margin-bottom: 12px; }
+.ayuda { color: var(--texto-suave); font-size: var(--t-m); margin-bottom: var(--e-3); }
 
 .bloque-ejercicio {
   background: var(--fondo-2);
   border: 1px solid var(--borde);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 12px;
+  border-radius: var(--r-m);
+  box-shadow: var(--sombra-1);
+  padding: var(--e-3) var(--e-4);
+  margin-bottom: var(--e-3);
 }
-.bloque-ejercicio h3 { font-size: 16px; font-weight: 600; }
-.objetivo { font-size: 12px; color: var(--texto-suave); margin: 4px 0 12px; }
+.bloque-ejercicio h3 { font-size: var(--t-l); font-weight: 600; }
+.objetivo { font-size: var(--t-s); color: var(--texto-suave); margin: var(--e-1) 0 var(--e-3); }
 .bloque-ejercicio .objetivo { margin-bottom: 2px; }
-.ultima-vez { display: block; font-size: 12px; color: var(--texto); margin: 0 0 12px; font-weight: 600; }
+.ultima-vez { display: block; font-size: var(--t-s); color: var(--texto); margin: 0 0 var(--e-3); font-weight: 600; }
 .item-contenido .ultima-vez { margin: 0; }
 
 .serie-fila {
   display: grid;
   grid-template-columns: 24px 1fr 1fr 28px 28px;
-  gap: 8px;
+  gap: var(--e-2);
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: var(--e-2);
 }
 .serie-cabecera {
-  font-size: 11px;
+  font-size: var(--t-xs);
   color: var(--texto-suave);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 .serie-cabecera span { text-align: center; }
-.serie-num { text-align: center; color: var(--texto-suave); font-size: 13px; }
+.serie-num { text-align: center; color: var(--texto-suave); font-size: var(--t-s); }
 
 .serie-fila input[type="number"],
 .serie-fila input[type="text"] {
@@ -540,11 +587,12 @@ body.reordenando { cursor: grabbing; }
   min-width: 0;
   background: var(--fondo);
   border: 1px solid var(--borde);
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: var(--r-s);
+  padding: var(--e-2);
   color: var(--texto);
-  font-size: 15px;
+  font-size: var(--t-m);
   text-align: center;
+  transition: border-color var(--transicion);
 }
 .serie-fila input[type="checkbox"] {
   width: 20px;
@@ -559,11 +607,11 @@ body.reordenando { cursor: grabbing; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-top: 6px;
+  gap: var(--e-2);
+  margin-top: var(--e-2);
 }
 .bloque-pie .boton-enlace { margin: 0; }
-.btn-temporizador { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+.btn-temporizador { padding: var(--e-2) var(--e-3); font-size: var(--t-s); white-space: nowrap; }
 
 /* Barra "Entrenamiento en curso" (fuera de la pestaña Entrenar) */
 .barra-entreno {
@@ -574,12 +622,12 @@ body.reordenando { cursor: grabbing; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 11px 18px;
+  gap: var(--e-2);
+  padding: var(--e-3) var(--e-5);
   background: var(--acento);
   color: var(--sobre-acento);
   border: none;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
   z-index: 49;
@@ -604,7 +652,7 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   left: 0;
   right: 0;
   bottom: calc(var(--alto-menu) + env(safe-area-inset-bottom));
-  padding: 10px 16px;
+  padding: var(--e-3) var(--e-4);
   background: var(--fondo);
   border-top: 1px solid var(--borde);
   z-index: 30;
@@ -619,9 +667,9 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   background: var(--acento);
   color: var(--sobre-acento);
   border: none;
-  border-radius: 999px;
-  padding: 10px 20px;
-  font-size: 15px;
+  border-radius: var(--r-full);
+  padding: var(--e-3) var(--e-5);
+  font-size: var(--t-m);
   font-weight: 600;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -633,8 +681,8 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 
 .acciones-entreno {
   display: flex;
-  gap: 8px;
-  margin-top: 20px;
+  gap: var(--e-2);
+  margin-top: var(--e-5);
 }
 .acciones-entreno button { flex: 1; }
 
@@ -642,42 +690,43 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 .bloque-tiempo {
   background: var(--fondo-2);
   border: 1px solid var(--borde);
-  border-radius: 14px;
-  padding: 20px 16px;
-  margin-bottom: 16px;
+  border-radius: var(--r-l);
+  box-shadow: var(--sombra-1);
+  padding: var(--e-5) var(--e-4);
+  margin-bottom: var(--e-4);
   text-align: center;
 }
 .bloque-tiempo h2 {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--texto-suave);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-bottom: 8px;
+  margin-bottom: var(--e-2);
 }
 .tiempo-display {
-  font-size: 54px;
+  font-size: var(--t-crono);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 2px;
-  margin: 6px 0 16px;
+  margin: var(--e-2) 0 var(--e-4);
 }
-.tiempo-acciones { display: flex; gap: 8px; }
+.tiempo-acciones { display: flex; gap: var(--e-2); }
 .tiempo-acciones button { flex: 1; }
 
 /* Configuración del temporizador de series */
-.temp-campos { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.temp-campos { display: flex; flex-direction: column; gap: var(--e-2); margin-bottom: var(--e-4); }
 .temp-campo {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--e-2);
 }
-.temp-campo > span { font-size: 14px; color: var(--texto-suave); }
-.temp-stepper { display: flex; align-items: center; gap: 10px; }
+.temp-campo > span { font-size: var(--t-m); color: var(--texto-suave); }
+.temp-stepper { display: flex; align-items: center; gap: var(--e-3); }
 .temp-stepper b {
   min-width: 56px;
-  font-size: 16px;
+  font-size: var(--t-l);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -688,34 +737,34 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   border: 1px solid var(--borde);
   background: var(--fondo);
   color: var(--texto);
-  font-size: 18px;
+  font-size: var(--t-l);
   line-height: 1;
   cursor: pointer;
 }
-#temp-total { margin-bottom: 14px; }
+#temp-total { margin-bottom: var(--e-4); }
 
 /* Etiqueta del ejercicio en el temporizador ("Press banca · 8-12 reps · 60 kg") */
 .temp-etiqueta {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--acento);
-  margin-bottom: 12px;
+  margin-bottom: var(--e-3);
 }
 
 /* Temporizador en marcha */
 #temp-fase {
-  font-size: 20px;
+  font-size: var(--t-xl);
   font-weight: 700;
   letter-spacing: 0.04em;
-  margin-bottom: 4px;
+  margin-bottom: var(--e-1);
 }
 #temp-siguiente, #temp-restantes { margin: 2px 0; }
 .temp-pie {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 12px;
+  gap: var(--e-4);
+  margin-top: var(--e-3);
   flex-wrap: wrap;
 }
 .temp-pie .boton-enlace { margin: 0; }
@@ -743,8 +792,8 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 .opcion {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
+  gap: var(--e-3);
+  font-size: var(--t-m);
   color: var(--texto);
   cursor: pointer;
 }
@@ -754,51 +803,52 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 .progreso-select {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
+  gap: var(--e-2);
+  font-size: var(--t-s);
   color: var(--texto-suave);
-  margin-bottom: 14px;
+  margin-bottom: var(--e-4);
 }
 .progreso-select select {
   background: var(--fondo-2);
   border: 1px solid var(--borde);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: var(--r-s);
+  padding: var(--e-3);
   color: var(--texto);
-  font-size: 15px;
+  font-size: var(--t-m);
 }
-#progreso-metricas { margin-bottom: 8px; }
+#progreso-metricas { margin-bottom: var(--e-2); }
 #progreso-grafica {
   background: var(--fondo-2);
   border: 1px solid var(--borde);
-  border-radius: 12px;
-  padding: 8px;
+  border-radius: var(--r-m);
+  box-shadow: var(--sombra-1);
+  padding: var(--e-2);
 }
-#progreso-punto { text-align: center; min-height: 18px; margin: 8px 0; }
+#progreso-punto { text-align: center; min-height: 18px; margin: var(--e-2) 0; }
 .pg-svg { width: 100%; height: auto; display: block; }
 .pg-linea { fill: none; stroke: var(--acento); stroke-width: 2.5; }
 .pg-punto { fill: var(--acento); cursor: pointer; }
 .pg-grid { stroke: var(--borde); stroke-width: 1; opacity: 0.5; }
 .pg-eje-linea { stroke: var(--borde); stroke-width: 1; }
-.pg-eje { fill: var(--texto-suave); font-size: 10px; }
+.pg-eje { fill: var(--texto-suave); font-size: var(--t-xs); }
 
 .pg-tabla { width: 100%; border-collapse: collapse; }
-.pg-tabla td { padding: 8px 4px; border-bottom: 1px solid var(--borde); font-size: 14px; }
+.pg-tabla td { padding: var(--e-2) var(--e-1); border-bottom: 1px solid var(--borde); font-size: var(--t-m); }
 .pg-tabla td:first-child { color: var(--texto-suave); }
 .pg-tabla td:last-child { text-align: right; font-weight: 600; }
 
 /* ---- Historial ---- */
-#sesion-fecha { margin-top: 4px; }
-#sesion-meta { margin-bottom: 4px; }
-.serie-linea { font-size: 14px; color: var(--texto-suave); margin: 3px 0; }
+#sesion-fecha { margin-top: var(--e-1); }
+#sesion-meta { margin-bottom: var(--e-1); }
+.serie-linea { font-size: var(--t-m); color: var(--texto-suave); margin: 3px 0; }
 .serie-linea b { color: var(--texto); font-weight: 600; }
-#btn-borrar-sesion { margin-top: 16px; }
+#btn-borrar-sesion { margin-top: var(--e-4); }
 
 /* ---- Ajustes ---- */
-.ajustes-grupo { display: flex; flex-direction: column; gap: 10px; }
-.ajustes-grupo + .ajustes-grupo { margin-top: 28px; }
-.ajustes-grupo h2 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+.ajustes-grupo { display: flex; flex-direction: column; gap: var(--e-3); }
+.ajustes-grupo + .ajustes-grupo { margin-top: var(--e-6); }
+.ajustes-grupo h2 { font-size: var(--t-l); font-weight: 600; margin-bottom: 2px; }
 .btn-peligro { color: var(--peligro); border-color: var(--peligro-borde); }
 
-.ajustes-fila { display: flex; gap: 8px; }
+.ajustes-fila { display: flex; gap: var(--e-2); }
 .ajustes-fila button { flex: 1; }

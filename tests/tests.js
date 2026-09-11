@@ -481,6 +481,21 @@ prueba("avisosDelTramo: en un tramo muy corto solo caben los tics que quepan", (
   igual(avisosDelTramo(0, true), []);
 });
 
+prueba("listarRutinas: orden alfabético, con las tildes en su sitio", () => {
+  ["Tirón A", "Empuje B", "Última", "pierna", "Empuje A"].forEach((nombre) => crearRutina({ nombre }));
+  igual(listarRutinas().map((r) => r.nombre),
+        ["Empuje A", "Empuje B", "pierna", "Tirón A", "Última"]);
+  // "Tiron" y "Ultima" van donde toca, no al final: comparando con < a secas
+  // las tildes se van detrás de la Z.
+});
+
+prueba("listarRutinas: ordenar no reordena lo guardado", () => {
+  crearRutina({ nombre: "Zeta" });
+  crearRutina({ nombre: "Alfa" });
+  igual(listarRutinas()[0].nombre, "Alfa");
+  igual(DATOS.rutinas[0].nombre, "Zeta", "el almacén conserva su orden");
+});
+
 prueba("crearEjercicio: por defecto se mide en repeticiones", () => {
   const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
   igual(e.medida, "reps");

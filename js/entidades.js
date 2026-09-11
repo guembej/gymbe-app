@@ -56,8 +56,14 @@ function borrarEjercicio(id) {
 }
 
 // Rutinas en el orden en que se crearon
+// Devuelve las rutinas ordenadas por nombre (A->Z), igual que los ejercicios.
+// localeCompare con "es" coloca bien las tildes: "Tirón" va donde toca y no
+// al final, que es lo que pasa comparando con < a secas.
+// Es solo el ORDEN EN QUE SE LEEN: no reordena lo guardado.
 function listarRutinas() {
-  return [...DATOS.rutinas];
+  return [...DATOS.rutinas].sort((a, b) =>
+    a.nombre.localeCompare(b.nombre, "es")
+  );
 }
 
 function obtenerRutina(id) {

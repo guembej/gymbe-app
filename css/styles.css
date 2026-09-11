@@ -75,6 +75,7 @@
   --r-full: 999px;
 
   /* Profundidad: dos niveles suaves para que las tarjetas despeguen del fondo */
+  --apagado: #3d4b5c;        /* interruptor en "off" */
   --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.20);
   --sombra-2: 0 4px 14px rgba(0, 0, 0, 0.30);
 
@@ -91,6 +92,7 @@
   --borde: #d8dbe0;
   /* Sobre blanco pasa lo contrario: el naranja escrito hay que oscurecerlo. */
   --acento-texto: #c2410c;
+  --apagado: #b9c0c9;        /* el gris de los bordes se perdia sobre blanco */
   --peligro: #dc2626;
   --peligro-borde: #fca5a5;
   --sombra-1: 0 1px 2px rgba(16, 24, 40, 0.06);
@@ -580,7 +582,9 @@ body.reordenando { cursor: grabbing; }
 
 .serie-fila {
   display: grid;
-  grid-template-columns: 24px 1fr 1fr 28px 28px;
+  /* Eran 5 columnas: la del tick de "hecha" se fue en la v1.8.0 y ese hueco
+     se lo quedan el peso y las reps, que es donde peleas con el dedo. */
+  grid-template-columns: 24px 1fr 1fr 28px;
   gap: var(--e-2);
   align-items: center;
   margin-bottom: var(--e-2);
@@ -606,12 +610,6 @@ body.reordenando { cursor: grabbing; }
   font-size: var(--t-m);
   text-align: center;
   transition: border-color var(--transicion);
-}
-.serie-fila input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  justify-self: center;
-  accent-color: var(--acento);
 }
 .serie-hecha input[type="number"],
 .serie-hecha input[type="text"] { border-color: var(--acento-texto); }
@@ -801,16 +799,120 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 :root[data-tema="claro"] #bloque-temporizador[data-fase="serie"] { background: #e7f6ec; }
 :root[data-tema="claro"] #bloque-temporizador[data-fase="descanso"] { background: #fdeae1; }
 
-/* ---- Opciones (Ajustes) ---- */
-.opcion {
+/* ---- Ajustes ----
+   Al estilo de los ajustes del movil: encabezado gris pequeno y una tarjeta con
+   las filas dentro. Antes los controles flotaban sueltos sobre el fondo y era la
+   unica pantalla de la app sin tarjetas. */
+.aj-bloque { margin-bottom: var(--e-5); }
+.aj-titulo {
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--texto-suave);
+  font-weight: 600;
+  margin: 0 var(--e-1) var(--e-2);
+}
+.aj-tarjeta {
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-m);
+  box-shadow: var(--sombra-1);
+  overflow: hidden;
+}
+.aj-fila {
   display: flex;
   align-items: center;
   gap: var(--e-3);
-  font-size: var(--t-m);
-  color: var(--texto);
+  padding: var(--e-3) var(--e-4);
+  min-height: 52px;   /* la fila entera es el area tactil, no solo el control */
   cursor: pointer;
 }
-.opcion input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--acento); }
+.aj-fila + .aj-fila { border-top: 1px solid var(--borde); }
+.aj-fila-texto { flex: 1; min-width: 0; }
+.aj-fila-texto b { display: block; font-weight: 500; font-size: var(--t-m); }
+.aj-fila-texto span {
+  display: block;
+  font-size: var(--t-s);
+  color: var(--texto-suave);
+  margin-top: 1px;
+}
+
+/* Interruptor: por debajo sigue siendo un <input type="checkbox"> normal.
+   El cuadrado real se hace invisible y encima se dibuja la pastilla. */
+.aj-switch { position: relative; flex: none; width: 44px; height: 26px; }
+.aj-switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.aj-switch i {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-full);
+  background: var(--apagado);
+  transition: background var(--transicion);
+  pointer-events: none;
+}
+.aj-switch i::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--sombra-1);
+  transition: transform var(--transicion);
+}
+.aj-switch input:checked + i { background: var(--acento); }
+.aj-switch input:checked + i::after { transform: translateX(18px); }
+.aj-switch input:focus-visible + i {
+  outline: 2px solid var(--acento-texto);
+  outline-offset: 2px;
+}
+
+.aj-acciones { display: flex; gap: var(--e-2); }
+.aj-acciones .boton-secundario {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+}
+.aj-nota {
+  font-size: var(--t-s);
+  color: var(--texto-suave);
+  margin: 0 var(--e-1) var(--e-2);
+  line-height: 1.5;
+}
+
+/* Zona de peligro: separada de Exportar/Importar de verdad, no solo en rojo.
+   El boton se queda pequeno a proposito: uno grande invita a pulsarlo. */
+.aj-peligro {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  border: 1px solid var(--peligro-borde);
+  border-radius: var(--r-m);
+  padding: var(--e-3) var(--e-4);
+}
+.aj-peligro .aj-fila-texto b { color: var(--peligro); }
+.aj-peligro button {
+  flex: none;
+  background: none;
+  border: 1px solid var(--peligro-borde);
+  color: var(--peligro);
+  border-radius: var(--r-s);
+  padding: var(--e-2) var(--e-3);
+  font-size: var(--t-s);
+  font-weight: 600;
+  cursor: pointer;
+}
 
 /* ---- Progreso ---- */
 .progreso-select {
@@ -858,10 +960,4 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 #btn-borrar-sesion { margin-top: var(--e-4); }
 
 /* ---- Ajustes ---- */
-.ajustes-grupo { display: flex; flex-direction: column; gap: var(--e-3); }
-.ajustes-grupo + .ajustes-grupo { margin-top: var(--e-6); }
-.ajustes-grupo h2 { font-size: var(--t-l); font-weight: 600; margin-bottom: 2px; }
 .btn-peligro { color: var(--peligro); border-color: var(--peligro-borde); }
-
-.ajustes-fila { display: flex; gap: var(--e-2); }
-.ajustes-fila button { flex: 1; }

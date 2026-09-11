@@ -41,6 +41,21 @@ El orden de los `<script>` en `index.html` importa: son scripts normales que
 comparten ámbito global. `formato` y `grafica` van antes que `datos`, y `datos`
 antes que `entidades`.
 
+## Ajustes (v1.8.0+)
+Grupos al estilo de los ajustes del móvil: encabezado gris pequeño (`.aj-titulo`)
+y una tarjeta con las filas dentro (`.aj-tarjeta` / `.aj-fila`). El texto va antes
+que el control y la fila entera (52px) es el área táctil.
+- Los interruptores son `<input type="checkbox">` normales: la pastilla es solo
+  el aspecto (`.aj-switch`), así que `conectarPref()` no cambia.
+- El tema es un `.conmutador` de tres botones `[data-tema]`, no radios. Ojo: el
+  manejador genérico de `.conmutador-boton` en `app.js` sale pronto si no hay
+  `data-vista`, por eso no chocan.
+- "Borrar todos mis datos" vive en su propio bloque `.aj-peligro`, separado de
+  Exportar/Importar. El botón se deja pequeño a propósito.
+- El smoke test comprueba que siguen existiendo los id que `ajustes.js` engancha:
+  si se renombra uno al retocar el maquetado, la preferencia deja de guardarse
+  sin dar ningún error.
+
 ## Navegación (v1.2.0+)
 4 pestañas: **Entrenar · Historial · Progreso · Tiempo**. "Entrenar" reúne lo que
 antes eran Rutinas + Entrenar: sub-conmutador Rutinas|Ejercicios; tocar una rutina
@@ -98,6 +113,21 @@ de maquetación. **Al añadir estilos, usar la escala; no inventar valores nuevo
   - `division` opcional, lista fija `DIVISIONES` (Full Body, Push, Pull, Pierna, Torso, Superior, Inferior, Otro); "" = sin división
   - `reps` es texto libre corto: "10" o rango "8-12"
 - `sesiones`: [{ id, routineId, fecha, sets: [{ exerciseId, serie, pesoReal, repsReal }] }]
+
+### Qué cuenta como serie hecha (v1.8.0+)
+`serieRegistrada(fila)` en `consultas.js`: **una serie cuenta en cuanto tiene
+repeticiones**. El peso es opcional y se guarda como 0 si está en blanco.
+
+El peso NO entra en la cuenta a propósito: las repeticiones son lo que dice que
+la serie ha ocurrido, el peso es un dato de esa serie. Si se exigieran los dos,
+los ejercicios de peso corporal (fondos, dominadas, toda la calistenia) se
+perderían en silencio al terminar el entreno.
+
+Hasta la v1.7.0 había además una casilla para marcar cada serie a mano. Se quitó:
+si rellenas la fila ya está hecha, y nadie la tocaba nunca. El campo `hecha` que
+quede en datos antiguos se ignora. La red de seguridad es el recuento del aviso
+al pulsar "Terminar" ("Se guardarán N series"): si hiciste 19 y pone 12, es que
+en 7 filas faltan las repeticiones.
 
 ## Cómo probar
 - App: `node server.js` y abrir http://localhost:5173

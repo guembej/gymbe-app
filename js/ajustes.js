@@ -1,11 +1,12 @@
 // ==========================================================
 //  Pestaña "Ajustes"
-//  Por ahora: borrar todos los datos.
-//  (Exportar / importar y el tema claro/oscuro llegan en la Fase 7.)
+//  Tema, preferencias del entreno, copias (.json) y borrado total.
 //  Los datos de ejemplo se cargan solos la primera vez (ver js/ejemplos.js).
 // ==========================================================
 
-// Opciones: conectar cada casilla con su preferencia guardada
+// Opciones: conectar cada interruptor con su preferencia guardada.
+// Por debajo siguen siendo <input type="checkbox">; lo de la pastilla es solo
+// el aspecto (ver .aj-switch en styles.css), asi que esto no cambia.
 function conectarPref(id, clave) {
   const el = document.getElementById(id);
   el.checked = obtenerPref(clave);
@@ -21,16 +22,23 @@ document.getElementById("pie-version").textContent = `versión ${APP_VERSION} ·
 document.getElementById("btn-buscar-actualizacion").addEventListener("click", () => buscarActualizacion());
 
 // ---- Tema ----
-const temaActual = obtenerPref("tema") || "sistema";
-document.querySelectorAll('input[name="tema"]').forEach((radio) => {
-  radio.checked = radio.value === temaActual;
-  radio.addEventListener("change", () => {
-    if (radio.checked) {
-      guardarPref("tema", radio.value);
-      aplicarTema();
-    }
+// Es un conmutador de tres, igual que "Rutinas | Ejercicios": un toque en vez
+// de apuntar a un circulito. Antes eran tres <input type="radio">.
+const botonesTema = document.querySelectorAll(".conmutador-tema [data-tema]");
+
+function pintarBotonesTema() {
+  const actual = obtenerPref("tema") || "sistema";
+  botonesTema.forEach((b) => b.classList.toggle("activo", b.dataset.tema === actual));
+}
+
+botonesTema.forEach((boton) => {
+  boton.addEventListener("click", () => {
+    guardarPref("tema", boton.dataset.tema);
+    pintarBotonesTema();
+    aplicarTema();
   });
 });
+pintarBotonesTema();
 // Si está en "sistema", seguir los cambios de tema del móvil
 if (window.matchMedia) {
   window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {

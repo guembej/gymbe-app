@@ -72,6 +72,17 @@ async function correrSmoke(navegador) {
       .map((u) => u.getAttribute("href"))
       .filter((id, i, todos) => todos.indexOf(id) === i && !document.querySelector(id)),
     iconosEnMenu: document.querySelectorAll('.menu-boton use[href^="#ico-"]').length,
+    // Ajustes se monta en el HTML y se engancha desde ajustes.js por id: si se
+    // renombra o se pierde un id al retocar el maquetado, la preferencia deja
+    // de guardarse sin dar ningun error.
+    ajustesSueltos: ["pref-sonido", "pref-vibracion", "pref-registrosimple",
+                     "pref-crondecimas", "btn-exportar", "btn-importar",
+                     "input-importar", "btn-borrar-todo", "pie-version"]
+      .filter((id) => !document.getElementById(id)),
+    botonesTema: document.querySelectorAll(".conmutador-tema [data-tema]").length,
+    // La casilla de "serie hecha" se quito en la v1.8.0: una serie cuenta si
+    // tiene repeticiones. Si vuelve a aparecer, es que se ha revertido algo.
+    casillasDeSerie: document.querySelectorAll('.serie-fila input[type="checkbox"]').length,
   }));
 
   if (!estado.version) problemas.push("la app no ha cargado (APP_VERSION no existe)");
@@ -82,6 +93,12 @@ async function correrSmoke(navegador) {
     problemas.push("iconos sin dibujo: " + estado.iconosRotos.join(", "));
   if (estado.iconosEnMenu !== 4)
     problemas.push("esperaba 4 iconos en el menu y hay " + estado.iconosEnMenu);
+  if (estado.ajustesSueltos.length > 0)
+    problemas.push("faltan elementos de Ajustes: " + estado.ajustesSueltos.join(", "));
+  if (estado.botonesTema !== 3)
+    problemas.push("esperaba 3 botones de tema y hay " + estado.botonesTema);
+  if (estado.casillasDeSerie > 0)
+    problemas.push("han vuelto las casillas de serie hecha: " + estado.casillasDeSerie);
 
   await contexto.close();
   return { problemas, estado };

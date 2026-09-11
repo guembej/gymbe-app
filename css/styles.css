@@ -479,6 +479,12 @@ body.reordenando { cursor: grabbing; }
 }
 .formulario textarea { resize: vertical; }
 
+/* Un campo que no es un <label> con un control dentro (p. ej. un conmutador) */
+.campo { display: flex; flex-direction: column; gap: var(--e-2); }
+.campo-etiqueta { font-size: var(--t-s); color: var(--texto-suave); }
+.campo-ayuda { font-size: var(--t-xs); color: var(--texto-suave); }
+.campo .conmutador { margin-bottom: 0; }
+
 .dialogo-mensaje-texto {
   font-size: var(--t-m);
   line-height: 1.5;
@@ -827,7 +833,34 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   min-height: 52px;   /* la fila entera es el area tactil, no solo el control */
   cursor: pointer;
 }
-.aj-fila + .aj-fila { border-top: 1px solid var(--borde); }
+.aj-fila + .aj-fila,
+.aj-fila + .aj-fila-ancha,
+.aj-fila-ancha + .aj-fila { border-top: 1px solid var(--borde); }
+/* Una fila con un conmutador dentro: mas compacto que el de las pestanas */
+.aj-fila .conmutador {
+  flex: none;
+  margin: 0;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--r-s);
+}
+.aj-fila .conmutador-boton {
+  padding: var(--e-1) var(--e-2);
+  font-size: var(--t-s);
+  border-radius: 6px;
+}
+/* esta fila no es un <label>: no se acciona pulsando el texto */
+.aj-fila:not(label) { cursor: default; }
+/* Conmutador de tres debajo del texto: al lado no cabe en un movil */
+.aj-fila-apilada {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--e-2);
+  padding-top: var(--e-3);
+  padding-bottom: var(--e-3);
+}
+.aj-fila-apilada .conmutador { width: 100%; }
+.aj-fila-apilada .conmutador-boton { flex: 1; }
 .aj-fila-texto { flex: 1; min-width: 0; }
 .aj-fila-texto b { display: block; font-weight: 500; font-size: var(--t-m); }
 .aj-fila-texto span {

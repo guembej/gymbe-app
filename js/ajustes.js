@@ -17,6 +17,25 @@ conectarPref("pref-sonido", "sonido");
 conectarPref("pref-vibracion", "vibracion");
 conectarPref("pref-registrosimple", "registroSimple");
 
+// ---- Volumen del aviso ----
+// Al elegir un nivel suena una muestra: es la única forma de decidir sin tener
+// que arrancar un temporizador entero.
+const botonesVolumen = document.querySelectorAll(".conmutador-volumen [data-volumen]");
+
+function pintarBotonesVolumen() {
+  const actual = obtenerPref("volumenAviso") || "alto";
+  botonesVolumen.forEach((b) => b.classList.toggle("activo", b.dataset.volumen === actual));
+}
+
+botonesVolumen.forEach((boton) => {
+  boton.addEventListener("click", () => {
+    guardarPref("volumenAviso", boton.dataset.volumen);
+    pintarBotonesVolumen();
+    if (typeof sonarMuestraAviso === "function") sonarMuestraAviso();
+  });
+});
+pintarBotonesVolumen();
+
 // Versión + buscar actualizaciones
 document.getElementById("pie-version").textContent = `versión ${APP_VERSION} · funciona sin conexión`;
 document.getElementById("btn-buscar-actualizacion").addEventListener("click", () => buscarActualizacion());

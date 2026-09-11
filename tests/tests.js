@@ -453,20 +453,139 @@ prueba("construirEtiquetaTemp: ejercicio · reps · peso; vacío sin ejercicio",
 
 // ---- Avisos de sonido del temporizador (se programan por adelantado) ----
 
-prueba("avisosDelTramo: tics 3-2-1 y un pitido de fin cuando viene otro tramo", () => {
+prueba("avisosDelTramo: cuenta atrás de 5 tics y remate de 2 notas si viene otro tramo", () => {
   const a = avisosDelTramo(90, true);
-  igual(a.map((x) => x.enSeg), [87, 88, 89, 90]);
-  igual(a.map((x) => x.freq), [1320, 1320, 1320, 880]);
+  const tics = a.filter((x) => x.enSeg < 90);
+  igual(tics.map((x) => x.enSeg), [85, 86, 87, 88, 89], "un tic por segundo en los últimos 5");
+  tics.forEach((t) => igual(t.freq, 1320));
+  const remate = a.filter((x) => x.enSeg >= 90);
+  igual(remate.map((x) => x.freq), [880, 1175], "dos notas subiendo");
 });
 
-prueba("avisosDelTramo: tres pitidos al final si es el último tramo", () => {
-  const finales = avisosDelTramo(30, false).filter((x) => x.freq === 880);
-  igual(finales.length, 3);
+prueba("avisosDelTramo: el remate son tres notas subiendo si se acabó el entreno", () => {
+  const remate = avisosDelTramo(30, false).filter((x) => x.enSeg >= 30);
+  igual(remate.map((x) => x.freq), [880, 1175, 1568]);
+  esVerdad(remate[2].dur > remate[0].dur, "la última nota dura más");
+});
+
+prueba("avisosDelTramo: los tics van flojos y el remate a tope", () => {
+  // Si sonaran igual, el aviso de fin no destacaría sobre la cuenta atrás.
+  const a = avisosDelTramo(90, true);
+  a.filter((x) => x.enSeg < 90).forEach((t) => esVerdad(t.vol < 0.5, "tic flojo: " + t.vol));
+  a.filter((x) => x.enSeg >= 90).forEach((t) => igual(t.vol, 1));
 });
 
 prueba("avisosDelTramo: en un tramo muy corto solo caben los tics que quepan", () => {
-  igual(avisosDelTramo(2, true).map((x) => x.enSeg), [1, 2]);
+  // con 2 s por delante solo cabe el tic de "queda 1"
+  igual(avisosDelTramo(2, true).filter((x) => x.enSeg < 2).map((x) => x.enSeg), [1]);
   igual(avisosDelTramo(0, true), []);
+});
+
+prueba("crearEjercicio: por defecto se mide en repeticiones", () => {
+  const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
+  igual(e.medida, "reps");
+  igual(seMidePorTiempo(e), false);
+});
+
+prueba("un ejercicio se puede marcar como isométrico y volver atrás", () => {
+  const e = crearEjercicio({ nombre: "Plancha", grupo: "Core", medida: "tiempo" });
+  igual(seMidePorTiempo(e), true);
+  editarEjercicio(e.id, { nombre: "Plancha", grupo: "Core", medida: "reps" });
+  igual(seMidePorTiempo(obtenerEjercicio(e.id)), false);
+  igual(seMidePorTiempo(null), false, "sin ejercicio, no es por tiempo");
+});
+
+prueba("textoObjetivo: pega la unidad y respeta los rangos", () => {
+  igual(textoObjetivo("8-12", false), "8-12 reps");
+  igual(textoObjetivo("40", true), "40 s");
+  igual(textoObjetivo("30-45", true), "30-45 s");
+  igual(textoObjetivo("", true), "");
+});
+
+prueba("conUnidad: los segundos pasan a minutos a partir de 60", () => {
+  igual(conUnidad(40, true), "40 s");
+  igual(conUnidad(60, true), "1 min");
+  igual(conUnidad(95, true), "1:35 min");
+  igual(conUnidad(12, false), "12", "las repeticiones van a pelo");
+});
+
+prueba("textoUltimaSerie: enseña segundos, reps o kg según el ejercicio", () => {
+  igual(textoUltimaSerie({ peso: 50, reps: 8 }, false), "última: 50 kg × 8");
+  igual(textoUltimaSerie({ peso: 0, reps: 12 }, false), "última: 12 reps",
+        "peso corporal: sin '0 kg' delante");
+  igual(textoUltimaSerie({ peso: 0, reps: 40 }, true), "última: 40 s");
+  igual(textoUltimaSerie({ peso: 10, reps: 40 }, true), "última: 40 s · 10 kg",
+        "plancha lastrada");
+  igual(textoUltimaSerie(null, false), "");
+});
+
+prueba("metricasDeEjercicio: con peso, las tres de siempre", () => {
+  const e = crearEjercicio({ nombre: "Press banca", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 1, reps: "8", peso: 50 });
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "50", repsReal: "8" };
+  terminarSesion();
+  igual(metricasDeEjercicio(e.id).map((m) => m.clave), ["pesoMax", "volumen", "rm"]);
+});
+
+prueba("metricasDeEjercicio: sin peso anotado, repeticiones en vez de tres ceros", () => {
+  // El fallo que motivó esto: peso 0 -> pesoMax, volumen y 1RM valen 0 SIEMPRE,
+  // asi que Progreso era una raya en el cero para toda la calistenia.
+  const e = crearEjercicio({ nombre: "Dominadas", grupo: "Espalda" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 2, reps: "8", peso: 0 });
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "", repsReal: "6" };
+  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "", repsReal: "5" };
+  terminarSesion();
+  igual(metricasDeEjercicio(e.id).map((m) => m.clave), ["mejorUnidad", "totalUnidad"]);
+  igual(metricasDeEjercicio(e.id).map((m) => m.etiqueta), ["Reps máx.", "Reps totales"]);
+  const p = progresoDeEjercicio(e.id);
+  igual(p[0].mejorUnidad, 6, "la mejor serie del día");
+  igual(p[0].totalUnidad, 11, "la suma del día");
+});
+
+prueba("metricasDeEjercicio: isométrico -> tiempo, y el peso aparece si lo lastras", () => {
+  const e = crearEjercicio({ nombre: "Dead hang", grupo: "Espalda", medida: "tiempo" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 1, reps: "40", peso: 0 });
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "", repsReal: "40" };
+  terminarSesion();
+  igual(metricasDeEjercicio(e.id).map((m) => m.etiqueta), ["Tiempo máx.", "Tiempo total"]);
+  igual(metricasDeEjercicio(e.id)[0].unidad, "tiempo");
+
+  // el día que le cuelgues un disco, el peso aparece solo (sale del historial)
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "10", repsReal: "35" };
+  terminarSesion();
+  igual(metricasDeEjercicio(e.id).map((m) => m.clave),
+        ["mejorUnidad", "totalUnidad", "pesoMax"]);
+});
+
+prueba("empezarSesion copia la unidad del ejercicio, como el nombre", () => {
+  // Copia, no referencia: editar la ficha a mitad de entreno no debe cambiarlo.
+  const e = crearEjercicio({ nombre: "Plancha", grupo: "Core", medida: "tiempo" });
+  const r = crearRutina({ nombre: "D" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 1, reps: "40", peso: 0 });
+  empezarSesion(r.id);
+  igual(sesionActiva().ejercicios[0].porTiempo, true);
+  editarEjercicio(e.id, { nombre: "Plancha", grupo: "Core", medida: "reps" });
+  igual(sesionActiva().ejercicios[0].porTiempo, true, "el entreno en curso no cambia");
+});
+
+prueba("construirEtiquetaTemp: la unidad también llega al temporizador", () => {
+  igual(construirEtiquetaTemp({ ejercicio: "Plancha", reps: "40", porTiempo: true }),
+        "Plancha · 40 s");
+});
+
+prueba("factorVolumen: alto es el máximo y un valor desconocido cae en alto", () => {
+  igual(factorVolumen("alto"), 1);
+  esVerdad(factorVolumen("bajo") < factorVolumen("medio"), "bajo < medio");
+  esVerdad(factorVolumen("medio") < factorVolumen("alto"), "medio < alto");
+  igual(factorVolumen(undefined), 1, "sin preferencia guardada, a tope");
+  igual(factorVolumen("loquesea"), 1);
 });
 
 prueba("marcasEjeY: 5+ marcas enteras con paso bonito (rango pequeño)", () => {

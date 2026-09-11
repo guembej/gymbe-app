@@ -80,6 +80,8 @@ async function correrSmoke(navegador) {
                      "input-importar", "btn-borrar-todo", "pie-version"]
       .filter((id) => !document.getElementById(id)),
     botonesTema: document.querySelectorAll(".conmutador-tema [data-tema]").length,
+    botonesVolumen: document.querySelectorAll(".conmutador-volumen [data-volumen]").length,
+    botonesMedida: document.querySelectorAll(".conmutador-medida [data-medida]").length,
     // La casilla de "serie hecha" se quito en la v1.8.0: una serie cuenta si
     // tiene repeticiones. Si vuelve a aparecer, es que se ha revertido algo.
     casillasDeSerie: document.querySelectorAll('.serie-fila input[type="checkbox"]').length,
@@ -97,6 +99,10 @@ async function correrSmoke(navegador) {
     problemas.push("faltan elementos de Ajustes: " + estado.ajustesSueltos.join(", "));
   if (estado.botonesTema !== 3)
     problemas.push("esperaba 3 botones de tema y hay " + estado.botonesTema);
+  if (estado.botonesVolumen !== 3)
+    problemas.push("esperaba 3 botones de volumen y hay " + estado.botonesVolumen);
+  if (estado.botonesMedida !== 2)
+    problemas.push("esperaba 2 botones de 'se mide en' y hay " + estado.botonesMedida);
   if (estado.casillasDeSerie > 0)
     problemas.push("han vuelto las casillas de serie hecha: " + estado.casillasDeSerie);
 

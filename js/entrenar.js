@@ -137,15 +137,12 @@ function pintarSesionActiva() {
   sesion.ejercicios.forEach((ej, ejIndice) => {
     const obj = ej.objetivo;
     const objetivoTexto = [
-      `${obj.series} × ${obj.reps || "—"}`,
+      `${obj.series} × ${textoObjetivo(obj.reps, ej.porTiempo) || "—"}`,
       obj.peso > 0 ? `${obj.peso} kg` : null,
       `descanso ${formatearDescanso(obj.descansoSeg)}`,
     ].filter(Boolean).join(" · ");
 
-    const ultima = mejorSerieUltimoDia(ej.exerciseId);
-    const ultimaTexto = ultima
-      ? `última: ${String(ultima.peso).replace(".", ",")} kg × ${ultima.reps || "—"}`
-      : "";
+    const ultimaTexto = textoUltimaSerie(mejorSerieUltimoDia(ej.exerciseId), ej.porTiempo);
 
     const bloque = document.createElement("div");
     bloque.className = "bloque-ejercicio";
@@ -154,7 +151,7 @@ function pintarSesionActiva() {
       <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}</p>
       ${ultimaTexto ? `<p class="ultima-vez">${escaparHtml(ultimaTexto)}</p>` : ""}
       <div class="serie-fila serie-cabecera">
-        <span>#</span><span>Peso</span><span>Reps</span><span></span>
+        <span>#</span><span>Peso</span><span>${ej.porTiempo ? "Seg" : "Reps"}</span><span></span>
       </div>
     `;
 
@@ -179,6 +176,7 @@ function pintarSesionActiva() {
       ejercicio: ej.exerciseNombre,
       reps: obj.reps,
       peso: obj.peso,
+      porTiempo: ej.porTiempo,
     });
 
     pie.append(anadir, temporizador);

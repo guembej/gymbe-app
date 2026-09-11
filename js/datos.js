@@ -55,6 +55,7 @@ function datosVacios() {
       tema: "sistema",         // "sistema" | "claro" | "oscuro"
       cronDecimas: false,      // cronómetro con décimas de segundo
       sonido: true,            // pitido al terminar el descanso
+      volumenAviso: "alto",    // "bajo" | "medio" | "alto"
       vibracion: true,         // vibración al terminar el descanso
       registroSimple: false,   // en Entrenar, una sola fila por ejercicio (la mejor serie)
       grupoPorDefecto: "Otro", // grupo preseleccionado al crear un ejercicio al vuelo

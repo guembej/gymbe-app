@@ -233,11 +233,9 @@
         <select id="progreso-ejercicio"></select>
       </label>
 
-      <div class="conmutador" id="progreso-metricas">
-        <button class="conmutador-boton activo" data-metrica="pesoMax">Peso máx.</button>
-        <button class="conmutador-boton" data-metrica="volumen">Volumen</button>
-        <button class="conmutador-boton" data-metrica="rm">1RM est.</button>
-      </div>
+      <!-- Los botones los pone progreso.js: cambian segun el ejercicio
+           (kg, repeticiones o segundos). -->
+      <div class="conmutador" id="progreso-metricas"></div>
 
       <div id="progreso-grafica"></div>
       <p id="progreso-punto" class="tarjeta-nota"></p>
@@ -357,6 +355,17 @@
             <span class="aj-fila-texto"><b>Vibración al terminar el descanso</b></span>
             <span class="aj-switch"><input type="checkbox" id="pref-vibracion" /><i></i></span>
           </label>
+          <div class="aj-fila aj-fila-apilada">
+            <span class="aj-fila-texto">
+              <b>Volumen del aviso</b>
+              <span>Suénalo para elegir: cuenta atrás y pitido de fin</span>
+            </span>
+            <div class="conmutador conmutador-volumen">
+              <button class="conmutador-boton" data-volumen="bajo">Bajo</button>
+              <button class="conmutador-boton" data-volumen="medio">Medio</button>
+              <button class="conmutador-boton" data-volumen="alto">Alto</button>
+            </div>
+          </div>
           <label class="aj-fila">
             <span class="aj-fila-texto">
               <b>Registro simple</b>
@@ -465,6 +474,15 @@
         Grupo muscular
         <select name="grupo"></select>
       </label>
+
+      <div class="campo">
+        <span class="campo-etiqueta">Se mide en</span>
+        <div class="conmutador conmutador-medida">
+          <button type="button" class="conmutador-boton activo" data-medida="reps">Repeticiones</button>
+          <button type="button" class="conmutador-boton" data-medida="tiempo">Segundos</button>
+        </div>
+        <span class="campo-ayuda">Segundos para plancha, dead hang y demás isométricos.</span>
+      </div>
 
       <label>
         Nota (opcional)

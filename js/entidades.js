@@ -27,23 +27,25 @@ function obtenerEjercicio(id) {
   return DATOS.ejercicios.find((e) => e.id === id) || null;
 }
 
-function crearEjercicio({ nombre, grupo, nota }) {
+function crearEjercicio({ nombre, grupo, nota, medida }) {
   const ejercicio = {
     id: nuevoId(),
     nombre: (nombre || "").trim(),
     grupo: grupo || "Otro",
     nota: (nota || "").trim(),
+    medida: medida === "tiempo" ? "tiempo" : "reps",
   };
   DATOS.ejercicios.push(ejercicio);
   guardar();
   return ejercicio;
 }
 
-function editarEjercicio(id, { nombre, grupo, nota }) {
+function editarEjercicio(id, { nombre, grupo, nota, medida }) {
   const ej = obtenerEjercicio(id);
   if (!ej) return;
   ej.nombre = (nombre || "").trim();
   ej.grupo = grupo || "Otro";
+  ej.medida = medida === "tiempo" ? "tiempo" : "reps";
   ej.nota = (nota || "").trim();
   guardar();
 }
@@ -168,6 +170,8 @@ function empezarSesion(routineId) {
       return {
         exerciseId: item.exerciseId,
         exerciseNombre: ej ? ej.nombre : "(ejercicio eliminado)",
+        // copia, igual que el nombre: el entreno no cambia si luego editas la ficha
+        porTiempo: seMidePorTiempo(ej),
         objetivo: {
           series: item.series,
           reps: item.reps,

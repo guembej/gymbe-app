@@ -205,7 +205,7 @@ body {
   cursor: pointer;
 }
 .menu-boton.activo { color: var(--acento); }
-.menu-icono { font-size: 20px; line-height: 1; }
+.menu-icono { width: 23px; height: 23px; }
 
 /* ---- Conmutador Rutinas / Ejercicios ---- */
 .conmutador {
@@ -264,6 +264,28 @@ body {
   cursor: pointer;
   color: var(--texto);
 }
+
+/* ---- Iconos (sprite <symbol> de index.html) ----
+   Un solo sitio define el grosor de trazo y el tamano, asi que todos los
+   iconos de la app se ven como un juego coherente. Heredan el color del
+   texto (stroke: currentColor), por eso se tinen de naranja al activarse. */
+.ico {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* dentro de una linea de texto: un poco mas pequeno y alineado con las letras */
+.ico-linea { width: 17px; height: 17px; vertical-align: -3px; }
+.ico-mini  { width: 14px; height: 14px; stroke-width: 2.4; }
+/* dentro de un boton redondo de icono */
+.icono-boton .ico { width: 18px; height: 18px; }
+/* quitar una serie es una accion secundaria: mas discreta */
+.quitar-serie { color: var(--texto-suave); }
 
 /* ---- Listas de tarjetas ---- */
 .lista { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
@@ -563,7 +585,7 @@ body.reordenando { cursor: grabbing; }
   z-index: 49;
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
 }
-.barra-entreno-flecha { font-size: 20px; line-height: 1; }
+.barra-entreno-flecha { width: 18px; height: 18px; opacity: .75; }
 /* deja hueco para que la barra no tape el final del contenido */
 body:has(.barra-entreno:not(.oculta)) #contenido {
   padding-bottom: calc(var(--alto-menu) + 72px);

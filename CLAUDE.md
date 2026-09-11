@@ -23,6 +23,7 @@ css/styles.css      Estilos
 assets/             Iconos
 js/
   version.js        APP_VERSION
+  iconos.js         icono() / nodoIcono(): helper de los iconos SVG
   formato.js        texto, números y tiempo (funciones puras)
   grafica.js        matemática de los ejes de Progreso
   datos.js          el almacén: cargar/guardar, preferencias, tema, export/import
@@ -48,6 +49,16 @@ entrenamiento" + enlace "Editar rutina"); "Editar rutina" pasa a modo edición
 (`#rutina-detalle.modo-edicion`). Al empezar, el panel `#entrenar-activo` sustituye
 a la lista dentro de esa vista. Barra `#barra-entreno` ("entreno en curso") en las
 demás pestañas para volver. `.oculta` y `[hidden]` llevan `display:none!important`.
+
+## Iconos (v1.6.0+)
+No hay emojis en la interfaz: cada uno se ve distinto según el sistema y no se
+puede colorear. Los iconos son `<symbol id="ico-...">` definidos una sola vez en
+`index.html` (rejilla 24x24, solo trazo) y colocados con
+`<svg class="ico"><use href="#ico-NOMBRE" /></svg>`. Desde JavaScript, `icono("editar")`.
+El grosor y el tamaño los fija `.ico` en `styles.css`; el color lo heredan del
+texto (`stroke: currentColor`), por eso se tiñen solos de naranja al activarse.
+El smoke test comprueba que ningún `<use>` apunta a un `<symbol>` inexistente
+(el navegador no avisa: solo deja el hueco vacío).
 
 ## Modelo de datos (real, clave localStorage `gym.datos.v1`)
 - `ejercicios`: [{ id, nombre, grupo, nota }]

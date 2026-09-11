@@ -94,8 +94,8 @@ function pintarEjercicios() {
         ${ej.nota ? `<span class="tarjeta-nota">${escaparHtml(ej.nota)}</span>` : ""}
       </div>
       <div class="tarjeta-acciones">
-        <button class="icono-boton" data-accion="editar" title="Editar">✏️</button>
-        <button class="icono-boton" data-accion="borrar" title="Borrar">🗑️</button>
+        <button class="icono-boton" data-accion="editar" title="Editar" aria-label="Editar">${icono("editar")}</button>
+        <button class="icono-boton" data-accion="borrar" title="Borrar" aria-label="Borrar">${icono("borrar")}</button>
       </div>
     `;
     li.querySelector('[data-accion="editar"]')

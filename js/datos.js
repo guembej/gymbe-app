@@ -35,7 +35,7 @@ const DIVISIONES = [
 // Un color por división, para identificarlas de un vistazo
 const COLOR_DIVISION = {
   "Full Body": "#a78bfa",
-  "Push": "#ff5722",
+  "Push": "#f97043",
   "Pull": "#38bdf8",
   "Pierna": "#4ade80",
   "Torso": "#fbbf24",

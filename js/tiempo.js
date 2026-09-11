@@ -423,8 +423,11 @@ const pipVideo = document.getElementById("pip-video");
 let _pipCanvas = null;
 let _pipCtx = null;
 
+// Colores de la ventana flotante. El texto siempre va en blanco encima, asi que
+// cada uno tiene que dar 4,5:1 con el blanco: la ventanita se mira de lejos y
+// con el movil apoyado. Los de antes (#e2551f y #c2740c) daban 3,8 y 3,6.
 const COLOR_FASE_PIP = {
-  prep: "#c2740c", serie: "#15803d", descanso: "#e2551f", fin: "#e2551f", "": "#1f2937",
+  prep: "#ab6309", serie: "#15803d", descanso: "#d1440f", fin: "#d1440f", "": "#17222e",
 };
 
 const flotanteDisponible = !!(

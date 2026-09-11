@@ -118,8 +118,8 @@ function crearFilaSerie(ejIndice, filaIndice, fila) {
   hecha.dataset.campo = "hecha";
 
   const quitar = document.createElement("button");
-  quitar.className = "icono-boton";
-  quitar.textContent = "✕";
+  quitar.className = "icono-boton quitar-serie";
+  quitar.innerHTML = icono("cerrar");
   quitar.title = "Quitar serie";
   quitar.dataset.quitarFila = ejIndice;
   quitar.dataset.fila = filaIndice;
@@ -160,7 +160,7 @@ function pintarSesionActiva() {
       <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}</p>
       ${ultimaTexto ? `<p class="ultima-vez">${escaparHtml(ultimaTexto)}</p>` : ""}
       <div class="serie-fila serie-cabecera">
-        <span>#</span><span>Peso</span><span>Reps</span><span>✓</span><span></span>
+        <span>#</span><span>Peso</span><span>Reps</span><span>${icono("check", "ico-mini")}</span><span></span>
       </div>
     `;
 
@@ -178,7 +178,7 @@ function pintarSesionActiva() {
 
     const temporizador = document.createElement("button");
     temporizador.className = "boton-secundario btn-temporizador";
-    temporizador.textContent = "⏱ Temporizador";
+    temporizador.innerHTML = `${icono("tiempo", "ico-linea")} Temporizador`;
     temporizador.dataset.temp = JSON.stringify({
       numSeries: obj.series,
       descansoSeg: obj.descansoSeg || 90,

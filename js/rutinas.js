@@ -163,7 +163,7 @@ document.getElementById("btn-fin-editar").addEventListener("click", () => {
   pintarDetalle();
 });
 
-// ✏️ (solo en modo edición): cambiar nombre / división
+// El lápiz (solo en modo edición): cambiar nombre / división
 document.getElementById("btn-editar-datos-rutina").addEventListener("click", () => {
   const rutina = obtenerRutina(rutinaAbiertaId);
   if (rutina) abrirFormRutina(rutina);
@@ -228,7 +228,7 @@ function pintarDetalle() {
   if (rutina.items.length === 0) {
     listaItemsEl.innerHTML = detalleModoEdicion
       ? '<li class="vacio">Esta rutina no tiene ejercicios todavía.</li>'
-      : '<li class="vacio">Esta rutina no tiene ejercicios.<br />Pulsa ✏️ (arriba) para añadirlos.</li>';
+      : '<li class="vacio">Esta rutina no tiene ejercicios.<br />Pulsa el lápiz (arriba) para añadirlos.</li>';
     return;
   }
 
@@ -251,8 +251,8 @@ function pintarDetalle() {
           <div class="item-fila-top">
             <span class="tarjeta-titulo">${escaparHtml(nombre)}</span>
             <div class="tarjeta-acciones">
-              <button class="icono-boton" data-accion="editar" title="Editar">✏️</button>
-              <button class="icono-boton" data-accion="borrar" title="Quitar">🗑️</button>
+              <button class="icono-boton" data-accion="editar" title="Editar" aria-label="Editar">${icono("editar")}</button>
+              <button class="icono-boton" data-accion="borrar" title="Quitar" aria-label="Quitar">${icono("borrar")}</button>
             </div>
           </div>
           <span class="tarjeta-nota">${escaparHtml(resumen)}</span>
@@ -448,7 +448,7 @@ const MARGEN_SCROLL = 10;     // px de movimiento que cancelan la pulsación lar
 function alPunteroAbajoItem(e, li, indice) {
   if (!detalleModoEdicion || _arrastre) return;
   if (e.pointerType === "mouse" && e.button !== 0) return;
-  if (e.target.closest("button")) return; // ✏️ / 🗑️ no arrastran
+  if (e.target.closest("button")) return; // los botones de editar / borrar no arrastran
 
   const inicioX = e.clientX;
   const inicioY = e.clientY;

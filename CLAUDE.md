@@ -23,6 +23,7 @@ css/styles.css      Estilos
 assets/             Iconos
 js/
   version.js        APP_VERSION
+  iconos.js         icono() / nodoIcono(): helper de los iconos SVG
   formato.js        texto, números y tiempo (funciones puras)
   grafica.js        matemática de los ejes de Progreso
   datos.js          el almacén: cargar/guardar, preferencias, tema, export/import
@@ -48,6 +49,27 @@ entrenamiento" + enlace "Editar rutina"); "Editar rutina" pasa a modo edición
 (`#rutina-detalle.modo-edicion`). Al empezar, el panel `#entrenar-activo` sustituye
 a la lista dentro de esa vista. Barra `#barra-entreno` ("entreno en curso") en las
 demás pestañas para volver. `.oculta` y `[hidden]` llevan `display:none!important`.
+
+## Iconos (v1.6.0+)
+No hay emojis en la interfaz: cada uno se ve distinto según el sistema y no se
+puede colorear. Los iconos son `<symbol id="ico-...">` definidos una sola vez en
+`index.html` (rejilla 24x24, solo trazo) y colocados con
+`<svg class="ico"><use href="#ico-NOMBRE" /></svg>`. Desde JavaScript, `icono("editar")`.
+El grosor y el tamaño los fija `.ico` en `styles.css`; el color lo heredan del
+texto (`stroke: currentColor`), por eso se tiñen solos de naranja al activarse.
+El smoke test comprueba que ningún `<use>` apunta a un `<symbol>` inexistente
+(el navegador no avisa: solo deja el hueco vacío).
+
+## Escalas visuales (v1.6.0+)
+Ninguna regla de `styles.css` elige ya un numero a ojo: todo sale de las
+variables de `:root`.
+- Letra: `--t-xs` 11 · `--t-s` 13 · `--t-m` 15 · `--t-l` 18 · `--t-xl` 22 (+ `--t-crono` 54).
+- Espacio: `--e-1` 4 · `--e-2` 8 · `--e-3` 12 · `--e-4` 16 · `--e-5` 24 · `--e-6` 32.
+- Redondeo: `--r-s` 8 · `--r-m` 12 · `--r-l` 16 · `--r-full` (pastilla).
+- Profundidad: `--sombra-1` (tarjetas) y `--sombra-2` (diálogos), mas suaves en tema claro.
+- Movimiento: una sola duración, `--transicion` (150 ms).
+Los 2-3px sueltos que quedan son ajustes ópticos de un sitio concreto, no huecos
+de maquetación. **Al añadir estilos, usar la escala; no inventar valores nuevos.**
 
 ## Modelo de datos (real, clave localStorage `gym.datos.v1`)
 - `ejercicios`: [{ id, nombre, grupo, nota }]

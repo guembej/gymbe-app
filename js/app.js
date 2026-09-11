@@ -75,7 +75,7 @@ let _regSW = null;
 let _accionActualizacionHecha = false;
 
 // Muestra la barra "Versión nueva disponible". "Actualizar" recarga (el SW nuevo
-// ya está activo a estas alturas); "✕" solo la oculta.
+// ya está activo a estas alturas); la "X" solo la oculta.
 function mostrarAvisoVersion() {
   const barra = document.getElementById("aviso-version");
   if (!barra) return;

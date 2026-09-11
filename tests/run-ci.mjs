@@ -66,12 +66,22 @@ async function correrSmoke(navegador) {
     pestanas: document.querySelectorAll(".menu-boton").length,
     seccionVisible: document.querySelector(".seccion:not(.oculta)")?.dataset.seccion || null,
     rutinas: typeof listarRutinas === "function" ? listarRutinas().length : -1,
+    // Los iconos son <use href="#ico-...">: si un <symbol> no existe el navegador
+    // no da error, solo deja el hueco en blanco. Por eso lo comprobamos aqui.
+    iconosRotos: [...document.querySelectorAll('use[href^="#ico-"]')]
+      .map((u) => u.getAttribute("href"))
+      .filter((id, i, todos) => todos.indexOf(id) === i && !document.querySelector(id)),
+    iconosEnMenu: document.querySelectorAll('.menu-boton use[href^="#ico-"]').length,
   }));
 
   if (!estado.version) problemas.push("la app no ha cargado (APP_VERSION no existe)");
   if (estado.pestanas !== 4) problemas.push("esperaba 4 pestañas y hay " + estado.pestanas);
   if (!estado.seccionVisible) problemas.push("no hay ninguna sección visible");
   if (estado.rutinas <= 0) problemas.push("no se sembraron las rutinas iniciales");
+  if (estado.iconosRotos.length > 0)
+    problemas.push("iconos sin dibujo: " + estado.iconosRotos.join(", "));
+  if (estado.iconosEnMenu !== 4)
+    problemas.push("esperaba 4 iconos en el menu y hay " + estado.iconosEnMenu);
 
   await contexto.close();
   return { problemas, estado };

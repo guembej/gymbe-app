@@ -857,10 +857,67 @@ function _contrasteDe(el) {
 }
 
 prueba("styles.css: el texto sobre el naranja de marca pasa AA (4,5:1)", () => {
-  // Blanco sobre #ff5722 da 3,16:1 y NO pasa. El token --sobre-acento da 5,72:1.
+  // Por esto el naranja de relleno se oscurecio a #d1440f: blanco encima da
+  // 4,62:1. Con el #ff5722 de antes daba 3,16:1 y habia que poner texto casi
+  // negro, que se leia como una senal de advertencia.
   ["boton-primario", "pildora-descanso", "barra-entreno", "aviso-version"].forEach((clase) => {
     const c = _conEstilosReales(clase, _contrasteDe);
     esVerdad(c >= 4.5, clase + " deberia pasar AA y da " + c.toFixed(2) + ":1");
+  });
+});
+
+// Luminancia de un color en "#rrggbb" o "rgb(r, g, b)"
+function _lumDe(css) {
+  let r, g, b;
+  const hex = css.trim().match(/^#([0-9a-f]{6})$/i);
+  if (hex) {
+    r = parseInt(hex[1].slice(0, 2), 16);
+    g = parseInt(hex[1].slice(2, 4), 16);
+    b = parseInt(hex[1].slice(4, 6), 16);
+  } else {
+    [r, g, b] = css.match(/\d+/g).slice(0, 3).map(Number);
+  }
+  const canal = (v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
+  return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+}
+
+// Mide el contraste entre dos variables de :root con un tema puesto
+function _contrasteDeVariables(tema, varTexto, varFondo) {
+  const style = document.createElement("style");
+  style.textContent = _leerArchivo("../css/styles.css");
+  document.head.appendChild(style);
+  const antes = document.documentElement.dataset.tema;
+  document.documentElement.dataset.tema = tema;
+  try {
+    const cs = getComputedStyle(document.documentElement);
+    const [claro, oscuro] = [_lumDe(cs.getPropertyValue(varTexto)), _lumDe(cs.getPropertyValue(varFondo))]
+      .sort((a, b) => b - a);
+    return (claro + 0.05) / (oscuro + 0.05);
+  } finally {
+    if (antes) document.documentElement.dataset.tema = antes; else delete document.documentElement.dataset.tema;
+    style.remove();
+  }
+}
+
+prueba("styles.css: el naranja ESCRITO (--acento-texto) pasa AA en los dos temas", () => {
+  // Hay dos naranjas y no son intercambiables: --acento rellena (lleva texto
+  // blanco encima) y --acento-texto se escribe sobre el fondo. Si alguien usa
+  // el de relleno como texto, sobre el fondo oscuro se queda en 3,5:1.
+  [["oscuro", "#0d1620"], ["claro", "#ffffff"]].forEach(([tema]) => {
+    ["--fondo", "--fondo-2"].forEach((fondo) => {
+      const c = _contrasteDeVariables(tema, "--acento-texto", fondo);
+      esVerdad(c >= 4.5, `tema ${tema}: --acento-texto sobre ${fondo} da ${c.toFixed(2)}:1`);
+    });
+  });
+});
+
+prueba("styles.css: el texto normal y el suave pasan AA en los dos temas", () => {
+  ["oscuro", "claro"].forEach((tema) => {
+    [["--texto", "--fondo"], ["--texto", "--fondo-2"],
+     ["--texto-suave", "--fondo"], ["--texto-suave", "--fondo-2"]].forEach(([t, f]) => {
+      const c = _contrasteDeVariables(tema, t, f);
+      esVerdad(c >= 4.5, `tema ${tema}: ${t} sobre ${f} da ${c.toFixed(2)}:1`);
+    });
   });
 });
 

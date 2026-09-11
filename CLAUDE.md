@@ -60,6 +60,26 @@ texto (`stroke: currentColor`), por eso se tiñen solos de naranja al activarse.
 El smoke test comprueba que ningún `<use>` apunta a un `<symbol>` inexistente
 (el navegador no avisa: solo deja el hueco vacío).
 
+## Colores (v1.7.0+)
+**Hay dos naranjas y no son intercambiables.** Es el error facil de cometer:
+- `--acento` (#d1440f) **rellena**: botones, barras, la pildora. Encima va
+  `--sobre-acento` (blanco), que da 4,6:1. El #ff5722 de antes solo daba 3,16:1
+  con blanco y obligaba a texto casi negro, que se leia como una advertencia.
+- `--acento-texto` **se escribe** sobre el fondo: enlaces, pestana activa,
+  etiqueta PUSH, la linea de la grafica. En oscuro es mas claro (#f97043, 5,7:1
+  sobre las tarjetas); en claro es mas oscuro (#c2410c). El de relleno usado como
+  texto sobre el fondo oscuro se queda en 3,5:1.
+
+Los grises salen del azul marino de la marca (`--marca-marino`), no de una paleta
+generica: asi la cabecera y el cuerpo son la misma familia de color.
+
+Los colores de la ventana flotante estan aparte, en `COLOR_FASE_PIP` de
+`js/tiempo.js`: van sobre canvas, no heredan CSS, y el texto siempre es blanco,
+asi que cada uno tiene que dar 4,5:1 con el blanco.
+
+Dos pruebas de `tests/tests.js` vigilan todo esto en los dos temas; si tocas un
+color y bajas de 4,5:1, fallan.
+
 ## Escalas visuales (v1.6.0+)
 Ninguna regla de `styles.css` elige ya un numero a ojo: todo sale de las
 variables de `:root`.

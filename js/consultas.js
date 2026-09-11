@@ -80,12 +80,17 @@ function conflictoDeSesion(sesion, rutinaId) {
   return sesion.routineId === rutinaId ? "misma" : "otra";
 }
 
-// ¿Hay que marcar sola esta serie? Sí cuando peso y reps tienen valor y aún no
-// está marcada. (Nunca se desmarca sola: eso es siempre manual con la casilla.)
-function debeMarcarSerie(fila) {
-  return !fila.hecha
-    && String(fila.pesoReal == null ? "" : fila.pesoReal).trim() !== ""
-    && String(fila.repsReal == null ? "" : fila.repsReal).trim() !== "";
+// ¿Esta serie cuenta como hecha? Sí en cuanto tiene repeticiones.
+//
+// El peso NO entra en la cuenta a propósito: las repeticiones son lo que dice
+// que la serie ha ocurrido; el peso es un dato de esa serie. Si se exigieran los
+// dos, los ejercicios de peso corporal (fondos, dominadas, toda la calistenia)
+// se perderían en silencio al terminar el entreno.
+//
+// Antes había ademas una casilla para marcarlas a mano. Se quitó en la v1.8.0:
+// si rellenas la fila ya está hecha, y nadie la tocaba nunca.
+function serieRegistrada(fila) {
+  return String(fila.repsReal == null ? "" : fila.repsReal).trim() !== "";
 }
 
 function progresoDeEjercicio(exerciseId) {

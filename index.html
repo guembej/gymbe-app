@@ -83,12 +83,15 @@
     <symbol id="ico-cerrar" viewBox="0 0 24 24">
       <path d="M18 6L6 18M6 6l12 12" />
     </symbol>
-    <symbol id="ico-check" viewBox="0 0 24 24">
-      <path d="M20 6.5L9.5 17 4 11.5" />
-    </symbol>
     <symbol id="ico-flotante" viewBox="0 0 24 24">
       <path d="M21 11.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h4.5" />
       <rect x="12" y="12" width="9" height="7" rx="1.5" />
+    </symbol>
+    <symbol id="ico-exportar" viewBox="0 0 24 24">
+      <path d="M12 3.5v12M7.5 11l4.5 4.5 4.5-4.5M4 17.5v1.5a1.5 1.5 0 0 0 1.5 1.5h13a1.5 1.5 0 0 0 1.5-1.5v-1.5" />
+    </symbol>
+    <symbol id="ico-importar" viewBox="0 0 24 24">
+      <path d="M12 20.5v-12M7.5 13L12 8.5l4.5 4.5M4 17.5v1.5a1.5 1.5 0 0 0 1.5 1.5h13a1.5 1.5 0 0 0 1.5-1.5v-1.5" />
     </symbol>
     <symbol id="ico-flecha" viewBox="0 0 24 24">
       <path d="M9.5 5.5l6.5 6.5-6.5 6.5" />
@@ -331,47 +334,73 @@
     </section>
 
     <section class="seccion oculta" data-seccion="ajustes">
-      <div class="ajustes-grupo">
-        <h2>Tema</h2>
-        <label class="opcion"><input type="radio" name="tema" value="sistema" /> Según el sistema</label>
-        <label class="opcion"><input type="radio" name="tema" value="claro" /> Claro</label>
-        <label class="opcion"><input type="radio" name="tema" value="oscuro" /> Oscuro</label>
+      <!-- Grupos al estilo de los ajustes del movil: encabezado gris pequeno y
+           una tarjeta con las filas dentro. El texto va antes que el control,
+           que es el orden en que se leen, y la fila entera es pulsable. -->
+      <div class="aj-bloque">
+        <p class="aj-titulo">Aspecto</p>
+        <div class="conmutador conmutador-tema">
+          <button class="conmutador-boton" data-tema="sistema">Sistema</button>
+          <button class="conmutador-boton" data-tema="claro">Claro</button>
+          <button class="conmutador-boton" data-tema="oscuro">Oscuro</button>
+        </div>
       </div>
 
-      <div class="ajustes-grupo">
-        <h2>Opciones</h2>
-        <label class="opcion">
-          <input type="checkbox" id="pref-crondecimas" />
-          Cronómetro con décimas de segundo
-        </label>
-        <label class="opcion">
-          <input type="checkbox" id="pref-sonido" />
-          Sonido al terminar el descanso
-        </label>
-        <label class="opcion">
-          <input type="checkbox" id="pref-vibracion" />
-          Vibración al terminar el descanso
-        </label>
-        <label class="opcion">
-          <input type="checkbox" id="pref-registrosimple" />
-          En Entrenar, anotar solo una fila por ejercicio (la mejor serie)
-        </label>
+      <div class="aj-bloque">
+        <p class="aj-titulo">Durante el entreno</p>
+        <div class="aj-tarjeta">
+          <label class="aj-fila">
+            <span class="aj-fila-texto"><b>Sonido al terminar el descanso</b></span>
+            <span class="aj-switch"><input type="checkbox" id="pref-sonido" /><i></i></span>
+          </label>
+          <label class="aj-fila">
+            <span class="aj-fila-texto"><b>Vibración al terminar el descanso</b></span>
+            <span class="aj-switch"><input type="checkbox" id="pref-vibracion" /><i></i></span>
+          </label>
+          <label class="aj-fila">
+            <span class="aj-fila-texto">
+              <b>Registro simple</b>
+              <span>Una sola fila por ejercicio: anotas tu mejor serie</span>
+            </span>
+            <span class="aj-switch"><input type="checkbox" id="pref-registrosimple" /><i></i></span>
+          </label>
+          <label class="aj-fila">
+            <span class="aj-fila-texto">
+              <b>Décimas de segundo</b>
+              <span>En el cronómetro</span>
+            </span>
+            <span class="aj-switch"><input type="checkbox" id="pref-crondecimas" /><i></i></span>
+          </label>
+        </div>
       </div>
 
-      <div class="ajustes-grupo">
-        <h2>Datos</h2>
-        <div class="ajustes-fila">
-          <button id="btn-exportar" class="boton-secundario">Exportar copia</button>
-          <button id="btn-importar" class="boton-secundario">Importar copia</button>
+      <div class="aj-bloque">
+        <p class="aj-titulo">Tus datos</p>
+        <p class="aj-nota">
+          Una copia es un archivo <code>.json</code> con todo lo tuyo. Sirve de respaldo
+          o para pasar tus datos a otro móvil, sin pasar por ninguna nube.
+        </p>
+        <div class="aj-acciones">
+          <button id="btn-exportar" class="boton-secundario">
+            <svg class="ico ico-linea" aria-hidden="true"><use href="#ico-exportar" /></svg> Exportar
+          </button>
+          <button id="btn-importar" class="boton-secundario">
+            <svg class="ico ico-linea" aria-hidden="true"><use href="#ico-importar" /></svg> Importar
+          </button>
         </div>
         <input type="file" id="input-importar" accept=".json,application/json" hidden />
-        <button id="btn-borrar-todo" class="boton-secundario ancho-completo btn-peligro">
-          Borrar todos mis datos
-        </button>
-        <p class="ayuda">
-          La copia es un archivo <code>.json</code> con todo. Sirve de respaldo o para
-          pasar tus datos a otro dispositivo (sin nube).
-        </p>
+      </div>
+
+      <!-- Separado de Exportar/Importar a proposito: no basta con que sea rojo. -->
+      <div class="aj-bloque">
+        <p class="aj-titulo">Zona de peligro</p>
+        <div class="aj-peligro">
+          <span class="aj-fila-texto">
+            <b>Borrar todos mis datos</b>
+            <span>Rutinas, ejercicios e historial. No se puede deshacer.</span>
+          </span>
+          <button id="btn-borrar-todo">Borrar</button>
+        </div>
       </div>
 
       <div class="pie-marca">

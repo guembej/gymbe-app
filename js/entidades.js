@@ -158,12 +158,12 @@ function empezarSesion(routineId) {
     inicio: new Date().toISOString(),
     ejercicios: rutina.items.map((item) => {
       const ej = obtenerEjercicio(item.exerciseId);
-      // Las casillas empiezan en blanco; el objetivo se muestra como referencia.
+      // Las filas empiezan en blanco; el objetivo se muestra como referencia.
       // Con "registro simple" activado, una sola fila por ejercicio (la mejor serie).
       const nFilas = DATOS.prefs.registroSimple ? 1 : item.series;
       const filas = [];
       for (let i = 0; i < nFilas; i++) {
-        filas.push({ pesoReal: "", repsReal: "", hecha: false });
+        filas.push({ pesoReal: "", repsReal: "" });
       }
       return {
         exerciseId: item.exerciseId,
@@ -216,7 +216,7 @@ function descartarSesionActiva() {
 }
 
 // Cierra la sesión en curso y la registra en el historial.
-// Solo se guardan las series marcadas como "hecha".
+// Solo se guardan las series con repeticiones anotadas (ver serieRegistrada).
 function terminarSesion() {
   const s = DATOS.sesionActiva;
   if (!s) return null;
@@ -224,7 +224,7 @@ function terminarSesion() {
   const sets = [];
   s.ejercicios.forEach((ej) => {
     ej.filas.forEach((fila, indice) => {
-      if (!fila.hecha) return;
+      if (!serieRegistrada(fila)) return;
       sets.push({
         exerciseId: ej.exerciseId,
         exerciseNombre: ej.exerciseNombre,

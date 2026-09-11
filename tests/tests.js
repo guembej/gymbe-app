@@ -279,7 +279,7 @@ prueba("empezar una sesión crea las filas en blanco, guardando el objetivo como
   igual(s.ejercicios[0].filas.length, 3);
   igual(s.ejercicios[0].filas[0].pesoReal, "");
   igual(s.ejercicios[0].filas[0].repsReal, "");
-  igual(s.ejercicios[0].filas[0].hecha, false);
+  igual(serieRegistrada(s.ejercicios[0].filas[0]), false, "una fila en blanco no cuenta");
   // el objetivo se conserva para mostrarlo
   igual(s.ejercicios[0].objetivo.peso, 80);
   igual(s.ejercicios[0].objetivo.reps, "8-10");
@@ -316,22 +316,22 @@ prueba("empezarSesion con un ejercicio ya borrado lo marca como eliminado", () =
   igual(sesionActiva().ejercicios[0].filas.length, 2);
 });
 
-prueba("terminar guarda solo las series marcadas como hechas y limpia la activa", () => {
+prueba("terminar guarda solo las series con repeticiones y limpia la activa", () => {
   const e = crearEjercicio({ nombre: "Press", grupo: "Pecho" });
   const r = crearRutina({ nombre: "D" });
   añadirItemRutina(r.id, { exerciseId: e.id, series: 3, reps: "10", peso: 50 });
   empezarSesion(r.id);
   const s = sesionActiva();
-  s.ejercicios[0].filas[0].hecha = true;
   s.ejercicios[0].filas[0].pesoReal = "52.5";
   s.ejercicios[0].filas[0].repsReal = "9";
-  s.ejercicios[0].filas[2].hecha = true;
+  s.ejercicios[0].filas[2].repsReal = "7";  // sin peso: peso corporal
   const guardada = terminarSesion();
   igual(guardada.sets.length, 2);
   igual(guardada.sets[0].pesoReal, 52.5);
   igual(guardada.sets[0].repsReal, "9");
   igual(guardada.sets[0].serie, 1);
   igual(guardada.sets[1].serie, 3);
+  igual(guardada.sets[1].pesoReal, 0, "sin peso escrito, se guarda 0");
   igual(sesionActiva(), null);
   igual(listarSesiones().length, 1);
 });
@@ -340,7 +340,7 @@ prueba("la sesión guardada conserva nombre y división aunque se borre la rutin
   const r = crearRutina({ nombre: "Día X", division: "Push" });
   añadirItemRutina(r.id, { exerciseId: "x", series: 1 });
   empezarSesion(r.id);
-  sesionActiva().ejercicios[0].filas[0].hecha = true;
+  sesionActiva().ejercicios[0].filas[0].repsReal = "10";
   terminarSesion();
   borrarRutina(r.id);
   igual(listarSesiones()[0].routineNombre, "Día X");
@@ -360,15 +360,15 @@ prueba("progresoDeEjercicio calcula pesoMax, volumen y 1RM por sesión, en orden
   añadirItemRutina(r.id, { exerciseId: e.id, series: 2, reps: "8", peso: 50 });
 
   empezarSesion(r.id);
-  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "50", repsReal: "8", hecha: true };
-  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "50", repsReal: "6", hecha: true };
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "50", repsReal: "8" };
+  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "50", repsReal: "6" };
   const g1 = terminarSesion();
   g1.fecha = "2026-01-01T10:00:00.000Z";
   guardar();
 
   empezarSesion(r.id);
-  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "55", repsReal: "8", hecha: true };
-  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "55", repsReal: "5", hecha: true };
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "55", repsReal: "8" };
+  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "55", repsReal: "5" };
   const g2 = terminarSesion();
   g2.fecha = "2026-02-01T10:00:00.000Z";
   guardar();
@@ -395,15 +395,15 @@ prueba("mejorSerieUltimoDia: mejor serie (más peso, luego más reps) del día m
   añadirItemRutina(r.id, { exerciseId: e.id, series: 3, reps: "8", peso: 50 });
 
   empezarSesion(r.id);
-  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "40", repsReal: "12", hecha: true };
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "40", repsReal: "12" };
   const antigua = terminarSesion();
   antigua.fecha = "2026-01-01T10:00:00.000Z";
   guardar();
 
   empezarSesion(r.id);
-  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "60", repsReal: "6", hecha: true };
-  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "60", repsReal: "8", hecha: true };
-  sesionActiva().ejercicios[0].filas[2] = { pesoReal: "57.5", repsReal: "10", hecha: true };
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "60", repsReal: "6" };
+  sesionActiva().ejercicios[0].filas[1] = { pesoReal: "60", repsReal: "8" };
+  sesionActiva().ejercicios[0].filas[2] = { pesoReal: "57.5", repsReal: "10" };
   const reciente = terminarSesion();
   reciente.fecha = "2026-03-01T10:00:00.000Z";
   guardar();
@@ -418,12 +418,27 @@ prueba("mejorSerieUltimoDia: null si el ejercicio no tiene historial", () => {
   igual(mejorSerieUltimoDia(e.id), null);
 });
 
-prueba("debeMarcarSerie: solo con peso Y reps, y solo si no está marcada", () => {
-  igual(debeMarcarSerie({ pesoReal: "60", repsReal: "8", hecha: false }), true);
-  igual(debeMarcarSerie({ pesoReal: "0", repsReal: "8", hecha: false }), true);
-  igual(debeMarcarSerie({ pesoReal: "", repsReal: "8", hecha: false }), false);
-  igual(debeMarcarSerie({ pesoReal: "60", repsReal: "", hecha: false }), false);
-  igual(debeMarcarSerie({ pesoReal: "60", repsReal: "8", hecha: true }), false);
+prueba("serieRegistrada: cuenta con repeticiones; el peso es opcional", () => {
+  igual(serieRegistrada({ pesoReal: "60", repsReal: "8" }), true);
+  igual(serieRegistrada({ pesoReal: "0", repsReal: "8" }), true);
+  // El caso que motivó el cambio: fondos, dominadas, toda la calistenia.
+  igual(serieRegistrada({ pesoReal: "", repsReal: "8" }), true, "peso corporal cuenta");
+  igual(serieRegistrada({ pesoReal: "60", repsReal: "" }), false, "sin reps no cuenta");
+  igual(serieRegistrada({ pesoReal: "", repsReal: "" }), false);
+  igual(serieRegistrada({ pesoReal: "", repsReal: "   " }), false, "espacios no cuentan");
+});
+
+prueba("una serie de peso corporal (solo reps) llega al historial", () => {
+  const e = crearEjercicio({ nombre: "Fondos en paralelas", grupo: "Pecho" });
+  const r = crearRutina({ nombre: "Calistenia" });
+  añadirItemRutina(r.id, { exerciseId: e.id, series: 2, reps: "8-12", peso: 0 });
+  empezarSesion(r.id);
+  sesionActiva().ejercicios[0].filas[0].repsReal = "12";
+  sesionActiva().ejercicios[0].filas[1].repsReal = "10";
+  const guardada = terminarSesion();
+  igual(guardada.sets.length, 2, "las dos series deben guardarse sin escribir ningún peso");
+  igual(guardada.sets[0].pesoReal, 0);
+  igual(guardada.sets[0].repsReal, "12");
 });
 
 prueba("construirEtiquetaTemp: ejercicio · reps · peso; vacío sin ejercicio", () => {
@@ -487,7 +502,7 @@ prueba("obtenerSesion y borrarSesion funcionan sobre el historial", () => {
   const r = crearRutina({ nombre: "D" });
   añadirItemRutina(r.id, { exerciseId: e.id, series: 2, reps: "10", peso: 50 });
   empezarSesion(r.id);
-  sesionActiva().ejercicios[0].filas[0].hecha = true;
+  sesionActiva().ejercicios[0].filas[0].repsReal = "10";
   const guardada = terminarSesion();
 
   esVerdad(obtenerSesion(guardada.id), "la sesión debería existir en el historial");

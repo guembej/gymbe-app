@@ -85,7 +85,8 @@ function actualizarBarraEntreno() {
 
 function crearFilaSerie(ejIndice, filaIndice, fila) {
   const div = document.createElement("div");
-  div.className = fila.hecha ? "serie-fila serie-hecha" : "serie-fila";
+  // "hecha" ya no es un campo que se marque: se deduce de si hay repeticiones.
+  div.className = serieRegistrada(fila) ? "serie-fila serie-hecha" : "serie-fila";
 
   const num = document.createElement("span");
   num.className = "serie-num";
@@ -110,13 +111,6 @@ function crearFilaSerie(ejIndice, filaIndice, fila) {
   reps.dataset.fila = filaIndice;
   reps.dataset.campo = "repsReal";
 
-  const hecha = document.createElement("input");
-  hecha.type = "checkbox";
-  hecha.checked = fila.hecha;
-  hecha.dataset.ej = ejIndice;
-  hecha.dataset.fila = filaIndice;
-  hecha.dataset.campo = "hecha";
-
   const quitar = document.createElement("button");
   quitar.className = "icono-boton quitar-serie";
   quitar.innerHTML = icono("cerrar");
@@ -124,7 +118,7 @@ function crearFilaSerie(ejIndice, filaIndice, fila) {
   quitar.dataset.quitarFila = ejIndice;
   quitar.dataset.fila = filaIndice;
 
-  div.append(num, peso, reps, hecha, quitar);
+  div.append(num, peso, reps, quitar);
   return div;
 }
 
@@ -160,7 +154,7 @@ function pintarSesionActiva() {
       <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}</p>
       ${ultimaTexto ? `<p class="ultima-vez">${escaparHtml(ultimaTexto)}</p>` : ""}
       <div class="serie-fila serie-cabecera">
-        <span>#</span><span>Peso</span><span>Reps</span><span>${icono("check", "ico-mini")}</span><span></span>
+        <span>#</span><span>Peso</span><span>Reps</span><span></span>
       </div>
     `;
 
@@ -202,39 +196,19 @@ function alEditarCasilla(evento) {
   if (!sesion) return;
 
   const fila = sesion.ejercicios[el.dataset.ej].filas[el.dataset.fila];
-
-  if (el.dataset.campo === "hecha") {
-    fila.hecha = el.checked;
-    el.closest(".serie-fila").classList.toggle("serie-hecha", el.checked);
-    guardarSesionActiva({ inmediato: true }); // marcar una serie es un hito
-    return;
-  }
-
+  const estabaRegistrada = serieRegistrada(fila);
   fila[el.dataset.campo] = el.value;
 
-  // Marcar la serie sola cuando ya tiene peso y reps (nunca la desmarca).
-  if (debeMarcarSerie(fila)) {
-    fila.hecha = true;
-    const filaEl = el.closest(".serie-fila");
-    filaEl.classList.add("serie-hecha");
-    const casilla = filaEl.querySelector('input[type="checkbox"]');
-    if (casilla) casilla.checked = true;
-    guardarSesionActiva({ inmediato: true });
-    return;
-  }
+  const ahoraRegistrada = serieRegistrada(fila);
+  el.closest(".serie-fila").classList.toggle("serie-hecha", ahoraRegistrada);
 
-  // Solo estás tecleando: se guarda al parar, no en cada letra.
-  guardarSesionActiva();
+  // Que una serie pase a contar (o deje de contar) es un hito: se guarda ya.
+  // Mientras solo tecleas, se guarda al parar y no en cada letra.
+  if (estabaRegistrada !== ahoraRegistrada) guardarSesionActiva({ inmediato: true });
+  else guardarSesionActiva();
 }
 
-// Texto y números: al escribir. Casillas de verificación: al cambiar.
-// (Así no se guarda dos veces por el mismo cambio.)
-activoEjerciciosEl.addEventListener("input", (evento) => {
-  if (evento.target.type !== "checkbox") alEditarCasilla(evento);
-});
-activoEjerciciosEl.addEventListener("change", (evento) => {
-  if (evento.target.type === "checkbox") alEditarCasilla(evento);
-});
+activoEjerciciosEl.addEventListener("input", alEditarCasilla);
 
 // Añadir / quitar series (sí repinta)
 activoEjerciciosEl.addEventListener("click", (evento) => {
@@ -252,7 +226,7 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
   if (anadir) {
     const filas = sesion.ejercicios[anadir.dataset.anadirFila].filas;
     const ultima = filas[filas.length - 1] || { pesoReal: "", repsReal: "" };
-    filas.push({ pesoReal: ultima.pesoReal, repsReal: ultima.repsReal, hecha: false });
+    filas.push({ pesoReal: ultima.pesoReal, repsReal: "" });
     guardarSesionActiva({ inmediato: true });
     pintarSesionActiva();
     return;
@@ -283,12 +257,14 @@ document.getElementById("btn-terminar").addEventListener("click", async () => {
   if (!sesion) return;
 
   const hechas = sesion.ejercicios.reduce(
-    (total, ej) => total + ej.filas.filter((f) => f.hecha).length,
+    (total, ej) => total + ej.filas.filter(serieRegistrada).length,
     0
   );
 
+  // Este recuento es la red de seguridad: si hiciste 19 series y aquí pone 12,
+  // es que en 7 filas faltan las repeticiones y no se van a guardar.
   const mensaje = hechas === 0
-    ? "No has marcado ninguna serie como hecha. ¿Terminar igualmente? Se guardará el entreno sin series."
+    ? "No has anotado repeticiones en ninguna serie. ¿Terminar igualmente? Se guardará el entreno sin series."
     : `Se guardarán ${hechas} ${hechas === 1 ? "serie" : "series"}. ¿Terminar?`;
 
   if (!(await confirmar(mensaje, { aceptar: "Terminar" }))) return;

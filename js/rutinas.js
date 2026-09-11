@@ -237,7 +237,7 @@ function pintarDetalle() {
     const nombre = ejercicio ? ejercicio.nombre : "(ejercicio eliminado)";
     const resumen = [
       `${item.series} ${item.series === 1 ? "serie" : "series"}`,
-      item.reps ? `${item.reps} reps` : null,
+      textoObjetivo(item.reps, seMidePorTiempo(ejercicio)) || null,
       item.peso > 0 ? `${item.peso} kg` : null,
     ].filter(Boolean).join(" · ");
 
@@ -268,10 +268,8 @@ function pintarDetalle() {
       li.addEventListener("pointerdown", (e) => alPunteroAbajoItem(e, li, indice));
     } else {
       // Modo "ver": solo lectura + la mejor marca del último día
-      const ultima = mejorSerieUltimoDia(item.exerciseId);
-      const ultimaTexto = ultima
-        ? `última: ${String(ultima.peso).replace(".", ",")} kg × ${ultima.reps || "—"}`
-        : "";
+      const ultimaTexto = textoUltimaSerie(mejorSerieUltimoDia(item.exerciseId),
+                                          seMidePorTiempo(ejercicio));
       li.innerHTML = `
         <span class="item-num">${indice + 1}</span>
         <div class="item-contenido">

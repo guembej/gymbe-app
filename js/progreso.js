@@ -9,9 +9,41 @@ const progresoPuntoEl = document.getElementById("progreso-punto");
 const progresoResumenEl = document.getElementById("progreso-resumen");
 
 let progresoEjId = null;      // ejercicio elegido
-let progresoMetrica = "pesoMax"; // pesoMax | volumen | rm
+let progresoMetrica = null;   // la clave elegida dentro de metricasDeEjercicio()
 
-const ETIQUETA_METRICA = { pesoMax: "Peso máximo", volumen: "Volumen", rm: "1RM estimado" };
+// Las metricas ya no son fijas: un ejercicio con peso ensena kg, uno de peso
+// corporal ensena repeticiones y uno isometrico, segundos. Ver
+// metricasDeEjercicio() en consultas.js.
+function _metricasActuales() {
+  return progresoEjId ? metricasDeEjercicio(progresoEjId) : [];
+}
+
+// La metrica elegida, o la primera que tenga sentido para este ejercicio.
+function _metricaActual() {
+  const ms = _metricasActuales();
+  return ms.find((m) => m.clave === progresoMetrica) || ms[0] || null;
+}
+
+// Un valor con su unidad: "62,5 kg" · "12" · "1:35 min"
+function _pgValor(n, metrica) {
+  if (!metrica) return _pgNum(n);
+  if (metrica.unidad === "kg") return `${_pgNum(n)} kg`;
+  if (metrica.unidad === "tiempo") return conUnidad(n, true);
+  return _pgNum(n);
+}
+
+// (Re)pinta los botones de metrica segun el ejercicio elegido
+function pintarBotonesMetrica() {
+  const ms = _metricasActuales();
+  const actual = _metricaActual();
+  progresoMetrica = actual ? actual.clave : null;
+  const caja = document.getElementById("progreso-metricas");
+  caja.innerHTML = ms
+    .map((m) => `<button class="conmutador-boton${m.clave === progresoMetrica ? " activo" : ""}" ` +
+                `data-metrica="${m.clave}">${escaparHtml(m.etiqueta)}</button>`)
+    .join("");
+  caja.hidden = ms.length < 2;
+}
 
 // "3 sept" (para textos)
 function _pgDia(iso) {
@@ -47,7 +79,10 @@ function rellenarSelectProgreso() {
     ejercicios.forEach((e) => {
       const p = progresoDeEjercicio(e.id);
       if (p.length < 2) return;
-      const cambio = Math.abs(p[p.length - 1].pesoMax - p[0].pesoMax);
+      // el cambio se mide en la metrica principal de ESE ejercicio: mirando
+      // siempre el peso, la calistenia nunca salia elegida (peso 0 -> cambio 0)
+      const clave = metricasDeEjercicio(e.id)[0].clave;
+      const cambio = Math.abs(p[p.length - 1][clave] - p[0][clave]);
       const puntuacion = cambio * 10 + p.length; // prioriza cambio, luego nº de sesiones
       if (puntuacion > mejorPuntuacion) { mejorPuntuacion = puntuacion; mejor = e; }
     });
@@ -58,6 +93,8 @@ function rellenarSelectProgreso() {
 
 progresoSelect.addEventListener("change", () => {
   progresoEjId = progresoSelect.value;
+  // el ejercicio nuevo puede medirse en otra cosa: hay que rehacer los botones
+  pintarBotonesMetrica();
   pintarProgreso();
 });
 
@@ -140,11 +177,12 @@ function pintarProgreso() {
     c.addEventListener("click", () => {
       const p = puntos[Number(c.dataset.i)];
       progresoPuntoEl.textContent =
-        `${_pgDia(p.fecha)}: ${_pgNum(p[progresoMetrica])} kg`;
+        `${_pgDia(p.fecha)}: ${_pgValor(p[progresoMetrica], _metricaActual())}`;
     });
   });
 
   // Resumen
+  const metrica = _metricaActual();
   const clave = progresoMetrica;
   const primero = puntos[0];
   let mejor = puntos[0];
@@ -154,12 +192,12 @@ function pintarProgreso() {
   const signo = dif > 0 ? "+" : "";
 
   const filas = [
-    ["Métrica", ETIQUETA_METRICA[clave]],
-    ["Mejor marca", `${_pgNum(mejor[clave])} kg · ${_pgDia(mejor.fecha)}`],
-    ["Primera vez", `${_pgNum(primero[clave])} kg · ${_pgDia(primero.fecha)}`],
+    ["Métrica", metrica ? metrica.etiqueta : ""],
+    ["Mejor marca", `${_pgValor(mejor[clave], metrica)} · ${_pgDia(mejor.fecha)}`],
+    ["Primera vez", `${_pgValor(primero[clave], metrica)} · ${_pgDia(primero.fecha)}`],
   ];
   if (puntos.length > 1) {
-    filas.push(["Cambio", `${signo}${_pgNum(dif)} kg`]);
+    filas.push(["Cambio", `${signo}${_pgValor(dif, metrica)}`]);
   }
   filas.push(["Sesiones", String(puntos.length)]);
 
@@ -174,6 +212,7 @@ function pintarProgreso() {
 
 function renderProgreso() {
   rellenarSelectProgreso();
+  pintarBotonesMetrica();
   pintarProgreso();
 }
 

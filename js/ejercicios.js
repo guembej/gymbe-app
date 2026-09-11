@@ -11,6 +11,19 @@ const listaEjerciciosEl = document.getElementById("lista-ejercicios");
 // Guarda qué ejercicio estamos editando (null = estamos creando uno nuevo)
 let editandoEjercicioId = null;
 
+// ---- Conmutador "Se mide en" (repeticiones / segundos) ----
+const botonesMedida = formEjercicio.querySelectorAll("[data-medida]");
+
+function ponerMedida(medida) {
+  const valor = medida === "tiempo" ? "tiempo" : "reps";
+  botonesMedida.forEach((b) => b.classList.toggle("activo", b.dataset.medida === valor));
+}
+function medidaElegida() {
+  const activo = formEjercicio.querySelector("[data-medida].activo");
+  return activo ? activo.dataset.medida : "reps";
+}
+botonesMedida.forEach((b) => b.addEventListener("click", () => ponerMedida(b.dataset.medida)));
+
 // Rellenar el desplegable de grupos musculares (una sola vez)
 GRUPOS_MUSCULARES.forEach((grupo) => {
   const opcion = document.createElement("option");
@@ -27,6 +40,7 @@ function abrirFormEjercicio(ejercicio) {
   formEjercicio.elements.nombre.value = ejercicio ? ejercicio.nombre : "";
   formEjercicio.elements.grupo.value = ejercicio ? ejercicio.grupo : "Pecho";
   formEjercicio.elements.nota.value = ejercicio ? ejercicio.nota : "";
+  ponerMedida(ejercicio ? ejercicio.medida : "reps");
   dlgEjercicio.showModal();
   formEjercicio.elements.nombre.focus();
 }
@@ -49,6 +63,7 @@ formEjercicio.addEventListener("submit", (evento) => {
     nombre: formEjercicio.elements.nombre.value,
     grupo: formEjercicio.elements.grupo.value,
     nota: formEjercicio.elements.nota.value,
+    medida: medidaElegida(),
   };
   if (!valores.nombre.trim()) return;
 

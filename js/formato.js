@@ -44,15 +44,77 @@ function formatearCuentaAtras(seg) {
 
 // Etiqueta del ejercicio para el temporizador: "Press banca - 8-12 reps - 60 kg".
 /**
- * @param {{ ejercicio?: string, reps?: string, peso?: number }} [datos]
+ * @param {{ ejercicio?: string, reps?: string, peso?: number, porTiempo?: boolean }} [datos]
  * @returns {string}
  */
-function construirEtiquetaTemp({ ejercicio, reps, peso } = {}) {
+function construirEtiquetaTemp({ ejercicio, reps, peso, porTiempo } = {}) {
   if (!ejercicio) return "";
   const partes = [ejercicio];
-  if (reps) partes.push(`${reps} reps`);
+  if (reps) partes.push(textoObjetivo(reps, !!porTiempo));
   if (peso > 0) partes.push(`${peso} kg`);
   return partes.join(" · ");
+}
+
+// Un ejercicio se mide en repeticiones o en segundos (dead hang, plancha...).
+// La unidad vive en el EJERCICIO, no en la rutina: un dead hang se mide en
+// segundos siempre, y ademas los sets del historial solo guardan el exerciseId,
+// asi que al dibujar Progreso no hay forma de saber de que rutina salieron.
+/**
+ * @param {{ medida?: string }} [ejercicio]
+ * @returns {boolean}
+ */
+function seMidePorTiempo(ejercicio) {
+  return !!ejercicio && ejercicio.medida === "tiempo";
+}
+
+// Etiqueta corta de la columna del entreno: "REPS" o "SEG".
+function etiquetaUnidad(ejercicio) {
+  return seMidePorTiempo(ejercicio) ? "SEG" : "REPS";
+}
+
+// Un valor con su unidad: 12 reps -> "12"  ·  95 segundos -> "1:35 min"
+/**
+ * @param {number|string} valor
+ * @param {boolean} porTiempo
+ * @returns {string}
+ */
+function conUnidad(valor, porTiempo) {
+  const n = parseFloat(String(valor));
+  if (isNaN(n)) return String(valor == null ? "" : valor);
+  if (!porTiempo) return String(valor);
+  if (n < 60) return `${n} s`;
+  const min = Math.floor(n / 60);
+  const resto = Math.round(n % 60);
+  return resto === 0 ? `${min} min` : `${min}:${String(resto).padStart(2, "0")} min`;
+}
+
+// Objetivo de un ejercicio: "8-12 reps" o "40 s". El valor es texto libre y
+// puede ser un rango ("30-45"), asi que solo se le pega la unidad.
+/**
+ * @param {string} reps
+ * @param {boolean} porTiempo
+ * @returns {string}
+ */
+function textoObjetivo(reps, porTiempo) {
+  if (!reps) return "";
+  return porTiempo ? `${reps} s` : `${reps} reps`;
+}
+
+// "ultima: 50 kg x 8" para pesas; "ultima: 40 s" para un dead hang.
+/**
+ * @param {{ peso: number, reps: number }|null} ultima
+ * @param {boolean} porTiempo
+ * @returns {string}
+ */
+function textoUltimaSerie(ultima, porTiempo) {
+  if (!ultima) return "";
+  const peso = `${String(ultima.peso).replace(".", ",")} kg`;
+  if (porTiempo) {
+    const t = conUnidad(ultima.reps, true);
+    return ultima.peso > 0 ? `última: ${t} · ${peso}` : `última: ${t}`;
+  }
+  if (ultima.peso > 0) return `última: ${peso} × ${ultima.reps || "—"}`;
+  return `última: ${ultima.reps || "—"} reps`;
 }
 
 // Pasa a minusculas y quita las tildes, para buscar sin que estorben.

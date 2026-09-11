@@ -103,6 +103,8 @@ function progresoDeEjercicio(exerciseId) {
     let pesoMax = 0;
     let volumen = 0;
     let rm = 0;
+    let mejorUnidad = 0;   // la mejor serie del dia, en reps o en segundos
+    let totalUnidad = 0;   // la suma del dia, en reps o en segundos
     sets.forEach((set) => {
       const peso = _num(set.pesoReal, 0, 0);
       const reps = parseInt(set.repsReal, 10) || 0;
@@ -110,6 +112,8 @@ function progresoDeEjercicio(exerciseId) {
       volumen += peso * reps;
       const rmSet = reps > 0 ? peso * (1 + reps / 30) : peso;
       if (rmSet > rm) rm = rmSet;
+      if (reps > mejorUnidad) mejorUnidad = reps;
+      totalUnidad += reps;
     });
 
     puntos.push({
@@ -118,8 +122,47 @@ function progresoDeEjercicio(exerciseId) {
       pesoMax: Math.round(pesoMax * 10) / 10,
       volumen: Math.round(volumen),
       rm: Math.round(rm * 10) / 10,
+      mejorUnidad,
+      totalUnidad,
     });
   });
 
   return puntos.sort((a, b) => a.fecha.localeCompare(b.fecha));
+}
+
+// Que metricas tienen sentido para un ejercicio. Se decide mirando DOS cosas:
+//   - si el ejercicio se mide en segundos (lo dice su ficha)
+//   - si alguna vez se ha anotado peso (se deduce del historial, no de un flag:
+//     el dia que empieces a lastrar los fondos, aparece sola)
+//
+// Sin esto, un ejercicio de peso corporal ensenaba Peso maximo / Volumen /
+// 1RM estimado, y las tres valen 0 para siempre: la grafica era una raya en el
+// cero aunque pasaras de 6 a 12 dominadas. Afectaba a toda la calistenia.
+//
+// Como maximo tres, que es lo que cabe en el conmutador del movil.
+function metricasDeEjercicio(exerciseId) {
+  const porTiempo = seMidePorTiempo(obtenerEjercicio(exerciseId));
+  const conPeso = DATOS.sesiones.some((s) =>
+    s.sets.some((x) => x.exerciseId === exerciseId && _num(x.pesoReal, 0, 0) > 0)
+  );
+
+  if (porTiempo) {
+    const m = [
+      { clave: "mejorUnidad", etiqueta: "Tiempo máx.", unidad: "tiempo" },
+      { clave: "totalUnidad", etiqueta: "Tiempo total", unidad: "tiempo" },
+    ];
+    if (conPeso) m.push({ clave: "pesoMax", etiqueta: "Peso máx.", unidad: "kg" });
+    return m;
+  }
+  if (!conPeso) {
+    return [
+      { clave: "mejorUnidad", etiqueta: "Reps máx.", unidad: "reps" },
+      { clave: "totalUnidad", etiqueta: "Reps totales", unidad: "reps" },
+    ];
+  }
+  return [
+    { clave: "pesoMax", etiqueta: "Peso máx.", unidad: "kg" },
+    { clave: "volumen", etiqueta: "Volumen", unidad: "kg" },
+    { clave: "rm", etiqueta: "1RM est.", unidad: "kg" },
+  ];
 }

@@ -28,18 +28,42 @@ function construirSegmentos({ prepSeg, serieSeg, descansoSeg, numSeries }) {
   return segmentos;
 }
 
-// Avisos de sonido de un tramo, como offsets (segundos) desde ahora:
-//  - tics agudos 3-2-1 antes de acabar
-//  - al acabar: 1 pitido si viene otro tramo, 3 si es el fin del entrenamiento
-// Se programan con Web Audio (suenan aunque el móvil esté bloqueado).
+// Cuenta atrás sonora: un tic corto por segundo durante los últimos SEG_CUENTA.
+const SEG_CUENTA = 5;
+
+// Final del tramo: tres notas SUBIENDO (la, re, sol). Un patrón se reconoce sin
+// mirar el móvil; un pitido más fuerte, no.
+const REMATE = [880, 1175, 1568];
+
+// Avisos de sonido de un tramo, como offsets (segundos) desde ahora.
+//  - cuenta atrás: un tic flojo por segundo en los últimos 5
+//  - al acabar: dos notas si viene otro tramo, las tres si se acabó el entreno
+//
+// Se programan por adelantado con Web Audio, que cumple la cita aunque el móvil
+// esté bloqueado y la app dormida. Por eso NO se usa la voz del sistema para la
+// cuenta atrás: hay que pedirsela en el momento, y en ese momento la app puede
+// no estar despierta.
+//
+// "vol" es relativo (0-1) y lo escala el volumen elegido en Ajustes: los tics
+// van flojos para que el remate destaque de verdad.
 function avisosDelTramo(finEnSeg, hayOtroTramo) {
   const avisos = [];
-  for (let k = 3; k >= 1; k--) {
-    if (finEnSeg - k > 0.05) avisos.push({ freq: 1320, enSeg: finEnSeg - k });
+  for (let k = SEG_CUENTA; k >= 1; k--) {
+    if (finEnSeg - k > 0.05) avisos.push({ freq: 1320, enSeg: finEnSeg - k, vol: 0.35, dur: 0.07 });
   }
   if (finEnSeg > 0.05) {
-    const veces = hayOtroTramo ? 1 : 3;
-    for (let i = 0; i < veces; i++) avisos.push({ freq: 880, enSeg: finEnSeg + i * 0.22 });
+    const notas = hayOtroTramo ? REMATE.slice(0, 2) : REMATE;
+    notas.forEach((freq, i) => {
+      const ultima = i === notas.length - 1;
+      avisos.push({ freq, enSeg: finEnSeg + i * 0.16, vol: 1, dur: ultima ? 0.35 : 0.14 });
+    });
   }
   return avisos;
+}
+
+// Ajustes -> factor de volumen. "alto" es el de por defecto: en un gimnasio con
+// musica, el aviso tiene que ganarle al ruido.
+const VOLUMEN_AVISO = { bajo: 0.3, medio: 0.6, alto: 1 };
+function factorVolumen(nivel) {
+  return VOLUMEN_AVISO[nivel] || VOLUMEN_AVISO.alto;
 }

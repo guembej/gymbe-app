@@ -26,7 +26,7 @@ const EJEMPLO_RUTINAS = [
   {
     nombre: "Tirón A - Calistenia", division: "Pull",
     items: [
-      { ejercicio: "Dead hang (colgarse de barra)", grupo: "Espalda", series: 3, reps: "40s", peso: 0, descansoSeg: 60, nota: "Activación de agarre y hombro" },
+      { ejercicio: "Dead hang (colgarse de barra)", grupo: "Espalda", medida: "tiempo", series: 3, reps: "40", peso: 0, descansoSeg: 60, nota: "Activación de agarre y hombro" },
       { ejercicio: "Dominadas agarre ancho", grupo: "Espalda", series: 4, reps: "6-8", peso: 0, descansoSeg: 120, nota: "Foco en anchura dorsal" },
       { ejercicio: "Dominadas pronas", grupo: "Espalda", series: 3, reps: "8-10", peso: 0, descansoSeg: 120, nota: "" },
       { ejercicio: "Dominadas supinas", grupo: "Espalda", series: 3, reps: "8-10", peso: 0, descansoSeg: 90, nota: "Más énfasis en bíceps" },
@@ -89,7 +89,7 @@ const EJEMPLO_RUTINAS = [
       { ejercicio: "Bíceps curl con mancuerna", grupo: "Bíceps", series: 2, reps: "10-12", peso: 0, descansoSeg: 60, nota: "" },
       { ejercicio: "Extensión de tríceps en polea (cuerda)", grupo: "Tríceps", series: 2, reps: "10-12", peso: 0, descansoSeg: 60, nota: "Codo pegado al cuerpo" },
       { ejercicio: "Elevación de talones de pie", grupo: "Pierna", series: 2, reps: "15-20", peso: 0, descansoSeg: 45, nota: "Gemelo" },
-      { ejercicio: "Plancha", grupo: "Core", series: 2, reps: "40-60s", peso: 0, descansoSeg: 45, nota: "Core" },
+      { ejercicio: "Plancha", grupo: "Core", medida: "tiempo", series: 2, reps: "40-60", peso: 0, descansoSeg: 45, nota: "Core" },
     ],
   },
   {
@@ -124,11 +124,17 @@ function cargarDatosEjemplo() {
   const idPorNombre = {};
   let ejerciciosAñadidos = 0;
 
-  // 1) Grupo muscular de cada ejercicio: el primero que aparezca manda
+  // 1) Grupo muscular y unidad de cada ejercicio: el primero que aparezca manda.
+  // "medida: tiempo" es para los isometricos (dead hang, plancha): se anotan
+  // en segundos, no en repeticiones.
   const grupoDe = {};
+  const medidaDe = {};
   EJEMPLO_RUTINAS.forEach((r) => {
     r.items.forEach((it) => {
-      if (!(it.ejercicio in grupoDe)) grupoDe[it.ejercicio] = it.grupo || "Otro";
+      if (!(it.ejercicio in grupoDe)) {
+        grupoDe[it.ejercicio] = it.grupo || "Otro";
+        medidaDe[it.ejercicio] = it.medida || "reps";
+      }
     });
   });
 
@@ -138,7 +144,9 @@ function cargarDatosEjemplo() {
     if (existente) {
       idPorNombre[nombre] = existente.id;
     } else {
-      idPorNombre[nombre] = crearEjercicio({ nombre, grupo: grupoDe[nombre] }).id;
+      idPorNombre[nombre] = crearEjercicio({
+        nombre, grupo: grupoDe[nombre], medida: medidaDe[nombre],
+      }).id;
       ejerciciosAñadidos++;
     }
   });

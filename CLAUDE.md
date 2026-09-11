@@ -56,6 +56,29 @@ que el control y la fila entera (52px) es el área táctil.
   si se renombra uno al retocar el maquetado, la preferencia deja de guardarse
   sin dar ningún error.
 
+## Avisos del temporizador (v1.9.0+)
+`avisosDelTramo()` en `temporizador.js` devuelve `{freq, enSeg, dur, vol}`:
+un tic flojo por segundo en los **últimos 5**, y de remate **notas subiendo**
+(dos si viene otro tramo, las tres 880/1175/1568 si se acabó el entreno).
+- La onda es **cuadrada** con un paso bajo, no senoidal: una senoidal es un tono
+  puro sin armónicos, la forma de onda que menos se oye, y en un gimnasio con
+  música se perdía entera.
+- `volumenAviso` en prefs (`bajo`/`medio`/`alto`, por defecto **alto**) escala el
+  volumen. Al cambiarlo en Ajustes suena una muestra (`sonarMuestraAviso`).
+- **No se usa la voz del sistema** para la cuenta atrás. Los tonos se programan
+  por adelantado con Web Audio, que cumple la cita con el móvil bloqueado; la voz
+  hay que pedirla en el momento, y en ese momento la app puede estar dormida.
+
+## Ventana flotante (PiP) (v1.9.0+)
+Se dibuja en un canvas de `ANCHO_PIP x ALTO_PIP` (320x134, 2,39:1 es lo más plano
+que Chrome-Android permite) pero a `ESCALA_PIP` = 3. Android estira la ventana:
+a tamaño 1x se veía una imagen pequeña ampliada, con los bordes blandos.
+- La familia de letra se **lee del `.tiempo-display` de la pantalla**
+  (`_familiaPiP`), no se repite a mano: así no pueden separarse.
+- `_numeroTabular()` dibuja cada dígito en una casilla del mismo ancho. El canvas
+  no tiene `tabular-nums` (el CSS del cronómetro sí), y según la letra que
+  resuelva el móvil el número se movería solo cada segundo.
+
 ## Navegación (v1.2.0+)
 4 pestañas: **Entrenar · Historial · Progreso · Tiempo**. "Entrenar" reúne lo que
 antes eran Rutinas + Entrenar: sub-conmutador Rutinas|Ejercicios; tocar una rutina
@@ -107,12 +130,47 @@ Los 2-3px sueltos que quedan son ajustes ópticos de un sitio concreto, no hueco
 de maquetación. **Al añadir estilos, usar la escala; no inventar valores nuevos.**
 
 ## Modelo de datos (real, clave localStorage `gym.datos.v1`)
-- `ejercicios`: [{ id, nombre, grupo, nota }]
+- `ejercicios`: [{ id, nombre, grupo, nota, medida }]
   - `grupo` de lista fija `GRUPOS_MUSCULARES` (Pecho, Espalda, Pierna, Hombro, Bíceps, Tríceps, Core, Otro)
+  - `medida`: `"reps"` (por defecto) o `"tiempo"` — ver "Unidad de un ejercicio"
 - `rutinas`: [{ id, nombre, division, items: [{ exerciseId, series, reps, peso, descansoSeg, nota }] }]
   - `division` opcional, lista fija `DIVISIONES` (Full Body, Push, Pull, Pierna, Torso, Superior, Inferior, Otro); "" = sin división
   - `reps` es texto libre corto: "10" o rango "8-12"
 - `sesiones`: [{ id, routineId, fecha, sets: [{ exerciseId, serie, pesoReal, repsReal }] }]
+
+### Unidad de un ejercicio (v1.9.0+)
+Un ejercicio se anota en **repeticiones** o en **segundos** (dead hang, plancha).
+`medida` vive en el EJERCICIO, no en el item de la rutina. Dos motivos:
+1. Un dead hang se mide en segundos siempre, en todas las rutinas.
+2. **Los `sets` del historial solo guardan `exerciseId`**, no de qué rutina
+   salieron (a propósito: borrar o editar una rutina no debe romper el
+   historial). Si la unidad viviera en la rutina, Progreso no podría saber
+   nunca si está mirando segundos o repeticiones.
+
+El número se sigue guardando en `repsReal`: el campo dice *cuántas unidades* y
+`medida` dice *de qué*. Así no hay que migrar nada. `empezarSesion` **copia** la
+unidad a `sesionActiva.ejercicios[].porTiempo`, igual que el nombre, para que
+editar la ficha a mitad de entreno no cambie lo que estás anotando.
+
+Los textos salen todos de `formato.js`: `seMidePorTiempo`, `textoObjetivo`,
+`textoUltimaSerie`, `conUnidad`.
+
+### Métricas de Progreso (v1.9.0+)
+`metricasDeEjercicio(exerciseId)` en `consultas.js` decide qué botones salen,
+mirando dos cosas: si el ejercicio es por tiempo (su ficha) y si **alguna vez se
+ha anotado peso** (se deduce del historial, no de un flag: el día que lastres los
+fondos, el peso aparece solo).
+
+| Caso | Botones |
+|---|---|
+| Con peso | Peso máx. · Volumen · 1RM est. |
+| Sin peso, por reps | Reps máx. · Reps totales |
+| Por tiempo | Tiempo máx. · Tiempo total (+ Peso máx. si lo lastras) |
+
+**Por qué existía el problema:** las tres métricas de siempre se calculan a partir
+del peso. Con peso 0 las tres valen 0 **para siempre**, así que Progreso era una
+raya en el cero para toda la calistenia aunque pasaras de 6 a 12 dominadas.
+Máximo tres botones: es lo que cabe en el conmutador de un móvil.
 
 ### Qué cuenta como serie hecha (v1.8.0+)
 `serieRegistrada(fila)` en `consultas.js`: **una serie cuenta en cuanto tiene

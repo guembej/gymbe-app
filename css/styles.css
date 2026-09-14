@@ -742,6 +742,28 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
 }
 .pildora-descanso.pildora-fin { background: var(--fondo-2); border: 1px solid var(--acento-texto); color: var(--acento-texto); }
 
+/* "Anadir ejercicio" al final del entreno */
+.boton-anadir {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  padding: var(--e-3);
+  margin-top: var(--e-3);
+  background: none;
+  border: 1px dashed var(--borde);
+  border-radius: var(--r-m);
+  color: var(--acento-texto);
+  font-family: inherit;
+  font-size: var(--t-s);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transicion);
+}
+.boton-anadir .ico { width: 17px; height: 17px; }
+.boton-anadir:active { border-color: var(--acento-texto); }
+
 .acciones-entreno {
   display: flex;
   gap: var(--e-2);
@@ -1002,13 +1024,26 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   color: var(--texto-suave);
   margin-bottom: var(--e-4);
 }
-.progreso-select select {
+.progreso-select input {
+  width: 100%;
   background: var(--fondo-2);
   border: 1px solid var(--borde);
   border-radius: var(--r-s);
   padding: var(--e-3);
   color: var(--texto);
+  font-family: inherit;
   font-size: var(--t-m);
+}
+/* la lista de coincidencias flota sobre la grafica, no la empuja hacia abajo */
+.progreso-select { position: relative; }
+.progreso-select .sugerencias {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin-top: var(--e-1);
+  box-shadow: var(--sombra-2);
 }
 #progreso-metricas { margin-bottom: var(--e-2); }
 #progreso-grafica {

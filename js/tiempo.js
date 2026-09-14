@@ -244,7 +244,10 @@ document.querySelectorAll("#temp-config .temp-stepper button").forEach((btn) => 
     const campo = btn.dataset.campo;
     const paso = Number(btn.dataset.paso);
     const c = obtenerTempConfig();
-    let valor = c[campo] + paso;
+    // El descanso no tiene un paso fijo: ver siguienteDescanso().
+    let valor = campo === "descansoSeg"
+      ? siguienteDescanso(c[campo], paso > 0)
+      : c[campo] + paso;
     if (campo === "numSeries") valor = limitar(valor, 1, 15);
     else if (campo === "prepSeg") valor = limitar(valor, 0, 60);
     else valor = limitar(valor, 5, 600);

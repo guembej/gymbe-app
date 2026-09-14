@@ -56,6 +56,23 @@ function ejerciciosParecidos(exerciseId, limite = 8) {
     .slice(0, limite);
 }
 
+// Que proponer al anadir un ejercicio suelto al entreno: los de los grupos
+// musculares que ya estas entrenando hoy, quitando los que ya tienes puestos.
+// En un dia de Push salen los de Pecho, Hombro y Triceps.
+function ejerciciosParaAnadir(sesion, limite = 8) {
+  if (!sesion) return [];
+  const puestos = new Set(sesion.ejercicios.map((e) => e.exerciseId));
+  const grupos = new Set(
+    sesion.ejercicios
+      .map((e) => obtenerEjercicio(e.exerciseId))
+      .filter(Boolean)
+      .map((e) => e.grupo)
+  );
+  return listarEjercicios()
+    .filter((e) => !puestos.has(e.id) && grupos.has(e.grupo))
+    .slice(0, limite);
+}
+
 // ----------------------------------------------------------
 //  Progreso: evolución de un ejercicio a lo largo del historial
 //  Devuelve un punto por sesión (orden: de más antigua a más reciente):

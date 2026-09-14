@@ -193,6 +193,13 @@
 
           <div id="activo-ejercicios"></div>
 
+          <!-- Punteado y ancho completo: se lee como "aqui cabe algo mas" y no
+               compite con "Terminar", que esta justo debajo. -->
+          <button id="btn-anadir-ejercicio" class="boton-anadir">
+            <svg class="ico" aria-hidden="true"><use href="#ico-mas" /></svg>
+            Añadir ejercicio
+          </button>
+
           <div class="acciones-entreno">
             <button id="btn-descartar" class="boton-secundario">Descartar</button>
             <button id="btn-terminar" class="boton-primario">Terminar</button>
@@ -234,10 +241,16 @@
     </section>
 
     <section class="seccion oculta" data-seccion="progreso">
-      <label class="progreso-select">
-        Ejercicio
-        <select id="progreso-ejercicio"></select>
-      </label>
+      <!-- Era un <select>. Con 47 ejercicios, buscar escribiendo es mucho mas
+           rapido que desplegar y desplazar. -->
+      <div class="progreso-select combo-ejercicio">
+        <label>
+          Ejercicio
+          <input type="text" id="progreso-ejercicio" autocomplete="off"
+                 placeholder="Escribe para filtrar" />
+        </label>
+        <ul id="progreso-sugerencias" class="sugerencias" hidden></ul>
+      </div>
 
       <!-- Los botones los pone progreso.js: cambian segun el ejercicio
            (kg, repeticiones o segundos). -->
@@ -284,9 +297,11 @@
             <div class="temp-campo">
               <span>Descanso</span>
               <div class="temp-stepper">
-                <button type="button" data-campo="descansoSeg" data-paso="-15">−</button>
+                <!-- el paso del descanso no es fijo (5 s por debajo del minuto,
+                     15 s por encima): aqui solo cuenta el signo. Ver siguienteDescanso(). -->
+                <button type="button" data-campo="descansoSeg" data-paso="-1">−</button>
                 <b id="temp-descanso">1:30</b>
-                <button type="button" data-campo="descansoSeg" data-paso="15">+</button>
+                <button type="button" data-campo="descansoSeg" data-paso="1">+</button>
               </div>
             </div>
             <div class="temp-campo">
@@ -503,21 +518,23 @@
     </form>
   </dialog>
 
-  <!-- Cambiar un ejercicio a mitad de entreno (la maquina esta ocupada) -->
-  <dialog id="dialogo-cambiar" class="dialogo">
+  <!-- Elegir un ejercicio a mitad de entreno. Sirve para dos cosas: CAMBIAR uno
+       (la maquina esta ocupada) y ANADIR uno suelto al final. Es el mismo gesto
+       -elegir un ejercicio-, asi que comparten dialogo y solo cambia el texto. -->
+  <dialog id="dialogo-elegir" class="dialogo">
     <div class="formulario">
-      <h2>Cambiar ejercicio</h2>
-      <p class="aj-nota" id="cambiar-explica"></p>
+      <h2 id="elegir-titulo">Cambiar ejercicio</h2>
+      <p class="aj-nota" id="elegir-explica"></p>
       <div class="combo-ejercicio">
         <label>
           Buscar
-          <input type="text" id="cambiar-busca" autocomplete="off"
+          <input type="text" id="elegir-busca" autocomplete="off"
                  placeholder="Escribe para buscar o crear" />
         </label>
-        <ul id="cambiar-sugerencias" class="sugerencias"></ul>
+        <ul id="elegir-sugerencias" class="sugerencias"></ul>
       </div>
       <div class="form-acciones">
-        <button type="button" id="cambiar-cancelar" class="boton-secundario ancho-completo">
+        <button type="button" id="elegir-cancelar" class="boton-secundario ancho-completo">
           Cancelar
         </button>
       </div>

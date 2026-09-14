@@ -693,6 +693,87 @@ prueba("construirEtiquetaTemp: la unidad también llega al temporizador", () => 
         "Plancha · 40 s");
 });
 
+// ---- Anadir un ejercicio suelto al entreno ----
+
+prueba("anadirEjercicioASesion: va al final, sin objetivo y con una serie", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  const i = anadirEjercicioASesion(mancuernas.id);
+  const ejs = sesionActiva().ejercicios;
+  igual(i, 1, "se añade al final");
+  igual(ejs.length, 2);
+  igual(ejs[1].exerciseNombre, "Press con mancuernas");
+  igual(ejs[1].extra, true, "marcado como añadido: no pinta línea de objetivo");
+  igual(ejs[1].objetivo.series, 0, "sin objetivo: no lo has planificado");
+  igual(ejs[1].filas.length, 1, "empieza con una sola serie");
+});
+
+prueba("anadirEjercicioASesion NO toca la rutina", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  const rutinaId = sesionActiva().routineId;
+  anadirEjercicioASesion(mancuernas.id);
+  igual(obtenerRutina(rutinaId).items.length, 1,
+        "la semana que viene la rutina sigue teniendo un solo ejercicio");
+});
+
+prueba("un ejercicio añadido y no rellenado no llega al historial", () => {
+  // Por eso no hace falta un boton de "quitar ejercicio": se limpia solo.
+  const { mancuernas } = _entrenoConPressBanca();
+  sesionActiva().ejercicios[0].filas[0] = { pesoReal: "50", repsReal: "8" };
+  anadirEjercicioASesion(mancuernas.id);
+  const g = terminarSesion();
+  igual(g.sets.map((s) => s.exerciseNombre), ["Press banca"]);
+});
+
+prueba("un ejercicio añadido SÍ llega al historial si lo rellenas", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  anadirEjercicioASesion(mancuernas.id);
+  sesionActiva().ejercicios[1].filas[0] = { pesoReal: "22", repsReal: "10" };
+  const g = terminarSesion();
+  igual(g.sets.map((s) => s.exerciseNombre), ["Press con mancuernas"]);
+  igual(g.sets[0].repsReal, "10");
+});
+
+prueba("anadirEjercicioASesion con datos inválidos no rompe nada", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  igual(anadirEjercicioASesion("noexiste"), -1);
+  igual(sesionActiva().ejercicios.length, 1);
+  descartarSesionActiva();
+  igual(anadirEjercicioASesion(mancuernas.id), -1, "sin entreno en curso");
+});
+
+prueba("ejerciciosParaAnadir: los grupos de hoy, sin los que ya están puestos", () => {
+  const { press, mancuernas } = _entrenoConPressBanca();  // ambos de Pecho
+  crearEjercicio({ nombre: "Curl", grupo: "Bíceps" });
+  const p = ejerciciosParaAnadir(sesionActiva());
+  igual(p.map((e) => e.nombre), ["Press con mancuernas"],
+        "solo Pecho (el grupo de hoy) y sin el que ya está en la sesión");
+  // al añadirlo, deja de proponerse
+  anadirEjercicioASesion(mancuernas.id);
+  igual(ejerciciosParaAnadir(sesionActiva()), []);
+  igual(ejerciciosParaAnadir(null), []);
+  esVerdad(press, "el press sigue existiendo");
+});
+
+prueba("siguienteDescanso: de 5 en 5 por debajo del minuto, de 15 por encima", () => {
+  igual(siguienteDescanso(30, true), 35);
+  igual(siguienteDescanso(55, true), 60, "llega justo al minuto");
+  igual(siguienteDescanso(60, true), 75, "a partir del minuto, de 15 en 15");
+  igual(siguienteDescanso(90, true), 105);
+  igual(siguienteDescanso(60, false), 55, "bajar del minuto vuelve a los 5");
+  igual(siguienteDescanso(75, false), 60);
+  igual(siguienteDescanso(30, false), 25);
+});
+
+prueba("siguienteDescanso: al bajar se para en 60, no se lo salta", () => {
+  // Una rutina puede traer 70 s. Sin esto, 70 - 15 = 55 y el minuto no se
+  // podria alcanzar bajando.
+  igual(siguienteDescanso(70, false), 60);
+  igual(siguienteDescanso(65, false), 60);
+  // y es reversible en los dos sentidos
+  igual(siguienteDescanso(siguienteDescanso(60, true), false), 60);
+  igual(siguienteDescanso(siguienteDescanso(60, false), true), 60);
+});
+
 prueba("factorVolumen: alto es el máximo y un valor desconocido cae en alto", () => {
   igual(factorVolumen("alto"), 1);
   esVerdad(factorVolumen("bajo") < factorVolumen("medio"), "bajo < medio");

@@ -179,7 +179,12 @@ function pintarSesionActiva() {
       porTiempo: ej.porTiempo,
     });
 
-    pie.append(anadir, temporizador);
+    const cambiar = document.createElement("button");
+    cambiar.className = "boton-enlace";
+    cambiar.textContent = "Cambiar ejercicio";
+    cambiar.dataset.cambiar = ejIndice;
+
+    pie.append(anadir, cambiar, temporizador);
     bloque.appendChild(pie);
 
     activoEjerciciosEl.appendChild(bloque);
@@ -220,6 +225,12 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
     return;
   }
 
+  const cambiar = evento.target.closest("[data-cambiar]");
+  if (cambiar) {
+    abrirCambioEjercicio(Number(cambiar.dataset.cambiar));
+    return;
+  }
+
   const anadir = evento.target.closest("[data-anadir-fila]");
   if (anadir) {
     const filas = sesion.ejercicios[anadir.dataset.anadirFila].filas;
@@ -238,6 +249,66 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
     pintarSesionActiva();
   }
 });
+
+// ==========================================================
+//  Cambiar de ejercicio a mitad de entreno
+//  "La maquina esta ocupada, hago un equivalente". Solo cambia el entreno de
+//  HOY: la rutina se queda como esta (ver cambiarEjercicioDeSesion).
+// ==========================================================
+
+const dlgCambiar = document.getElementById("dialogo-cambiar");
+const cambiarBuscaEl = document.getElementById("cambiar-busca");
+const cambiarExplicaEl = document.getElementById("cambiar-explica");
+let _cambiandoIndice = null;
+
+function aplicarCambioEjercicio(nuevoId) {
+  const i = cambiarEjercicioDeSesion(_cambiandoIndice, nuevoId);
+  dlgCambiar.close();
+  if (i < 0) return;
+  pintarSesionActiva();
+}
+
+const _buscadorCambio = conectarBuscadorEjercicios({
+  input: cambiarBuscaEl,
+  lista: document.getElementById("cambiar-sugerencias"),
+  ocultarAlSalir: false,
+  alElegir: (ej) => aplicarCambioEjercicio(ej.id),
+  // Al crear al vuelo se hereda el grupo del que sustituyes: estas buscando un
+  // equivalente, asi que acierta casi siempre y ahorra un paso en el gimnasio.
+  alCrear: (nombre) => {
+    const sesion = sesionActiva();
+    const viejo = sesion && obtenerEjercicio(sesion.ejercicios[_cambiandoIndice].exerciseId);
+    aplicarCambioEjercicio(crearEjercicio({ nombre, grupo: viejo ? viejo.grupo : "Otro" }).id);
+  },
+  // Con el campo en blanco, los del mismo grupo muscular: cuando la maquina
+  // esta ocupada no sabes el nombre del sustituto, quieres ver las opciones.
+  cuandoVacio: () => {
+    const sesion = sesionActiva();
+    if (!sesion || _cambiandoIndice == null) return [];
+    return ejerciciosParecidos(sesion.ejercicios[_cambiandoIndice].exerciseId);
+  },
+});
+
+function abrirCambioEjercicio(ejIndice) {
+  const sesion = sesionActiva();
+  if (!sesion) return;
+  const ej = sesion.ejercicios[ejIndice];
+  if (!ej) return;
+  _cambiandoIndice = ejIndice;
+
+  const hechas = ej.filas.filter(serieRegistrada).length;
+  cambiarExplicaEl.textContent = hechas > 0
+    ? `Ya has anotado ${hechas} ${hechas === 1 ? "serie" : "series"} de ` +
+      `${ej.exerciseNombre}. Se quedan como están y el ejercicio nuevo se añade debajo.`
+    : `Con qué sustituyes ${ej.exerciseNombre} en el entreno de hoy. Tu rutina no cambia.`;
+
+  cambiarBuscaEl.value = "";
+  dlgCambiar.showModal();
+  _buscadorCambio.pintar();
+}
+
+document.getElementById("cambiar-cancelar").addEventListener("click", () => dlgCambiar.close());
+dlgCambiar.addEventListener("close", () => { _cambiandoIndice = null; });
 
 // ---- Terminar / descartar ----
 

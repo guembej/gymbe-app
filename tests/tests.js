@@ -481,6 +481,104 @@ prueba("avisosDelTramo: en un tramo muy corto solo caben los tics que quepan", (
   igual(avisosDelTramo(0, true), []);
 });
 
+// ---- Cambiar de ejercicio a mitad de entreno ----
+
+function _entrenoConPressBanca() {
+  const press = crearEjercicio({ nombre: "Press banca", grupo: "Pecho" });
+  const mancuernas = crearEjercicio({ nombre: "Press con mancuernas", grupo: "Pecho" });
+  crearEjercicio({ nombre: "Sentadilla", grupo: "Pierna" });
+  const r = crearRutina({ nombre: "Empuje" });
+  añadirItemRutina(r.id, {
+    exerciseId: press.id, series: 4, reps: "6-8", peso: 50, descansoSeg: 150,
+  });
+  empezarSesion(r.id);
+  return { press, mancuernas };
+}
+
+prueba("ejerciciosParecidos: los del mismo grupo, sin contarse a sí mismo", () => {
+  const { press, mancuernas } = _entrenoConPressBanca();
+  const p = ejerciciosParecidos(press.id);
+  igual(p.map((e) => e.nombre), ["Press con mancuernas"], "solo los de Pecho, sin el propio");
+  igual(ejerciciosParecidos("noexiste"), []);
+  igual(ejerciciosParecidos(mancuernas.id).map((e) => e.nombre), ["Press banca"]);
+});
+
+prueba("cambiar de ejercicio sin nada anotado: sustituye en el sitio", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  const i = cambiarEjercicioDeSesion(0, mancuernas.id);
+  igual(i, 0);
+  const ejs = sesionActiva().ejercicios;
+  igual(ejs.length, 1, "no se añade nada: se sustituye");
+  igual(ejs[0].exerciseNombre, "Press con mancuernas");
+  igual(ejs[0].filas.length, 4, "se mantienen las 4 series");
+});
+
+prueba("al cambiar se mantienen series y reps, pero NO el peso", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  cambiarEjercicioDeSesion(0, mancuernas.id);
+  const obj = sesionActiva().ejercicios[0].objetivo;
+  igual(obj.series, 4);
+  igual(obj.reps, "6-8", "la intención de entrenamiento se mantiene");
+  igual(obj.descansoSeg, 150);
+  igual(obj.peso, 0, "otra máquina es otra carga: arrastrar 50 kg sería mentira");
+});
+
+prueba("cambiar a un ejercicio por tiempo cambia también la unidad", () => {
+  _entrenoConPressBanca();
+  const plancha = crearEjercicio({ nombre: "Plancha", grupo: "Core", medida: "tiempo" });
+  cambiarEjercicioDeSesion(0, plancha.id);
+  igual(sesionActiva().ejercicios[0].porTiempo, true,
+        "si no, la columna seguiría diciendo REPS");
+});
+
+prueba("cambiar con series ya anotadas: conserva lo hecho y añade debajo", () => {
+  // El caso de verdad: haces 2 series, te quitan la máquina, cambias.
+  // Sustituir sin más borraría 2 series que SÍ hiciste.
+  const { mancuernas } = _entrenoConPressBanca();
+  const filas = sesionActiva().ejercicios[0].filas;
+  filas[0] = { pesoReal: "50", repsReal: "8" };
+  filas[1] = { pesoReal: "50", repsReal: "7" };
+
+  const i = cambiarEjercicioDeSesion(0, mancuernas.id);
+  igual(i, 1, "el bloque nuevo va justo debajo");
+  const ejs = sesionActiva().ejercicios;
+  igual(ejs.length, 2);
+  igual(ejs[0].exerciseNombre, "Press banca");
+  igual(ejs[0].filas.length, 2, "se quedan las 2 hechas y se van las 2 vacías");
+  igual(ejs[0].filas[0].repsReal, "8");
+  igual(ejs[1].exerciseNombre, "Press con mancuernas");
+  igual(ejs[1].filas.length, 2, "las 2 series que quedaban");
+});
+
+prueba("cambiar de ejercicio NO toca la rutina", () => {
+  const { press, mancuernas } = _entrenoConPressBanca();
+  const rutinaId = sesionActiva().routineId;
+  cambiarEjercicioDeSesion(0, mancuernas.id);
+  igual(obtenerRutina(rutinaId).items[0].exerciseId, press.id,
+        "la semana que viene sigue tocando press banca");
+  igual(obtenerRutina(rutinaId).items[0].peso, 50);
+});
+
+prueba("las dos partes del cambio llegan al historial por separado", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  const filas = sesionActiva().ejercicios[0].filas;
+  filas[0] = { pesoReal: "50", repsReal: "8" };
+  cambiarEjercicioDeSesion(0, mancuernas.id);
+  sesionActiva().ejercicios[1].filas[0] = { pesoReal: "22", repsReal: "10" };
+  const g = terminarSesion();
+  igual(g.sets.map((s) => s.exerciseNombre), ["Press banca", "Press con mancuernas"]);
+  igual(g.sets.map((s) => s.repsReal), ["8", "10"]);
+});
+
+prueba("cambiar de ejercicio con datos inválidos no rompe nada", () => {
+  const { mancuernas } = _entrenoConPressBanca();
+  igual(cambiarEjercicioDeSesion(9, mancuernas.id), -1, "índice que no existe");
+  igual(cambiarEjercicioDeSesion(0, "noexiste"), -1, "ejercicio que no existe");
+  igual(sesionActiva().ejercicios.length, 1, "la sesión sigue intacta");
+  descartarSesionActiva();
+  igual(cambiarEjercicioDeSesion(0, mancuernas.id), -1, "sin entreno en curso");
+});
+
 prueba("listarRutinas: orden alfabético, con las tildes en su sitio", () => {
   ["Tirón A", "Empuje B", "Última", "pierna", "Empuje A"].forEach((nombre) => crearRutina({ nombre }));
   igual(listarRutinas().map((r) => r.nombre),

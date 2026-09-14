@@ -581,6 +581,40 @@ body.reordenando { cursor: grabbing; }
   margin-bottom: var(--e-3);
 }
 .bloque-ejercicio h3 { font-size: var(--t-l); font-weight: 600; }
+
+/* Nombre del ejercicio + "cambiar ejercicio". El boton se sale de su hueco
+   (margenes negativos) para no estirar la fila con sus 40x40 tactiles. */
+.bloque-cabecera {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e-2);
+}
+.bloque-cabecera h3 { flex: 1; min-width: 0; }
+.accion-ejercicio {
+  flex: none;
+  color: var(--texto-suave);
+  margin: -9px -8px -9px 0;
+}
+
+/* Acciones sobre las series (pie del bloque). Eran botones de texto: con la
+   letra del sistema un poco mas grande se partian en dos lineas. Un icono no
+   se parte nunca, y ademas ocupan una sola fila. */
+.accion-serie {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--borde);
+  border-radius: var(--r-s);
+  color: var(--texto-suave);
+  cursor: pointer;
+  transition: border-color var(--transicion), color var(--transicion);
+}
+/* "anadir serie" es la que mas se usa: destaca sobre las demas */
+.accion-anadir { color: var(--acento-texto); border-color: var(--acento-texto); }
 .objetivo { font-size: var(--t-s); color: var(--texto-suave); margin: var(--e-1) 0 var(--e-3); }
 .bloque-ejercicio .objetivo { margin-bottom: 2px; }
 .ultima-vez { display: block; font-size: var(--t-s); color: var(--texto); margin: 0 0 var(--e-3); font-weight: 600; }
@@ -595,13 +629,6 @@ body.reordenando { cursor: grabbing; }
   align-items: center;
   margin-bottom: var(--e-2);
 }
-.serie-cabecera {
-  font-size: var(--t-xs);
-  color: var(--texto-suave);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.serie-cabecera span { text-align: center; }
 .serie-num { text-align: center; color: var(--texto-suave); font-size: var(--t-s); }
 
 .serie-fila input[type="number"],
@@ -623,12 +650,10 @@ body.reordenando { cursor: grabbing; }
 .bloque-pie {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--e-2);
+  justify-content: flex-end;
+  gap: var(--e-1);
   margin-top: var(--e-2);
 }
-.bloque-pie .boton-enlace { margin: 0; }
-.btn-temporizador { padding: var(--e-2) var(--e-3); font-size: var(--t-s); white-space: nowrap; }
 
 /* Barra "Entrenamiento en curso" (fuera de la pestaña Entrenar) */
 .barra-entreno {

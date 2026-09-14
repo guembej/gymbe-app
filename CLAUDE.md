@@ -202,6 +202,35 @@ muscular** (`ejerciciosParecidos`), porque con la máquina ocupada no sabes el
 nombre del sustituto y quieres ver opciones; y al crear al vuelo **hereda el
 grupo** del que sustituyes, sin preguntarlo.
 
+### El bloque de un ejercicio en el entreno (v1.11.0+)
+```
+Press banca                                    [⇄]   <- .bloque-cabecera
+objetivo: 4 × 6-8 reps · 50 kg · descanso 2:30 min
+última: 50 kg × 8
+ 1  [ kg ] [ reps ]  ×                               <- .serie-fila
+                              [+] [⏱]                <- .bloque-pie
+```
+- **Arriba, con el nombre:** cambiar ejercicio. Actúa sobre EL EJERCICIO.
+- **Abajo, a la derecha:** añadir serie y temporizador. Actúan sobre LAS SERIES.
+- **No hay fila de cabeceras `# PESO REPS`.** La unidad va de `placeholder`
+  dentro de cada campo (`kg` / `reps` / `seg` según la unidad del ejercicio).
+  Esa fila ocupaba tanto como los datos, sobre todo con "registro simple", que
+  deja una sola fila por ejercicio.
+
+**Por qué son iconos y no texto:** eran tres botones de texto ("+ serie",
+"Cambiar ejercicio", "⏱ Temporizador") y con el tamaño de letra del sistema un
+poco más grande (Samsung suele venir así) se partían en dos líneas cada uno.
+Un icono no se parte nunca. Medido: el pie pasa de 48px roto a 42px fijo, y el
+bloque entero se acorta ~20px por ejercicio.
+
+Al maquetarlo se descartó subir **los dos** iconos junto al nombre: con dos, el
+nombre del ejercicio se parte en dos líneas y el bloque sale más alto (269px
+frente a 250px). Con uno solo, no.
+
+El smoke test arranca un entreno de mentira para mirar este panel: los iconos de
+`+`, `cambiar` y `temporizador` **no se pintan en ningún otro sitio**, así que un
+`<symbol>` que falte no lo vería nadie hasta estar en el gimnasio.
+
 ### Qué cuenta como serie hecha (v1.8.0+)
 `serieRegistrada(fila)` en `consultas.js`: **una serie cuenta en cuanto tiene
 repeticiones**. El peso es opcional y se guarda como 0 si está en blanco.

@@ -83,7 +83,7 @@ function actualizarBarraEntreno() {
 
 // ---- Entreno en curso ----
 
-function crearFilaSerie(ejIndice, filaIndice, fila) {
+function crearFilaSerie(ejIndice, filaIndice, fila, porTiempo) {
   const div = document.createElement("div");
   // "hecha" ya no es un campo que se marque: se deduce de si hay repeticiones.
   div.className = serieRegistrada(fila) ? "serie-fila serie-hecha" : "serie-fila";
@@ -98,6 +98,11 @@ function crearFilaSerie(ejIndice, filaIndice, fila) {
   peso.step = "0.5";
   peso.min = "0";
   peso.value = fila.pesoReal;
+  // La unidad va dentro del campo en vez de en una fila de cabeceras aparte:
+  // esa cabecera ocupaba tanto como los datos, sobre todo con "registro simple",
+  // que deja una sola fila por ejercicio.
+  peso.placeholder = "kg";
+  peso.setAttribute("aria-label", `Peso de la serie ${filaIndice + 1}`);
   peso.dataset.ej = ejIndice;
   peso.dataset.fila = filaIndice;
   peso.dataset.campo = "pesoReal";
@@ -107,6 +112,9 @@ function crearFilaSerie(ejIndice, filaIndice, fila) {
   reps.inputMode = "numeric"; // teclado de números en el móvil
   reps.maxLength = 12;
   reps.value = fila.repsReal;
+  reps.placeholder = porTiempo ? "seg" : "reps";
+  reps.setAttribute("aria-label",
+    `${porTiempo ? "Segundos" : "Repeticiones"} de la serie ${filaIndice + 1}`);
   reps.dataset.ej = ejIndice;
   reps.dataset.fila = filaIndice;
   reps.dataset.campo = "repsReal";
@@ -115,6 +123,7 @@ function crearFilaSerie(ejIndice, filaIndice, fila) {
   quitar.className = "icono-boton quitar-serie";
   quitar.innerHTML = icono("cerrar");
   quitar.title = "Quitar serie";
+  quitar.setAttribute("aria-label", `Quitar la serie ${filaIndice + 1}`);
   quitar.dataset.quitarFila = ejIndice;
   quitar.dataset.fila = filaIndice;
 
@@ -146,30 +155,39 @@ function pintarSesionActiva() {
 
     const bloque = document.createElement("div");
     bloque.className = "bloque-ejercicio";
+    // "Cambiar ejercicio" va arriba, con el nombre: es una accion sobre EL
+    // EJERCICIO. Abajo quedan las dos que actuan sobre las series.
     bloque.innerHTML = `
-      <h3>${escaparHtml(ej.exerciseNombre)}</h3>
+      <div class="bloque-cabecera">
+        <h3>${escaparHtml(ej.exerciseNombre)}</h3>
+        <button class="icono-boton accion-ejercicio" data-cambiar="${ejIndice}"
+                title="Cambiar ejercicio" aria-label="Cambiar ejercicio">
+          ${icono("cambiar")}
+        </button>
+      </div>
       <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}</p>
       ${ultimaTexto ? `<p class="ultima-vez">${escaparHtml(ultimaTexto)}</p>` : ""}
-      <div class="serie-fila serie-cabecera">
-        <span>#</span><span>Peso</span><span>${ej.porTiempo ? "Seg" : "Reps"}</span><span></span>
-      </div>
     `;
 
     ej.filas.forEach((fila, filaIndice) => {
-      bloque.appendChild(crearFilaSerie(ejIndice, filaIndice, fila));
+      bloque.appendChild(crearFilaSerie(ejIndice, filaIndice, fila, ej.porTiempo));
     });
 
     const pie = document.createElement("div");
     pie.className = "bloque-pie";
 
     const anadir = document.createElement("button");
-    anadir.className = "boton-enlace";
-    anadir.textContent = "+ serie";
+    anadir.className = "accion-serie accion-anadir";
+    anadir.innerHTML = icono("mas");
+    anadir.title = "Añadir serie";
+    anadir.setAttribute("aria-label", `Añadir una serie a ${ej.exerciseNombre}`);
     anadir.dataset.anadirFila = ejIndice;
 
     const temporizador = document.createElement("button");
-    temporizador.className = "boton-secundario btn-temporizador";
-    temporizador.innerHTML = `${icono("tiempo", "ico-linea")} Temporizador`;
+    temporizador.className = "accion-serie";
+    temporizador.innerHTML = icono("tiempo");
+    temporizador.title = "Temporizador";
+    temporizador.setAttribute("aria-label", `Temporizador para ${ej.exerciseNombre}`);
     temporizador.dataset.temp = JSON.stringify({
       numSeries: obj.series,
       descansoSeg: obj.descansoSeg || 90,
@@ -179,12 +197,7 @@ function pintarSesionActiva() {
       porTiempo: ej.porTiempo,
     });
 
-    const cambiar = document.createElement("button");
-    cambiar.className = "boton-enlace";
-    cambiar.textContent = "Cambiar ejercicio";
-    cambiar.dataset.cambiar = ejIndice;
-
-    pie.append(anadir, cambiar, temporizador);
+    pie.append(anadir, temporizador);
     bloque.appendChild(pie);
 
     activoEjerciciosEl.appendChild(bloque);

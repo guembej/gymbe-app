@@ -91,6 +91,30 @@ async function correrSmoke(navegador) {
     casillasDeSerie: document.querySelectorAll('.serie-fila input[type="checkbox"]').length,
   }));
 
+  // El panel del entreno solo existe con un entreno en curso, asi que se arranca
+  // uno de mentira para poder mirarlo. Los iconos de "+", "cambiar" y
+  // "temporizador" no se pintan en ningun otro sitio: sin esto, un <symbol> que
+  // falte no lo ve nadie hasta estar en el gimnasio.
+  const entreno = await pagina.evaluate(() => {
+    empezarSesion(listarRutinas()[0].id);
+    mostrarPanelEntreno();
+    const bloques = [...document.querySelectorAll("#activo-ejercicios .bloque-ejercicio")];
+    const r = {
+      bloques: bloques.length,
+      sinBotonCambiar: bloques.filter((b) => !b.querySelector(".bloque-cabecera [data-cambiar]")).length,
+      piesMalos: bloques.filter((b) => b.querySelectorAll(".bloque-pie .accion-serie").length !== 2).length,
+      // la fila de cabeceras se quito: la unidad va dentro de cada campo
+      cabecerasViejas: document.querySelectorAll(".serie-cabecera").length,
+      sinPlaceholder: [...document.querySelectorAll("#activo-ejercicios .serie-fila input")]
+        .filter((i) => !i.placeholder).length,
+      iconosRotos: [...document.querySelectorAll('#activo-ejercicios use[href^="#ico-"]')]
+        .map((u) => u.getAttribute("href"))
+        .filter((id, i, todos) => todos.indexOf(id) === i && !document.querySelector(id)),
+    };
+    descartarSesionActiva();
+    return r;
+  });
+
   if (!estado.version) problemas.push("la app no ha cargado (APP_VERSION no existe)");
   if (estado.pestanas !== 4) problemas.push("esperaba 4 pestañas y hay " + estado.pestanas);
   if (!estado.seccionVisible) problemas.push("no hay ninguna sección visible");
@@ -111,6 +135,18 @@ async function correrSmoke(navegador) {
     problemas.push("faltan elementos de 'cambiar ejercicio': " + estado.cambioSuelto.join(", "));
   if (estado.casillasDeSerie > 0)
     problemas.push("han vuelto las casillas de serie hecha: " + estado.casillasDeSerie);
+
+  if (entreno.bloques === 0) problemas.push("el panel del entreno no pinta ningun ejercicio");
+  if (entreno.sinBotonCambiar > 0)
+    problemas.push(entreno.sinBotonCambiar + " ejercicios sin el boton de cambiar ejercicio");
+  if (entreno.piesMalos > 0)
+    problemas.push(entreno.piesMalos + " ejercicios sin sus 2 acciones de serie (+ y temporizador)");
+  if (entreno.cabecerasViejas > 0)
+    problemas.push("ha vuelto la fila de cabeceras # PESO REPS");
+  if (entreno.sinPlaceholder > 0)
+    problemas.push(entreno.sinPlaceholder + " campos de serie sin su unidad (kg / reps / seg)");
+  if (entreno.iconosRotos.length > 0)
+    problemas.push("iconos sin dibujo en el entreno: " + entreno.iconosRotos.join(", "));
 
   await contexto.close();
   return { problemas, estado };

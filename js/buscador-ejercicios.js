@@ -13,12 +13,16 @@
  *      En el diálogo de cambiar ejercicio la lista ES el contenido, no un
  *      desplegable encima de un formulario, asi que ahi se queda puesta.
  *  - cuandoVacio():       qué enseñar con el campo en blanco. Sin esto, nada.
+ *  - limite:              cuántas coincidencias como mucho (6 por defecto).
+ *  - etiqueta(ej):        el texto gris de la derecha. Por defecto, el grupo
+ *                         muscular; en Progreso interesa más marcar "sin datos".
  *      El cambio de ejercicio lo usa para proponer los del mismo grupo muscular
  *      antes de escribir: cuando la máquina está ocupada no sabes el nombre del
  *      sustituto, quieres ver las opciones.
  */
 function conectarBuscadorEjercicios({
   input, lista, alElegir, alCrear, alEscribir, cuandoVacio, ocultarAlSalir = true,
+  limite = 6, etiqueta = (ej) => ej.grupo,
 }) {
   function fila(texto, extra, alTocar) {
     const li = document.createElement("li");
@@ -36,7 +40,7 @@ function conectarBuscadorEjercicios({
       (cuandoVacio ? cuandoVacio() : []).forEach((ej) => {
         fila(
           `<span>${escaparHtml(ej.nombre)}</span>` +
-          `<span class="sugerencia-grupo">${escaparHtml(ej.grupo)}</span>`,
+          `<span class="sugerencia-grupo">${escaparHtml(etiqueta(ej))}</span>`,
           "", () => alElegir(ej)
         );
       });
@@ -44,11 +48,11 @@ function conectarBuscadorEjercicios({
       return;
     }
 
-    const { coincidencias, hayExacto } = filtrarEjercicios(texto);
+    const { coincidencias, hayExacto } = filtrarEjercicios(texto, limite);
     coincidencias.forEach((ej) => {
       fila(
         `<span>${escaparHtml(ej.nombre)}</span>` +
-        `<span class="sugerencia-grupo">${escaparHtml(ej.grupo)}</span>`,
+        `<span class="sugerencia-grupo">${escaparHtml(etiqueta(ej))}</span>`,
         "", () => alElegir(ej)
       );
     });

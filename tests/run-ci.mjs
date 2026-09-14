@@ -82,9 +82,14 @@ async function correrSmoke(navegador) {
     botonesTema: document.querySelectorAll(".conmutador-tema [data-tema]").length,
     botonesVolumen: document.querySelectorAll(".conmutador-volumen [data-volumen]").length,
     botonesMedida: document.querySelectorAll(".conmutador-medida [data-medida]").length,
+    // Progreso: el desplegable paso a ser un campo de busqueda (v1.13.0). Si
+    // vuelve a ser un <select>, progreso.js deja de engancharle el buscador.
+    progresoEsSelect: document.getElementById("progreso-ejercicio")?.tagName !== "INPUT",
+    progresoSinLista: !document.getElementById("progreso-sugerencias"),
     // El cambio de ejercicio se engancha por id desde entrenar.js
-    cambioSuelto: ["dialogo-cambiar", "cambiar-busca", "cambiar-sugerencias",
-                   "cambiar-explica", "cambiar-cancelar"]
+    cambioSuelto: ["dialogo-elegir", "elegir-busca", "elegir-sugerencias",
+                   "elegir-titulo", "elegir-explica", "elegir-cancelar",
+                   "btn-anadir-ejercicio"]
       .filter((id) => !document.getElementById(id)),
     // La casilla de "serie hecha" se quito en la v1.8.0: una serie cuenta si
     // tiene repeticiones. Si vuelve a aparecer, es que se ha revertido algo.
@@ -141,8 +146,12 @@ async function correrSmoke(navegador) {
     problemas.push("esperaba 3 botones de volumen y hay " + estado.botonesVolumen);
   if (estado.botonesMedida !== 2)
     problemas.push("esperaba 2 botones de 'se mide en' y hay " + estado.botonesMedida);
+  if (estado.progresoEsSelect)
+    problemas.push("el selector de Progreso ya no es un campo de busqueda");
+  if (estado.progresoSinLista)
+    problemas.push("falta la lista de coincidencias de Progreso");
   if (estado.cambioSuelto.length > 0)
-    problemas.push("faltan elementos de 'cambiar ejercicio': " + estado.cambioSuelto.join(", "));
+    problemas.push("faltan elementos de elegir/anadir ejercicio: " + estado.cambioSuelto.join(", "));
   if (estado.casillasDeSerie > 0)
     problemas.push("han vuelto las casillas de serie hecha: " + estado.casillasDeSerie);
 

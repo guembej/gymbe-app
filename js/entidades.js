@@ -275,6 +275,40 @@ function cambiarEjercicioDeSesion(indice, nuevoEjercicioId) {
   return hechas > 0 ? indice + 1 : indice;
 }
 
+// Anade al entreno EN CURSO un ejercicio que no estaba en la rutina ("hoy me
+// apetece uno mas"). NO toca la rutina, igual que cambiarEjercicioDeSesion.
+//
+// Empieza SIN objetivo y con UNA sola fila: cuando lo anades sobre la marcha no
+// lo has planificado, no sabes si haras dos series o cuatro. Pedir series, reps,
+// peso y descanso antes de empezar seria un formulario en mitad del gimnasio
+// para rellenar datos inventados. Vas anadiendo filas con el "+".
+//
+// "extra: true" es lo que hace que no se pinte la linea de objetivo, asi que de
+// un vistazo distingues lo que era el plan de lo que te sacaste de la manga.
+// Devuelve el indice del bloque nuevo, o -1 si no se pudo.
+function anadirEjercicioASesion(exerciseId) {
+  const s = DATOS.sesionActiva;
+  const ej = obtenerEjercicio(exerciseId);
+  if (!s || !ej) return -1;
+
+  s.ejercicios.push({
+    exerciseId: ej.id,
+    exerciseNombre: ej.nombre,
+    porTiempo: seMidePorTiempo(ej),
+    extra: true,
+    objetivo: {
+      series: 0,   // 0 = sin objetivo
+      reps: "",
+      peso: 0,
+      // el ultimo descanso que usaste, que es el que tienes en la cabeza
+      descansoSeg: DATOS.temporizador.descansoSeg || 90,
+    },
+    filas: [{ pesoReal: "", repsReal: "" }],
+  });
+  guardar();
+  return s.ejercicios.length - 1;
+}
+
 // Cierra la sesión en curso y la registra en el historial.
 // Solo se guardan las series con repeticiones anotadas (ver serieRegistrada).
 function terminarSesion() {

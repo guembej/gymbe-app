@@ -172,7 +172,7 @@ function pintarSesionActiva() {
           ${icono("cambiar")}
         </button>
       </div>
-      <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}${objetivoDescanso}</p>
+      ${ej.extra ? "" : `<p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}${objetivoDescanso}</p>`}
       ${ultimaTexto ? `<p class="ultima-vez">${escaparHtml(ultimaTexto)}</p>` : ""}
     `;
 
@@ -196,7 +196,7 @@ function pintarSesionActiva() {
     temporizador.title = "Temporizador";
     temporizador.setAttribute("aria-label", `Temporizador para ${ej.exerciseNombre}`);
     temporizador.dataset.temp = JSON.stringify({
-      numSeries: obj.series,
+      numSeries: obj.series > 0 ? obj.series : null,  // los anadidos no tienen objetivo
       descansoSeg: obj.descansoSeg || 90,
       ejercicio: ej.exerciseNombre,
       reps: obj.reps,
@@ -271,64 +271,95 @@ activoEjerciciosEl.addEventListener("click", (evento) => {
 });
 
 // ==========================================================
-//  Cambiar de ejercicio a mitad de entreno
-//  "La maquina esta ocupada, hago un equivalente". Solo cambia el entreno de
-//  HOY: la rutina se queda como esta (ver cambiarEjercicioDeSesion).
+//  Elegir un ejercicio a mitad de entreno
+//  Dos usos, el mismo gesto y el mismo dialogo:
+//   - CAMBIAR uno ("la maquina esta ocupada, hago un equivalente")
+//   - ANADIR uno suelto al final ("hoy me apetece uno mas")
+//  Ninguno de los dos toca la rutina: solo cambian el entreno de HOY.
 // ==========================================================
 
-const dlgCambiar = document.getElementById("dialogo-cambiar");
-const cambiarBuscaEl = document.getElementById("cambiar-busca");
-const cambiarExplicaEl = document.getElementById("cambiar-explica");
-let _cambiandoIndice = null;
+const dlgElegir = document.getElementById("dialogo-elegir");
+const elegirBuscaEl = document.getElementById("elegir-busca");
+const elegirTituloEl = document.getElementById("elegir-titulo");
+const elegirExplicaEl = document.getElementById("elegir-explica");
 
-function aplicarCambioEjercicio(nuevoId) {
-  const i = cambiarEjercicioDeSesion(_cambiandoIndice, nuevoId);
-  dlgCambiar.close();
+let _modoElegir = "cambiar";   // "cambiar" | "anadir"
+let _cambiandoIndice = null;   // solo en modo "cambiar"
+
+// Aplica la eleccion segun el modo y deja el panel repintado
+function aplicarEleccion(exerciseId) {
+  const i = _modoElegir === "anadir"
+    ? anadirEjercicioASesion(exerciseId)
+    : cambiarEjercicioDeSesion(_cambiandoIndice, exerciseId);
+  dlgElegir.close();
   if (i < 0) return;
   pintarSesionActiva();
 }
 
-const _buscadorCambio = conectarBuscadorEjercicios({
-  input: cambiarBuscaEl,
-  lista: document.getElementById("cambiar-sugerencias"),
+// El grupo muscular con el que se crea uno al vuelo. Al CAMBIAR se hereda el del
+// que sustituyes (buscas un equivalente, asi que acierta casi siempre); al
+// ANADIR no hay de quien heredar, asi que se usa el de por defecto de Ajustes.
+function _grupoParaCrear() {
+  const sesion = sesionActiva();
+  if (_modoElegir === "cambiar" && sesion && _cambiandoIndice != null) {
+    const viejo = obtenerEjercicio(sesion.ejercicios[_cambiandoIndice].exerciseId);
+    if (viejo) return viejo.grupo;
+  }
+  return obtenerPref("grupoPorDefecto") || "Otro";
+}
+
+const _buscadorElegir = conectarBuscadorEjercicios({
+  input: elegirBuscaEl,
+  lista: document.getElementById("elegir-sugerencias"),
   ocultarAlSalir: false,
-  alElegir: (ej) => aplicarCambioEjercicio(ej.id),
-  // Al crear al vuelo se hereda el grupo del que sustituyes: estas buscando un
-  // equivalente, asi que acierta casi siempre y ahorra un paso en el gimnasio.
+  alElegir: (ej) => aplicarEleccion(ej.id),
   alCrear: (nombre) => {
-    const sesion = sesionActiva();
-    const viejo = sesion && obtenerEjercicio(sesion.ejercicios[_cambiandoIndice].exerciseId);
-    aplicarCambioEjercicio(crearEjercicio({ nombre, grupo: viejo ? viejo.grupo : "Otro" }).id);
+    aplicarEleccion(crearEjercicio({ nombre, grupo: _grupoParaCrear() }).id);
   },
-  // Con el campo en blanco, los del mismo grupo muscular: cuando la maquina
-  // esta ocupada no sabes el nombre del sustituto, quieres ver las opciones.
+  // Con el campo en blanco ya se proponen ejercicios: en el gimnasio no sabes el
+  // nombre del que buscas, quieres ver opciones.
   cuandoVacio: () => {
     const sesion = sesionActiva();
-    if (!sesion || _cambiandoIndice == null) return [];
-    return ejerciciosParecidos(sesion.ejercicios[_cambiandoIndice].exerciseId);
+    if (!sesion) return [];
+    return _modoElegir === "anadir"
+      ? ejerciciosParaAnadir(sesion)
+      : ejerciciosParecidos(sesion.ejercicios[_cambiandoIndice].exerciseId);
   },
 });
 
+function _abrirElegir(modo, titulo, explicacion) {
+  _modoElegir = modo;
+  elegirTituloEl.textContent = titulo;
+  elegirExplicaEl.textContent = explicacion;
+  elegirBuscaEl.value = "";
+  dlgElegir.showModal();
+  _buscadorElegir.pintar();
+}
+
 function abrirCambioEjercicio(ejIndice) {
   const sesion = sesionActiva();
-  if (!sesion) return;
-  const ej = sesion.ejercicios[ejIndice];
+  const ej = sesion && sesion.ejercicios[ejIndice];
   if (!ej) return;
   _cambiandoIndice = ejIndice;
 
   const hechas = ej.filas.filter(serieRegistrada).length;
-  cambiarExplicaEl.textContent = hechas > 0
+  _abrirElegir("cambiar", "Cambiar ejercicio", hechas > 0
     ? `Ya has anotado ${hechas} ${hechas === 1 ? "serie" : "series"} de ` +
       `${ej.exerciseNombre}. Se quedan como están y el ejercicio nuevo se añade debajo.`
-    : `Con qué sustituyes ${ej.exerciseNombre} en el entreno de hoy. Tu rutina no cambia.`;
-
-  cambiarBuscaEl.value = "";
-  dlgCambiar.showModal();
-  _buscadorCambio.pintar();
+    : `Con qué sustituyes ${ej.exerciseNombre} en el entreno de hoy. Tu rutina no cambia.`);
 }
 
-document.getElementById("cambiar-cancelar").addEventListener("click", () => dlgCambiar.close());
-dlgCambiar.addEventListener("close", () => { _cambiandoIndice = null; });
+function abrirAnadirEjercicio() {
+  if (!sesionActiva()) return;
+  _cambiandoIndice = null;
+  _abrirElegir("anadir", "Añadir ejercicio",
+    "Se añade al final del entreno de hoy, sin objetivo y con una serie. " +
+    "Tu rutina no cambia.");
+}
+
+document.getElementById("btn-anadir-ejercicio").addEventListener("click", abrirAnadirEjercicio);
+document.getElementById("elegir-cancelar").addEventListener("click", () => dlgElegir.close());
+dlgElegir.addEventListener("close", () => { _cambiandoIndice = null; });
 
 // ---- Terminar / descartar ----
 

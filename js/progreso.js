@@ -61,18 +61,46 @@ function _pgNum(n) {
 
 // ---- Selector de ejercicio ----
 
+// El buscador es el mismo de la app. A la derecha, en vez del grupo muscular,
+// interesa mas saber si ese ejercicio tiene datos que enseñar.
+const _buscadorProgreso = conectarBuscadorEjercicios({
+  input: progresoSelect,
+  lista: document.getElementById("progreso-sugerencias"),
+  limite: 12,
+  etiqueta: (ej) => (progresoDeEjercicio(ej.id).length > 0 ? ej.grupo : "sin datos"),
+  alElegir: (ej) => {
+    progresoEjId = ej.id;
+    progresoSelect.value = ej.nombre;
+    _buscadorProgreso.ocultar();
+    pintarBotonesMetrica();
+    pintarProgreso();
+  },
+  // con el campo en blanco, los que tienen datos primero: son los únicos que
+  // enseñan algo, y suelen ser los que vienes a mirar
+  cuandoVacio: () => {
+    const conDatos = [];
+    const sinDatos = [];
+    listarEjercicios().forEach((e) => {
+      (progresoDeEjercicio(e.id).length > 0 ? conDatos : sinDatos).push(e);
+    });
+    return conDatos.concat(sinDatos).slice(0, 12);
+  },
+});
+
+// Al enfocar se vacía para poder escribir directamente; al salir sin elegir
+// nada, se vuelve a poner el nombre del que estaba puesto.
+progresoSelect.addEventListener("focus", () => { progresoSelect.value = ""; });
+progresoSelect.addEventListener("blur", () => {
+  setTimeout(() => {
+    const ej = progresoEjId ? obtenerEjercicio(progresoEjId) : null;
+    if (ej) progresoSelect.value = ej.nombre;
+  }, 160);   // un pelin mas que el del buscador, para no pisar el clic
+});
+
 function rellenarSelectProgreso() {
   const ejercicios = listarEjercicios();
-  progresoSelect.innerHTML = "";
-  ejercicios.forEach((e) => {
-    const opt = document.createElement("option");
-    opt.value = e.id;
-    const n = progresoDeEjercicio(e.id).length;
-    opt.textContent = e.nombre + (n > 0 ? "" : "  (sin datos)");
-    progresoSelect.appendChild(opt);
-  });
 
-  // Si el elegido ya no existe, coger el ejercicio con más cambio de peso (el más interesante)
+  // Si el elegido ya no existe, coger el ejercicio con más cambio (el más interesante)
   if (!progresoEjId || !ejercicios.some((e) => e.id === progresoEjId)) {
     let mejor = ejercicios[0];
     let mejorPuntuacion = -1;
@@ -88,15 +116,9 @@ function rellenarSelectProgreso() {
     });
     progresoEjId = mejor ? mejor.id : null;
   }
-  if (progresoEjId) progresoSelect.value = progresoEjId;
+  const elegido = progresoEjId ? obtenerEjercicio(progresoEjId) : null;
+  progresoSelect.value = elegido ? elegido.nombre : "";
 }
-
-progresoSelect.addEventListener("change", () => {
-  progresoEjId = progresoSelect.value;
-  // el ejercicio nuevo puede medirse en otra cosa: hay que rehacer los botones
-  pintarBotonesMetrica();
-  pintarProgreso();
-});
 
 document.getElementById("progreso-metricas").addEventListener("click", (evento) => {
   const btn = evento.target.closest("button[data-metrica]");

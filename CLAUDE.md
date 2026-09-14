@@ -64,6 +64,11 @@ un tic flojo por segundo en los **últimos 5**, y de remate **notas subiendo**
 - La onda es **cuadrada** con un paso bajo, no senoidal: una senoidal es un tono
   puro sin armónicos, la forma de onda que menos se oye, y en un gimnasio con
   música se perdía entera.
+- El paso del descanso **no es fijo** (`siguienteDescanso()`): de 5 en 5 por
+  debajo del minuto, de 15 en 15 por encima, y al bajar se para EN 60 en vez de
+  saltárselo, para que el minuto siempre se alcance y sea reversible
+  (55→60→75 subiendo, 75→60→55 bajando). Los `data-paso` del HTML solo
+  aportan el signo.
 - `volumenAviso` en prefs (`bajo`/`medio`/`alto`, por defecto **alto**) escala el
   volumen. Al cambiarlo en Ajustes suena una muestra (`sonarMuestraAviso`).
 - **No se usa la voz del sistema** para la cuenta atrás. Los tonos se programan
@@ -85,6 +90,15 @@ a tamaño 1x se veía una imagen pequeña ampliada, con los bordes blandos.
 - `_numeroTabular()` dibuja cada dígito en una casilla del mismo ancho. El canvas
   no tiene `tabular-nums` (el CSS del cronómetro sí), y según la letra que
   resuelva el móvil el número se movería solo cada segundo.
+
+## Buscador de ejercicios
+`conectarBuscadorEjercicios()` en `js/buscador-ejercicios.js`. Lo usan **tres**
+sitios: el editor de rutinas, elegir/añadir ejercicio en el entreno, y el
+selector de Progreso (que dejó de ser un `<select>` en la v1.13.0: con 47
+ejercicios, escribir es mucho más rápido que desplegar y desplazar).
+Opciones: `alElegir`, `alCrear`, `alEscribir`, `cuandoVacio`, `ocultarAlSalir`,
+`limite` y `etiqueta` (el texto gris de la derecha; en Progreso marca "sin datos"
+en vez del grupo muscular).
 
 ## Navegación (v1.2.0+)
 4 pestañas: **Entrenar · Historial · Progreso · Tiempo**. "Entrenar" reúne lo que
@@ -251,6 +265,22 @@ y en el temporizador, así que al comprobarla hay que acotar a `#activo-ejercici
 El smoke test arranca un entreno de mentira para mirar este panel: los iconos de
 `+`, `cambiar` y `temporizador` **no se pintan en ningún otro sitio**, así que un
 `<symbol>` que falte no lo vería nadie hasta estar en el gimnasio.
+
+### Añadir un ejercicio suelto al entreno (v1.13.0+)
+Botón **"Añadir ejercicio"** al final de la lista → `anadirEjercicioASesion()`.
+Igual que el cambio de ejercicio, **solo toca el entreno de hoy**.
+
+Empieza con `extra: true`, `objetivo.series = 0` y **una sola fila**. `extra` es
+lo que hace que no se pinte la línea de objetivo, así que de un vistazo
+distingues lo planificado de lo improvisado. No se piden series/reps/peso porque
+cuando lo añades sobre la marcha **no lo has planificado**: sería un formulario
+en mitad del gimnasio para inventarse datos.
+
+No hace falta un "quitar ejercicio": una serie solo se guarda si tiene
+repeticiones, así que un ejercicio añadido y no rellenado no llega al historial.
+
+El diálogo `#dialogo-elegir` sirve para las **dos** cosas (cambiar y añadir):
+es el mismo gesto, solo cambian el título y el texto. `_modoElegir` decide.
 
 ### Qué cuenta como serie hecha (v1.8.0+)
 `serieRegistrada(fila)` en `consultas.js`: **una serie cuenta en cuanto tiene

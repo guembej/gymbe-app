@@ -28,6 +28,22 @@ function construirSegmentos({ prepSeg, serieSeg, descansoSeg, numSeries }) {
   return segmentos;
 }
 
+// Siguiente valor del descanso al tocar - o +.
+// Por debajo del minuto interesa afinar (de 5 en 5); por encima, moverse rapido
+// (de 15 en 15). Al bajar se para EN 60 en vez de saltarselo (70 -> 60, no 55),
+// para que el minuto siempre se pueda alcanzar y el control sea reversible:
+// 55 -> 60 -> 75 subiendo, y 75 -> 60 -> 55 bajando.
+/**
+ * @param {number} valor
+ * @param {boolean} subiendo
+ * @returns {number}
+ */
+function siguienteDescanso(valor, subiendo) {
+  if (subiendo) return valor + (valor < 60 ? 5 : 15);
+  if (valor > 60) return Math.max(60, valor - 15);
+  return valor - 5;
+}
+
 // Cuenta atrás sonora: un tic corto por segundo durante los últimos SEG_CUENTA.
 const SEG_CUENTA = 5;
 

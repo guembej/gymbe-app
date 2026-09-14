@@ -44,6 +44,18 @@ function filtrarEjercicios(texto, limite = 6) {
   };
 }
 
+// Ejercicios "equivalentes" a uno dado: los del mismo grupo muscular, sin
+// contarlo a el. Se usa al cambiar de ejercicio a mitad de entreno: cuando la
+// maquina esta ocupada normalmente no sabes el nombre del sustituto, quieres
+// ver las opciones antes de escribir nada.
+function ejerciciosParecidos(exerciseId, limite = 8) {
+  const ej = obtenerEjercicio(exerciseId);
+  if (!ej) return [];
+  return listarEjercicios()
+    .filter((e) => e.id !== ej.id && e.grupo === ej.grupo)
+    .slice(0, limite);
+}
+
 // ----------------------------------------------------------
 //  Progreso: evolución de un ejercicio a lo largo del historial
 //  Devuelve un punto por sesión (orden: de más antigua a más reciente):

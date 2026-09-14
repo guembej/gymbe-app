@@ -32,6 +32,7 @@ js/
   consultas.js      lecturas derivadas del historial (progreso, última marca)
   ejemplos.js       rutinas iniciales
   dialogos.js       confirmar() / avisar()
+  buscador-ejercicios.js  conectarBuscadorEjercicios(): el buscador con sugerencias
   ejercicios.js · rutinas.js · entrenar.js · historial.js · progreso.js · tiempo.js
   aviso-version.js  decidirActualizacion()
   ajustes.js
@@ -171,6 +172,35 @@ fondos, el peso aparece solo).
 del peso. Con peso 0 las tres valen 0 **para siempre**, así que Progreso era una
 raya en el cero para toda la calistenia aunque pasaras de 6 a 12 dominadas.
 Máximo tres botones: es lo que cabe en el conmutador de un móvil.
+
+### Cambiar de ejercicio a mitad de entreno (v1.10.0+)
+"La máquina está ocupada, hago un equivalente". Botón **"Cambiar ejercicio"** en
+el pie de cada bloque del entreno → `cambiarEjercicioDeSesion()` en `entidades.js`.
+
+**Solo cambia el entreno de HOY; la rutina no se toca.** La rutina es lo que
+quieres hacer y el entreno es lo que hiciste: si el botón editara la rutina,
+la semana siguiente seguirías con el sustituto por un atasco de un martes.
+
+| Situación | Qué hace |
+|---|---|
+| Sin nada anotado | Sustituye el bloque en el sitio |
+| Con series anotadas | Conserva las hechas y mete el nuevo justo debajo con las que quedaban |
+
+Reemplazar sin más en el segundo caso **borraría series que sí hiciste**, y además
+"hice 2 de press banca y 2 de mancuernas" es lo que pasó: las dos cosas tienen
+que llegar al historial.
+
+Del objetivo se mantienen `series` y `reps` (la intención de entrenamiento para
+ese hueco) pero **no el peso**: otra máquina es otra carga. La línea
+"última: ..." sale sola del historial del sustituto, que es el dato útil.
+La unidad (`porTiempo`) se recoge del ejercicio nuevo: cambiar Dominadas por
+Dead hang tiene que pasar la columna de REPS a SEG.
+
+El buscador es el mismo de siempre (`conectarBuscadorEjercicios`), con dos
+ajustes para este caso: con el campo en blanco propone los del **mismo grupo
+muscular** (`ejerciciosParecidos`), porque con la máquina ocupada no sabes el
+nombre del sustituto y quieres ver opciones; y al crear al vuelo **hereda el
+grupo** del que sustituyes, sin preguntarlo.
 
 ### Qué cuenta como serie hecha (v1.8.0+)
 `serieRegistrada(fila)` en `consultas.js`: **una serie cuenta en cuanto tiene

@@ -311,48 +311,19 @@ function activarCrearEjercicio(nombre) {
   crearGrupoEl.hidden = false;
 }
 
-function pintarSugerenciasEjercicio() {
-  const texto = buscaEjercicioEl.value.trim();
-  sugerenciasEl.innerHTML = "";
-
-  if (!texto) {
-    sugerenciasEl.hidden = true;
+const _buscadorItem = conectarBuscadorEjercicios({
+  input: buscaEjercicioEl,
+  lista: sugerenciasEl,
+  alElegir: elegirEjercicioSugerido,
+  alCrear: activarCrearEjercicio,
+  alEscribir: () => {
+    campoExerciseId.value = "";
     ocultarCrearGrupo();
-    return;
-  }
-
-  const { coincidencias, hayExacto } = filtrarEjercicios(texto);
-
-  coincidencias.forEach((ej) => {
-    const li = document.createElement("li");
-    li.className = "sugerencia";
-    li.innerHTML =
-      `<span>${escaparHtml(ej.nombre)}</span>` +
-      `<span class="sugerencia-grupo">${escaparHtml(ej.grupo)}</span>`;
-    li.addEventListener("click", () => elegirEjercicioSugerido(ej));
-    sugerenciasEl.appendChild(li);
-  });
-
-  if (!hayExacto) {
-    const li = document.createElement("li");
-    li.className = "sugerencia sugerencia-crear";
-    li.textContent = `+ Crear «${texto}»`;
-    li.addEventListener("click", () => activarCrearEjercicio(texto));
-    sugerenciasEl.appendChild(li);
-  }
-
-  sugerenciasEl.hidden = false;
+  },
+});
+function pintarSugerenciasEjercicio() {
+  _buscadorItem.pintar();
 }
-
-buscaEjercicioEl.addEventListener("input", () => {
-  campoExerciseId.value = "";
-  ocultarCrearGrupo();
-  pintarSugerenciasEjercicio();
-});
-buscaEjercicioEl.addEventListener("focus", pintarSugerenciasEjercicio);
-buscaEjercicioEl.addEventListener("blur", () => {
-  setTimeout(() => { sugerenciasEl.hidden = true; }, 150); // deja que registre el clic
-});
 
 function abrirFormItem(indice) {
   editandoItemIndice = indice;

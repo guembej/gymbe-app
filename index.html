@@ -497,6 +497,27 @@
     </form>
   </dialog>
 
+  <!-- Cambiar un ejercicio a mitad de entreno (la maquina esta ocupada) -->
+  <dialog id="dialogo-cambiar" class="dialogo">
+    <div class="formulario">
+      <h2>Cambiar ejercicio</h2>
+      <p class="aj-nota" id="cambiar-explica"></p>
+      <div class="combo-ejercicio">
+        <label>
+          Buscar
+          <input type="text" id="cambiar-busca" autocomplete="off"
+                 placeholder="Escribe para buscar o crear" />
+        </label>
+        <ul id="cambiar-sugerencias" class="sugerencias"></ul>
+      </div>
+      <div class="form-acciones">
+        <button type="button" id="cambiar-cancelar" class="boton-secundario ancho-completo">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Formulario de crear / editar rutina -->
   <dialog id="dialogo-rutina" class="dialogo">
     <form id="form-rutina" class="formulario">
@@ -589,6 +610,7 @@
   <script src="js/temporizador.js"></script>
   <script src="js/entidades.js"></script>
   <script src="js/consultas.js"></script>
+  <script src="js/buscador-ejercicios.js"></script>
   <script src="js/ejemplos.js"></script>
   <script src="js/dialogos.js"></script>
   <script src="js/ejercicios.js"></script>

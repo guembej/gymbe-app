@@ -82,6 +82,10 @@ async function correrSmoke(navegador) {
     botonesTema: document.querySelectorAll(".conmutador-tema [data-tema]").length,
     botonesVolumen: document.querySelectorAll(".conmutador-volumen [data-volumen]").length,
     botonesMedida: document.querySelectorAll(".conmutador-medida [data-medida]").length,
+    // El cambio de ejercicio se engancha por id desde entrenar.js
+    cambioSuelto: ["dialogo-cambiar", "cambiar-busca", "cambiar-sugerencias",
+                   "cambiar-explica", "cambiar-cancelar"]
+      .filter((id) => !document.getElementById(id)),
     // La casilla de "serie hecha" se quito en la v1.8.0: una serie cuenta si
     // tiene repeticiones. Si vuelve a aparecer, es que se ha revertido algo.
     casillasDeSerie: document.querySelectorAll('.serie-fila input[type="checkbox"]').length,
@@ -103,6 +107,8 @@ async function correrSmoke(navegador) {
     problemas.push("esperaba 3 botones de volumen y hay " + estado.botonesVolumen);
   if (estado.botonesMedida !== 2)
     problemas.push("esperaba 2 botones de 'se mide en' y hay " + estado.botonesMedida);
+  if (estado.cambioSuelto.length > 0)
+    problemas.push("faltan elementos de 'cambiar ejercicio': " + estado.cambioSuelto.join(", "));
   if (estado.casillasDeSerie > 0)
     problemas.push("han vuelto las casillas de serie hecha: " + estado.casillasDeSerie);
 

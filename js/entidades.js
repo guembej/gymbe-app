@@ -225,6 +225,56 @@ function descartarSesionActiva() {
   guardar();
 }
 
+// Cambia un ejercicio del entreno EN CURSO por otro (la maquina esta ocupada y
+// haces un equivalente). NO toca la rutina: la rutina es lo que quieres hacer,
+// el entreno es lo que hiciste. Si cambiara la rutina, la semana que viene
+// seguirias con el sustituto por un atasco de un martes.
+//
+//  - si no habias anotado nada, lo sustituye en el sitio
+//  - si ya habias anotado series, las conserva y mete el nuevo justo debajo con
+//    las que te quedaban. Reemplazar sin mas te borraria series que SI hiciste,
+//    y ademas "hice 2 de press banca y 2 de mancuernas" es lo que paso de
+//    verdad: las dos cosas tienen que llegar al historial.
+//
+// Devuelve el indice del bloque nuevo, o -1 si no se pudo.
+function cambiarEjercicioDeSesion(indice, nuevoEjercicioId) {
+  const s = DATOS.sesionActiva;
+  const ej = s && s.ejercicios[indice];
+  const nuevo = obtenerEjercicio(nuevoEjercicioId);
+  if (!ej || !nuevo) return -1;
+
+  const hechas = ej.filas.filter(serieRegistrada).length;
+  const quedaban = Math.max(1, ej.filas.length - hechas);
+
+  const bloque = {
+    exerciseId: nuevo.id,
+    exerciseNombre: nuevo.nombre,
+    porTiempo: seMidePorTiempo(nuevo),
+    objetivo: {
+      // series y reps se mantienen: son tu intencion para ese hueco, da igual
+      // en que maquina. El peso NO: otra maquina es otra carga, y arrastrar el
+      // del ejercicio anterior seria un dato falso. La linea "ultima: ..." del
+      // sustituto sale sola de su propio historial, que es lo que necesitas.
+      series: ej.objetivo.series,
+      reps: ej.objetivo.reps,
+      peso: 0,
+      descansoSeg: ej.objetivo.descansoSeg,
+    },
+    filas: [],
+  };
+  const nFilas = hechas > 0 ? quedaban : ej.filas.length;
+  for (let i = 0; i < nFilas; i++) bloque.filas.push({ pesoReal: "", repsReal: "" });
+
+  if (hechas > 0) {
+    ej.filas = ej.filas.filter(serieRegistrada); // las vacias no llegaron a pasar
+    s.ejercicios.splice(indice + 1, 0, bloque);
+  } else {
+    s.ejercicios[indice] = bloque;
+  }
+  guardar();
+  return hechas > 0 ? indice + 1 : indice;
+}
+
 // Cierra la sesión en curso y la registra en el historial.
 // Solo se guardan las series con repeticiones anotadas (ver serieRegistrada).
 function terminarSesion() {

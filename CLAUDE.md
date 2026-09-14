@@ -70,6 +70,12 @@ un tic flojo por segundo en los **últimos 5**, y de remate **notas subiendo**
   por adelantado con Web Audio, que cumple la cita con el móvil bloqueado; la voz
   hay que pedirla en el momento, y en ese momento la app puede estar dormida.
 
+## Decisiones tomadas (no volver a proponerlas)
+- **El temporizador NO arranca solo** al anotar una serie. Se propuso (la app
+  sabe que has terminado la serie y cuanto descanso pide la rutina, y la pildora
+  flotante ya se ve sin salir de Entrenar) y **el usuario lo rechazo**. Arrancar
+  el descanso es una decision suya, no de la app.
+
 ## Ventana flotante (PiP) (v1.9.0+)
 Se dibuja en un canvas de `ANCHO_PIP x ALTO_PIP` (320x134, 2,39:1 es lo más plano
 que Chrome-Android permite) pero a `ESCALA_PIP` = 3. Android estira la ventana:

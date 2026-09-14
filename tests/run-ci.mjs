@@ -110,6 +110,16 @@ async function correrSmoke(navegador) {
       iconosRotos: [...document.querySelectorAll('#activo-ejercicios use[href^="#ico-"]')]
         .map((u) => u.getAttribute("href"))
         .filter((id, i, todos) => todos.indexOf(id) === i && !document.querySelector(id)),
+      // el numero de serie va en un circulo que se rellena al anotarla
+      numerosCuadrados: [...document.querySelectorAll(".serie-num")]
+        .filter((n) => !getComputedStyle(n).borderRadius.startsWith("50")).length,
+      // el descanso se marca con el reloj, no con la palabra "descanso"
+      // ojo: la clase .objetivo se reutiliza como "texto gris pequeno" en el
+      // historial y en el temporizador, asi que hay que acotar al panel.
+      objetivosConLaPalabra: [...document.querySelectorAll("#activo-ejercicios .objetivo")]
+        .filter((o) => /descanso/i.test(o.textContent)).length,
+      objetivosSinReloj: [...document.querySelectorAll("#activo-ejercicios .objetivo")]
+        .filter((o) => !o.querySelector('use[href="#ico-tiempo"]')).length,
     };
     descartarSesionActiva();
     return r;
@@ -147,6 +157,12 @@ async function correrSmoke(navegador) {
     problemas.push(entreno.sinPlaceholder + " campos de serie sin su unidad (kg / reps / seg)");
   if (entreno.iconosRotos.length > 0)
     problemas.push("iconos sin dibujo en el entreno: " + entreno.iconosRotos.join(", "));
+  if (entreno.numerosCuadrados > 0)
+    problemas.push(entreno.numerosCuadrados + " numeros de serie sin su circulo");
+  if (entreno.objetivosConLaPalabra > 0)
+    problemas.push("ha vuelto la palabra 'descanso' al objetivo");
+  if (entreno.objetivosSinReloj > 0)
+    problemas.push(entreno.objetivosSinReloj + " objetivos sin el reloj del descanso");
 
   await contexto.close();
   return { problemas, estado };

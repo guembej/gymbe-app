@@ -212,6 +212,13 @@ objetivo: 4 × 6-8 reps · 50 kg · descanso 2:30 min
 ```
 - **Arriba, con el nombre:** cambiar ejercicio. Actúa sobre EL EJERCICIO.
 - **Abajo, a la derecha:** añadir serie y temporizador. Actúan sobre LAS SERIES.
+- **El número de serie va en un círculo** que se rellena de naranja al anotarla
+  (`.serie-num` / `.serie-hecha .serie-num`): de un vistazo, sin leer nada y con
+  el móvil en el suelo, ves por cuántas series vas.
+- **El descanso se marca con el reloj, no con la palabra "descanso".** Es más
+  corto (con la letra del sistema grande la línea pasaba a dos) y evita una
+  ambigüedad real en los isométricos: `3 × 40 s · 1:30 min` son dos tiempos
+  seguidos y no se sabe cuál es cuál.
 - **No hay fila de cabeceras `# PESO REPS`.** La unidad va de `placeholder`
   dentro de cada campo (`kg` / `reps` / `seg` según la unidad del ejercicio).
   Esa fila ocupaba tanto como los datos, sobre todo con "registro simple", que
@@ -226,6 +233,14 @@ bloque entero se acorta ~20px por ejercicio.
 Al maquetarlo se descartó subir **los dos** iconos junto al nombre: con dos, el
 nombre del ejercicio se parte en dos líneas y el bloque sale más alto (269px
 frente a 250px). Con uno solo, no.
+
+Se probaron y se descartaron, con medidas: meter el `+` y el reloj **dentro de la
+fila** (los campos de peso y reps bajan de 117 a 80px, un 32%, y la última fila
+acumula tres botones pegados); y subirlos **junto al nombre** (el temporizador,
+que es el botón más usado, acaba siendo un icono pequeño lejos del pulgar).
+
+Ojo: la clase `.objetivo` se reutiliza como "texto gris pequeño" en el historial
+y en el temporizador, así que al comprobarla hay que acotar a `#activo-ejercicios`.
 
 El smoke test arranca un entreno de mentira para mirar este panel: los iconos de
 `+`, `cambiar` y `temporizador` **no se pintan en ningún otro sitio**, así que un

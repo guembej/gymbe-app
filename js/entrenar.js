@@ -148,8 +148,15 @@ function pintarSesionActiva() {
     const objetivoTexto = [
       `${obj.series} × ${textoObjetivo(obj.reps, ej.porTiempo) || "—"}`,
       obj.peso > 0 ? `${obj.peso} kg` : null,
-      `descanso ${formatearDescanso(obj.descansoSeg)}`,
     ].filter(Boolean).join(" · ");
+
+    // El descanso se marca con el reloj en vez de la palabra "descanso". Es mas
+    // corto (con la letra del sistema grande, la linea pasaba a dos) y evita una
+    // ambiguedad real en los isometricos: "3 x 40 s · 1:30 min" son dos tiempos
+    // seguidos y no se sabe cual es cual.
+    const objetivoDescanso = obj.descansoSeg > 0
+      ? ` · ${icono("tiempo")} ${escaparHtml(formatearDescanso(obj.descansoSeg))}`
+      : "";
 
     const ultimaTexto = textoUltimaSerie(mejorSerieUltimoDia(ej.exerciseId), ej.porTiempo);
 
@@ -165,7 +172,7 @@ function pintarSesionActiva() {
           ${icono("cambiar")}
         </button>
       </div>
-      <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}</p>
+      <p class="objetivo">objetivo: ${escaparHtml(objetivoTexto)}${objetivoDescanso}</p>
       ${ultimaTexto ? `<p class="ultima-vez">${escaparHtml(ultimaTexto)}</p>` : ""}
     `;
 

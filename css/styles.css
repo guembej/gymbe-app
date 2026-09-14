@@ -616,6 +616,8 @@ body.reordenando { cursor: grabbing; }
 /* "anadir serie" es la que mas se usa: destaca sobre las demas */
 .accion-anadir { color: var(--acento-texto); border-color: var(--acento-texto); }
 .objetivo { font-size: var(--t-s); color: var(--texto-suave); margin: var(--e-1) 0 var(--e-3); }
+/* el reloj del descanso, al tamano de la linea donde vive */
+.objetivo .ico { width: 14px; height: 14px; vertical-align: -2px; }
 .bloque-ejercicio .objetivo { margin-bottom: 2px; }
 .ultima-vez { display: block; font-size: var(--t-s); color: var(--texto); margin: 0 0 var(--e-3); font-weight: 600; }
 .item-contenido .ultima-vez { margin: 0; }
@@ -624,12 +626,31 @@ body.reordenando { cursor: grabbing; }
   display: grid;
   /* Eran 5 columnas: la del tick de "hecha" se fue en la v1.8.0 y ese hueco
      se lo quedan el peso y las reps, que es donde peleas con el dedo. */
-  grid-template-columns: 24px 1fr 1fr 28px;
+  grid-template-columns: 26px 1fr 1fr 28px;
   gap: var(--e-2);
   align-items: center;
   margin-bottom: var(--e-2);
 }
-.serie-num { text-align: center; color: var(--texto-suave); font-size: var(--t-s); }
+/* El numero de serie va en un circulo que se rellena al anotarla: de un vistazo,
+   sin leer nada y con el movil en el suelo, ves por cuantas series vas. */
+.serie-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--borde);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+  transition: background var(--transicion), border-color var(--transicion), color var(--transicion);
+}
+.serie-hecha .serie-num {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: var(--sobre-acento);
+  font-weight: 700;
+}
 
 .serie-fila input[type="number"],
 .serie-fila input[type="text"] {

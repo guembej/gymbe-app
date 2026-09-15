@@ -123,9 +123,44 @@ h1, h2, h3, .tarjeta-titulo, .tiempo-display, #temp-fase { line-height: 1.2; }
   align-items: center;
   justify-content: center;
   gap: var(--e-3);
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
-#splash.oculto { opacity: 0; pointer-events: none; }
+/* Al irse, el logo crece un pelin mientras se disuelve: da la sensacion de que
+   la pantalla se abre hacia la app en vez de apagarse. No cuesta ni un ms: pasa
+   durante el desvanecimiento que ya existia. */
+#splash.oculto {
+  opacity: 0;
+  transform: scale(1.06);
+  pointer-events: none;
+}
+
+/* ---- Entrada, solo la primera vez del dia (ver la cabecera de index.html) ----
+   Android ya te ha ensenado SU pantalla de inicio: marino con la G en el centro.
+   Esta continua desde ahi en vez de repetirla: la G ya esta, y los discos entran
+   deslizandose desde los lados, como cargando una mancuerna. */
+:root[data-splash="anima"] #splash .splash-izq {
+  animation: disco-izq 380ms cubic-bezier(.2, .8, .3, 1.2) both;
+}
+:root[data-splash="anima"] #splash .splash-der {
+  animation: disco-der 380ms cubic-bezier(.2, .8, .3, 1.2) both;
+}
+:root[data-splash="anima"] #splash .lockup-texto,
+:root[data-splash="anima"] #splash .splash-nota {
+  animation: splash-texto 320ms ease-out both;
+  animation-delay: 200ms;
+}
+@keyframes disco-izq {
+  from { transform: translateX(-26px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes disco-der {
+  from { transform: translateX(26px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes splash-texto {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
 #splash .iso { width: 68px; height: 26px; color: #f2f4f7; }
 #splash .lockup-texto { font-size: var(--t-xl); letter-spacing: 0.5px; color: #f2f4f7; }
 #splash .lockup-texto b { font-weight: 600; }

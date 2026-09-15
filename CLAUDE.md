@@ -134,12 +134,43 @@ Rejilla **104x40** (2,6:1), que es la proporcion del hueco de la cabecera (44x17
 - **El icono de la app NO lleva mancuerna, solo la G.** El icono se ve sin ningun
   texto al lado, y una G rotunda se reconoce mucho mejor que una mancuerna en
   miniatura. Aguanta hasta 28px.
+- **Los PNG llevan `.v2` en el nombre a proposito.** El service worker sirve
+  primero lo cacheado, asi que con el mismo nombre se podian seguir entregando
+  los bytes del icono viejo. Si el logo vuelve a cambiar, subir a `.v3`.
+  (Aun asi, el icono del lanzador de Android **solo cambia reinstalando la app**:
+  lo cachea el sistema al instalar. Los datos no se pierden, viven en el navegador.)
 - Los PNG (192, 512, maskable y favicon) se generan con
   `node scripts/generar-iconos.mjs`, que usa el Playwright de las pruebas. **No
   es un paso de compilacion**: se ejecuta a mano solo cuando cambia el logo.
 - Ojo al recortar la G: su caja CON el trazo es `x 34,30..69,75 / y 1,08..36,58`,
   que **no** coincide con el circulo teorico. Con un viewBox ajustado a ojo se
   cortaba plana por arriba.
+
+## Pantalla de inicio (v1.15.0+)
+**Ojo: hay DOS pantallas de inicio.** Al estar instalada como app, Android pinta
+la suya antes de que se ejecute una linea nuestra (marino + el icono + el nombre,
+todo del manifiesto), y luego aparece la de `#splash`. Eran casi identicas, una
+detras de otra.
+
+- **Al salir** (siempre): el logo crece un 6% mientras se disuelve. Cuesta 0 ms,
+  pasa durante el desvanecimiento que ya existia.
+- **Al entrar** (solo la **primera apertura del dia**): la G ya esta puesta —
+  continuando la pantalla de Android en vez de repetirla— y **los discos entran
+  deslizandose** desde los lados, como cargando una mancuerna. Luego el texto.
+  El resto de aperturas se va enseguida (150 ms), como antes.
+- La decision se toma en el **script de la cabecera de `index.html`**, no en
+  `app.js`: tiene que estar antes del primer pintado o la animacion arrancaria
+  tarde. Marca `gym.splash.dia` en localStorage y pone `data-splash="anima"`.
+- `app.js` espera 650 ms en vez de 150 cuando hay animacion.
+
+**Por que el logo esta partido en piezas:** desde fuera no se puede mover una
+parte de un `<use>`, solo el `<use>` entero. Asi que el logo se define en tres
+grupos (`#gymbe-discos-izq`, `#gymbe-discos-der`, `#gymbe-g`) y `#gymbe-iso` los
+compone; la pantalla de inicio los coloca por separado para poder animarlos.
+
+**Principio:** una pantalla de inicio esta para tapar una espera, no para que la
+admires. Gymbe se abre entre serie y serie. Una animacion bonita la primera vez
+es un estorbo la cuadragesima: por eso va una vez al dia.
 
 ## Colores (v1.7.0+)
 **Hay dos naranjas y no son intercambiables.** Es el error facil de cometer:

@@ -8,7 +8,7 @@
 //
 // IMPORTANTE: subir la versión en cada publicación (y ponerla igual en js/version.js).
 
-const CACHE = "gymbe-v1.14.0";
+const CACHE = "gymbe-v1.15.0";
 
 const ARCHIVOS = [
   ".",
@@ -35,11 +35,15 @@ const ARCHIVOS = [
   "js/aviso-version.js",
   "js/ajustes.js",
   "js/app.js",
+  // Los PNG llevan ".v2" en el nombre a proposito. El service worker sirve
+  // primero lo cacheado (stale-while-revalidate), asi que con el mismo nombre se
+  // podian seguir entregando los bytes del icono viejo. Al cambiar el nombre no
+  // hay forma de servir el antiguo. Si el logo vuelve a cambiar, subir a .v3.
   "assets/icono-app.svg",
-  "assets/favicon-32.png",
-  "assets/icono-192.png",
-  "assets/icono-512.png",
-  "assets/icono-maskable-512.png",
+  "assets/favicon-32.v2.png",
+  "assets/icono-192.v2.png",
+  "assets/icono-512.v2.png",
+  "assets/icono-maskable-512.v2.png",
 ];
 
 self.addEventListener("install", (evento) => {

@@ -9,10 +9,10 @@ import { chromium } from "playwright";
 import { readFileSync, writeFileSync } from "node:fs";
 
 const SALIDAS = [
-  { svg: "assets/icono-app.svg", png: "assets/icono-512.png", lado: 512 },
-  { svg: "assets/icono-app.svg", png: "assets/icono-192.png", lado: 192 },
-  { svg: "assets/icono-maskable.svg", png: "assets/icono-maskable-512.png", lado: 512 },
-  { svg: "assets/icono-app.svg", png: "assets/favicon-32.png", lado: 32 },
+  { svg: "assets/icono-app.svg", png: "assets/icono-512.v2.png", lado: 512 },
+  { svg: "assets/icono-app.svg", png: "assets/icono-192.v2.png", lado: 192 },
+  { svg: "assets/icono-maskable.svg", png: "assets/icono-maskable-512.v2.png", lado: 512 },
+  { svg: "assets/icono-app.svg", png: "assets/favicon-32.v2.png", lado: 32 },
 ];
 
 const navegador = await chromium.launch();

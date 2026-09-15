@@ -152,8 +152,11 @@ window.addEventListener("storage", async (evento) => {
 // Ocultar la pantalla de bienvenida en cuanto la app está lista
 const splash = document.getElementById("splash");
 if (splash) {
+  // Si toca animacion (primera apertura del dia), se deja ver; si no, fuera
+  // enseguida. La decision la toma el script de la cabecera de index.html.
+  const espera = document.documentElement.dataset.splash === "anima" ? 650 : 150;
   setTimeout(() => {
     splash.classList.add("oculto");
     setTimeout(() => splash.remove(), 500);
-  }, 150);
+  }, espera);
 }

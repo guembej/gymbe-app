@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#0d1b2a" />
   <meta name="description" content="Registro y seguimiento de entrenamientos de gimnasio. Funciona sin conexión." />
   <title>Gymbe App</title>
-  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" />
+  <link rel="icon" href="assets/favicon-32.v2.png" sizes="32x32" />
   <link rel="icon" href="assets/icono-app.svg" />
-  <link rel="apple-touch-icon" href="assets/icono-192.png" />
+  <link rel="apple-touch-icon" href="assets/icono-192.v2.png" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/styles.css" />
   <script>
@@ -30,6 +30,21 @@
         document.documentElement.dataset.tema = tema;
       } catch (e) {}
     })();
+
+    /* La pantalla de inicio se anima SOLO la primera vez del dia. Una animacion
+       bonita la primera vez es un estorbo la cuadragesima, y Gymbe se abre entre
+       serie y serie. El resto de veces se va enseguida.
+       Se decide aqui, en la cabecera, porque tiene que estar puesto antes del
+       primer pintado o la animacion arrancaria tarde. */
+    (function () {
+      try {
+        var hoy = new Date().toDateString();
+        if (localStorage.getItem("gym.splash.dia") !== hoy) {
+          localStorage.setItem("gym.splash.dia", hoy);
+          document.documentElement.dataset.splash = "anima";
+        }
+      } catch (e) {}
+    })();
   </script>
 </head>
 <body>
@@ -40,19 +55,31 @@
        naranjas. Rejilla 104x40 (2,6:1), que es la proporcion del hueco de la
        cabecera (44x17). -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <!-- El logo va partido en tres piezas con id propio. Se compone entero en
+         #gymbe-iso (que es lo que usa toda la app) pero la pantalla de inicio
+         coloca las piezas por separado para poder animarlas: desde fuera no se
+         puede mover una parte de un <use>, solo el <use> entero. -->
+    <defs>
+      <g id="gymbe-discos-izq">
+        <rect x="3"  y="7"    width="8" height="26" rx="3.5" fill="#d1440f" />
+        <rect x="13" y="10.5" width="7" height="19" rx="3.5" fill="#d1440f" />
+      </g>
+      <g id="gymbe-discos-der">
+        <rect x="84" y="10.5" width="7" height="19" rx="3.5" fill="#d1440f" />
+        <rect x="93" y="7"    width="8" height="26" rx="3.5" fill="#d1440f" />
+      </g>
+      <g id="gymbe-g">
+        <rect x="21" y="17.25" width="14" height="5.5" rx="2.75" fill="currentColor" />
+        <rect x="69" y="17.25" width="14" height="5.5" rx="2.75" fill="currentColor" />
+        <path d="M 64.5 11.4 A 14.5 14.5 0 1 0 66.5 20 L 54 20"
+              fill="none" stroke="currentColor" stroke-width="6.5"
+              stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+    </defs>
     <symbol id="gymbe-iso" viewBox="0 0 104 40">
-      <!-- barras (toman el color del texto donde se coloque el logo) -->
-      <rect x="21" y="17.25" width="14" height="5.5" rx="2.75" fill="currentColor" />
-      <rect x="69" y="17.25" width="14" height="5.5" rx="2.75" fill="currentColor" />
-      <!-- discos -->
-      <rect x="3"  y="7"    width="8" height="26" rx="3.5" fill="#d1440f" />
-      <rect x="13" y="10.5" width="7" height="19" rx="3.5" fill="#d1440f" />
-      <rect x="84" y="10.5" width="7" height="19" rx="3.5" fill="#d1440f" />
-      <rect x="93" y="7"    width="8" height="26" rx="3.5" fill="#d1440f" />
-      <!-- la G -->
-      <path d="M 64.5 11.4 A 14.5 14.5 0 1 0 66.5 20 L 54 20"
-            fill="none" stroke="currentColor" stroke-width="6.5"
-            stroke-linecap="round" stroke-linejoin="round" />
+      <use href="#gymbe-discos-izq" />
+      <use href="#gymbe-discos-der" />
+      <use href="#gymbe-g" />
     </symbol>
   </svg>
 
@@ -110,8 +137,15 @@
   </svg>
 
   <!-- Pantalla de bienvenida (se quita sola al cargar) -->
+  <!-- El logo va por piezas (no con #gymbe-iso entero) para poder animarlas:
+       la G ya esta puesta cuando Android te suelta aqui, y los discos entran
+       desde los lados, como quien carga una mancuerna. -->
   <div id="splash" aria-hidden="true">
-    <svg class="iso" aria-hidden="true"><use href="#gymbe-iso" /></svg>
+    <svg class="iso" viewBox="0 0 104 40" aria-hidden="true">
+      <use class="splash-izq" href="#gymbe-discos-izq" />
+      <use class="splash-der" href="#gymbe-discos-der" />
+      <use class="splash-g" href="#gymbe-g" />
+    </svg>
     <span class="lockup-texto"><b>Gymbe</b> <span>App</span></span>
     <span class="splash-nota">funciona sin conexión</span>
   </div>

@@ -1034,7 +1034,9 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   font-family: inherit;
   font-size: var(--t-m);
 }
-/* la lista de coincidencias flota sobre la grafica, no la empuja hacia abajo */
+/* La lista de coincidencias flota sobre la grafica, no la empuja hacia abajo.
+   Mas alta que la de los dialogos (230px): aqui no tapa ningun formulario, solo
+   la grafica, asi que compensa ver mas de una tirada. */
 .progreso-select { position: relative; }
 .progreso-select .sugerencias {
   position: absolute;
@@ -1043,6 +1045,7 @@ body:has(.barra-entreno:not(.oculta)) #contenido {
   right: 0;
   z-index: 20;
   margin-top: var(--e-1);
+  max-height: 55vh;
   box-shadow: var(--sombra-2);
 }
 #progreso-metricas { margin-bottom: var(--e-2); }

@@ -61,12 +61,18 @@ function _pgNum(n) {
 
 // ---- Selector de ejercicio ----
 
-// El buscador es el mismo de la app. A la derecha, en vez del grupo muscular,
-// interesa mas saber si ese ejercicio tiene datos que enseñar.
+// El buscador es el mismo de la app, con dos diferencias.
+//  1. A la derecha, en vez del grupo muscular, interesa mas saber si ese
+//     ejercicio tiene datos que enseñar.
+//  2. SIN TOPE de resultados. El tope existe porque en el editor de rutinas y en
+//     el dialogo del entreno la lista flota ENCIMA de un formulario y taparia
+//     los campos de debajo. Aqui no tapa nada: la lista es lo unico que miras, y
+//     no estas autocompletando un nombre que ya sabes, estas buscando entre los
+//     tuyos. Con tope solo veias 12 de 47.
 const _buscadorProgreso = conectarBuscadorEjercicios({
   input: progresoSelect,
   lista: document.getElementById("progreso-sugerencias"),
-  limite: 12,
+  limite: Infinity,
   etiqueta: (ej) => (progresoDeEjercicio(ej.id).length > 0 ? ej.grupo : "sin datos"),
   alElegir: (ej) => {
     progresoEjId = ej.id;
@@ -75,15 +81,15 @@ const _buscadorProgreso = conectarBuscadorEjercicios({
     pintarBotonesMetrica();
     pintarProgreso();
   },
-  // con el campo en blanco, los que tienen datos primero: son los únicos que
-  // enseñan algo, y suelen ser los que vienes a mirar
+  // con el campo en blanco salen TODOS, con los que tienen datos primero: son
+  // los unicos que ensenan algo, y suelen ser los que vienes a mirar
   cuandoVacio: () => {
     const conDatos = [];
     const sinDatos = [];
     listarEjercicios().forEach((e) => {
       (progresoDeEjercicio(e.id).length > 0 ? conDatos : sinDatos).push(e);
     });
-    return conDatos.concat(sinDatos).slice(0, 12);
+    return conDatos.concat(sinDatos);
   },
 });
 

@@ -130,6 +130,18 @@ async function correrSmoke(navegador) {
     return r;
   });
 
+  // Progreso: la lista NO debe llevar tope. El buscador es compartido y el tope
+  // existe para los dialogos, donde la lista flota encima de un formulario; aqui
+  // solo tapa la grafica. Con tope solo se veian 12 de 47 ejercicios.
+  const progreso = await pagina.evaluate(() => {
+    renderProgreso();
+    const campo = document.getElementById("progreso-ejercicio");
+    campo.value = "";
+    campo.dispatchEvent(new Event("focus"));
+    const enBlanco = document.querySelectorAll("#progreso-sugerencias .sugerencia").length;
+    return { enBlanco, ejercicios: listarEjercicios().length };
+  });
+
   if (!estado.version) problemas.push("la app no ha cargado (APP_VERSION no existe)");
   if (estado.pestanas !== 4) problemas.push("esperaba 4 pestañas y hay " + estado.pestanas);
   if (!estado.seccionVisible) problemas.push("no hay ninguna sección visible");
@@ -150,6 +162,9 @@ async function correrSmoke(navegador) {
     problemas.push("el selector de Progreso ya no es un campo de busqueda");
   if (estado.progresoSinLista)
     problemas.push("falta la lista de coincidencias de Progreso");
+  if (progreso.enBlanco !== progreso.ejercicios)
+    problemas.push(`el filtro de Progreso en blanco ensena ${progreso.enBlanco} de ` +
+                   `${progreso.ejercicios} ejercicios: no deberia llevar tope`);
   if (estado.cambioSuelto.length > 0)
     problemas.push("faltan elementos de elegir/anadir ejercicio: " + estado.cambioSuelto.join(", "));
   if (estado.casillasDeSerie > 0)

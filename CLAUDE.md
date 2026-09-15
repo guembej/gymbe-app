@@ -100,6 +100,12 @@ Opciones: `alElegir`, `alCrear`, `alEscribir`, `cuandoVacio`, `ocultarAlSalir`,
 `limite` y `etiqueta` (el texto gris de la derecha; en Progreso marca "sin datos"
 en vez del grupo muscular).
 
+**El tope de resultados (`limite`) existe solo para los diálogos**, donde la lista
+flota ENCIMA de un formulario y taparía los campos de debajo. **En Progreso va sin
+tope** (`Infinity`): ahí la lista no tapa ningún formulario, es lo único que miras,
+y no estás autocompletando un nombre que ya sabes sino buscando entre los tuyos.
+Se envió con tope de 12 en la v1.13.0 y solo se veían 12 de 47; el smoke lo vigila.
+
 ## Navegación (v1.2.0+)
 4 pestañas: **Entrenar · Historial · Progreso · Tiempo**. "Entrenar" reúne lo que
 antes eran Rutinas + Entrenar: sub-conmutador Rutinas|Ejercicios; tocar una rutina

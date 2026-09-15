@@ -126,9 +126,48 @@ async function correrSmoke(navegador) {
       objetivosSinReloj: [...document.querySelectorAll("#activo-ejercicios .objetivo")]
         .filter((o) => !o.querySelector('use[href="#ico-tiempo"]')).length,
     };
+    // dejar el panel como estaba: el entreno de mentira no debe ensuciar las
+    // comprobaciones siguientes
     descartarSesionActiva();
+    renderEntrenar();
+    window.scrollTo(0, 0);
     return r;
   });
+
+  // El logo lleva al inicio SIN recargar. Si vuelve a recargar siempre, el gesto
+  // pasa de 2 ms a mas de un segundo y nadie se entera mirando la pantalla.
+  // (No se prueba el segundo toque: recargaria la pagina y tumbaria el smoke.)
+  // Si el logo recarga, la pagina navega y Playwright revienta con un
+  // "Execution context was destroyed". Se atrapa aqui para que el fallo se lea.
+  let logo;
+  try {
+    logo = await pagina.evaluate(async () => {
+      const boton = document.getElementById("btn-inicio");
+      const r = { alAbrir: yaEnElInicio() };
+      irA("progreso");
+      window.scrollTo(0, 300);
+      r.enOtraPestana = yaEnElInicio();
+
+      // Testigo: tras una recarga, la app TAMBIEN acaba en Entrenar, arriba y con
+      // las rutinas pintadas, asi que mirar el resultado no distingue los dos
+      // caminos. Esta marca solo sobrevive si NO se recargo.
+      window.__sinRecargar = true;
+      boton.click();
+      await new Promise((res) => setTimeout(res, 300));
+
+      r.noRecargo = window.__sinRecargar === true;
+      r.seccionTrasElLogo = document.querySelector(".seccion:not(.oculta)")?.dataset.seccion;
+      r.scrollTrasElLogo = Math.round(window.scrollY);
+      return r;
+    });
+  } catch (e) {
+    // "Execution context was destroyed" = la pagina navego, o sea que el logo
+    // recargo. Se espera a que vuelva para que no se lleve por delante las
+    // comprobaciones siguientes.
+    logo = { recargo: true, error: String(e.message || e).slice(0, 60) };
+    await pagina.waitForLoadState("load").catch(() => {});
+    await pagina.waitForTimeout(2000);
+  }
 
   // Progreso: la lista NO debe llevar tope. El buscador es compartido y el tope
   // existe para los dialogos, donde la lista flota encima de un formulario; aqui
@@ -162,6 +201,14 @@ async function correrSmoke(navegador) {
     problemas.push("el selector de Progreso ya no es un campo de busqueda");
   if (estado.progresoSinLista)
     problemas.push("falta la lista de coincidencias de Progreso");
+  if (!logo.recargo && !logo.alAbrir) problemas.push("recien abierta, la app no se considera 'en el inicio'");
+  if (!logo.recargo && logo.enOtraPestana) problemas.push("en otra pestana no deberia considerarse 'en el inicio'");
+  if (!logo.recargo && logo.seccionTrasElLogo !== "entrenar")
+    problemas.push("el logo no lleva a Entrenar, deja " + logo.seccionTrasElLogo);
+  if (!logo.recargo && logo.scrollTrasElLogo !== 0) problemas.push("el logo no sube arriba del todo");
+  if (logo.recargo || !logo.noRecargo)
+    problemas.push("el logo RECARGO la pagina en vez de ir al inicio (1143 ms frente a 2 ms)");
+
   if (progreso.enBlanco !== progreso.ejercicios)
     problemas.push(`el filtro de Progreso en blanco ensena ${progreso.enBlanco} de ` +
                    `${progreso.ejercicios} ejercicios: no deberia llevar tope`);

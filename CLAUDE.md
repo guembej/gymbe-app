@@ -115,6 +115,22 @@ entrenamiento" + enlace "Editar rutina"); "Editar rutina" pasa a modo edición
 a la lista dentro de esa vista. Barra `#barra-entreno` ("entreno en curso") en las
 demás pestañas para volver. `.oculta` y `[hidden]` llevan `display:none!important`.
 
+## El botón del logo (v1.15.1+)
+Lleva al inicio **sin recargar**: pestaña Entrenar, sub-vista Rutinas, arriba del
+todo. Con un entreno en curso, "el inicio" es el propio panel del entreno.
+
+**Si ya estabas en el inicio** —o sea, si tocarlo no fuera a cambiar nada—
+**entonces sí recarga**. Así el botón nunca se siente muerto y el "botón de
+pánico" de toda la vida sigue en el mismo sitio, a dos toques en vez de uno.
+
+Medido: ir al inicio **1,8 ms**; `location.reload()` **1143 ms** más 150 de
+pantalla de inicio (vuelve a descargar y ejecutar los 20 scripts y rearranca el
+service worker). Antes hacía la recarga **siempre**.
+
+`yaEnElInicio()` en `app.js` es quien lo decide. El smoke comprueba el camino
+blando; el segundo toque no se prueba porque recargaría la página y tumbaría el
+propio smoke.
+
 ## Iconos (v1.6.0+)
 No hay emojis en la interfaz: cada uno se ve distinto según el sistema y no se
 puede colorear. Los iconos son `<symbol id="ico-...">` definidos una sola vez en

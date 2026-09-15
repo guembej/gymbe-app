@@ -47,9 +47,41 @@ document.querySelectorAll(".conmutador-boton").forEach((btn) => {
   });
 });
 
-// Pulsar el logo Gymbe: recargar la app (vuelve al inicio y refresca todo)
+// ¿Estás YA en el inicio? Es decir: pestaña Entrenar, sub-vista Rutinas, sin
+// ningún detalle abierto y arriba del todo. Con un entreno en curso, "el inicio"
+// es el propio panel del entreno, no la lista.
+function yaEnElInicio() {
+  const seccion = document.querySelector(".seccion:not(.oculta)");
+  if (!seccion || seccion.dataset.seccion !== "entrenar") return false;
+
+  const vista = document.querySelector('.seccion[data-seccion="entrenar"] .vista:not(.oculta)');
+  if (!vista || vista.dataset.vista !== "mis-rutinas") return false;
+
+  const detalle = document.getElementById("rutina-detalle");
+  const activo = document.getElementById("entrenar-activo");
+  const hayEntreno = typeof sesionActiva === "function" && !!sesionActiva();
+  const enSuSitio = hayEntreno
+    ? !activo.classList.contains("oculta")
+    : detalle.classList.contains("oculta") && activo.classList.contains("oculta");
+
+  return enSuSitio && window.scrollY < 4;
+}
+
+// Pulsar el logo Gymbe: ir al inicio. Antes hacia location.reload() siempre, y
+// eso son mas de un segundo (vuelve a descargar y ejecutar los 20 scripts,
+// rearranca el service worker y repinta todo); ir al inicio tarda 1 ms.
+//
+// Si YA estabas en el inicio -o sea, si tocarlo no fuera a cambiar nada-, si
+// recarga: asi el boton nunca se siente muerto y el "boton de panico" de toda la
+// vida sigue estando en el mismo sitio, a dos toques en vez de uno.
 document.getElementById("btn-inicio").addEventListener("click", () => {
-  location.reload();
+  if (yaEnElInicio()) {
+    location.reload();
+    return;
+  }
+  if (typeof irAVistaRutinas === "function") irAVistaRutinas();
+  irA("entrenar");
+  window.scrollTo(0, 0);
 });
 
 // Engranaje de la cabecera: ir a Ajustes

@@ -125,6 +125,22 @@ texto (`stroke: currentColor`), por eso se tiñen solos de naranja al activarse.
 El smoke test comprueba que ningún `<use>` apunta a un `<symbol>` inexistente
 (el navegador no avisa: solo deja el hueco vacío).
 
+## Logo (v1.14.0+)
+Una **G dentro de una mancuerna**: dos discos naranjas por lado, barra y G en
+`currentColor` (asi el logo se adapta solo al tema claro y al oscuro).
+Rejilla **104x40** (2,6:1), que es la proporcion del hueco de la cabecera (44x17).
+- El `<symbol id="gymbe-iso">` vive en `index.html`; `assets/isotipo.svg` es la
+  version suelta para documentacion.
+- **El icono de la app NO lleva mancuerna, solo la G.** El icono se ve sin ningun
+  texto al lado, y una G rotunda se reconoce mucho mejor que una mancuerna en
+  miniatura. Aguanta hasta 28px.
+- Los PNG (192, 512, maskable y favicon) se generan con
+  `node scripts/generar-iconos.mjs`, que usa el Playwright de las pruebas. **No
+  es un paso de compilacion**: se ejecuta a mano solo cuando cambia el logo.
+- Ojo al recortar la G: su caja CON el trazo es `x 34,30..69,75 / y 1,08..36,58`,
+  que **no** coincide con el circulo teorico. Con un viewBox ajustado a ojo se
+  cortaba plana por arriba.
+
 ## Colores (v1.7.0+)
 **Hay dos naranjas y no son intercambiables.** Es el error facil de cometer:
 - `--acento` (#d1440f) **rellena**: botones, barras, la pildora. Encima va

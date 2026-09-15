@@ -34,20 +34,25 @@
 </head>
 <body>
 
-  <!-- Isotipo de Gymbe App: se define una vez y se reutiliza con <use>.
-       Las partes en "currentColor" toman el color del texto donde se coloque. -->
+  <!-- Isotipo de Gymbe App: una G dentro de una mancuerna. Se define una vez y
+       se reutiliza con <use>. Las barras y la G van en "currentColor", asi que
+       el logo se adapta solo al tema claro y al oscuro; los discos son siempre
+       naranjas. Rejilla 104x40 (2,6:1), que es la proporcion del hueco de la
+       cabecera (44x17). -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <symbol id="gymbe-iso" viewBox="78 118 356 124">
-      <rect x="90" y="184" width="82" height="12" rx="6" fill="currentColor" />
-      <rect x="125" y="145" width="20" height="90" rx="10" fill="currentColor" />
-      <rect x="340" y="184" width="82" height="12" rx="6" fill="currentColor" />
-      <rect x="367" y="145" width="20" height="90" rx="10" fill="currentColor" />
-      <rect x="100" y="160" width="12" height="60" rx="6" fill="#ff5722" />
-      <rect x="400" y="160" width="12" height="60" rx="6" fill="#ff5722" />
-      <path d="M 256 125 A 65 65 0 1 0 312 223" fill="none" stroke="currentColor" stroke-width="22" />
-      <circle cx="312" cy="223" r="11" fill="currentColor" />
-      <path d="M 260 190 L 321 190 A 65 65 0 0 0 256 125" fill="none" stroke="#ff5722" stroke-width="22" stroke-linejoin="round" />
-      <circle cx="260" cy="190" r="11" fill="#ff5722" />
+    <symbol id="gymbe-iso" viewBox="0 0 104 40">
+      <!-- barras (toman el color del texto donde se coloque el logo) -->
+      <rect x="21" y="17.25" width="14" height="5.5" rx="2.75" fill="currentColor" />
+      <rect x="69" y="17.25" width="14" height="5.5" rx="2.75" fill="currentColor" />
+      <!-- discos -->
+      <rect x="3"  y="7"    width="8" height="26" rx="3.5" fill="#d1440f" />
+      <rect x="13" y="10.5" width="7" height="19" rx="3.5" fill="#d1440f" />
+      <rect x="84" y="10.5" width="7" height="19" rx="3.5" fill="#d1440f" />
+      <rect x="93" y="7"    width="8" height="26" rx="3.5" fill="#d1440f" />
+      <!-- la G -->
+      <path d="M 64.5 11.4 A 14.5 14.5 0 1 0 66.5 20 L 54 20"
+            fill="none" stroke="currentColor" stroke-width="6.5"
+            stroke-linecap="round" stroke-linejoin="round" />
     </symbol>
   </svg>
 

@@ -126,7 +126,28 @@ async function correrSmoke(navegador) {
       objetivosSinReloj: [...document.querySelectorAll("#activo-ejercicios .objetivo")]
         .filter((o) => !o.querySelector('use[href="#ico-tiempo"]')).length,
     };
+    // dejar el panel como estaba: el entreno de mentira no debe ensuciar las
+    // comprobaciones siguientes
     descartarSesionActiva();
+    renderEntrenar();
+    window.scrollTo(0, 0);
+    return r;
+  });
+
+  // El logo lleva al inicio SIN recargar. Si vuelve a recargar siempre, el gesto
+  // pasa de 2 ms a mas de un segundo y nadie se entera mirando la pantalla.
+  // (No se prueba el segundo toque: recargaria la pagina y tumbaria el smoke.)
+  const logo = await pagina.evaluate(async () => {
+    const boton = document.getElementById("btn-inicio");
+    const r = { alAbrir: yaEnElInicio() };
+    irA("progreso");
+    window.scrollTo(0, 300);
+    r.enOtraPestana = yaEnElInicio();
+    boton.click();
+    await new Promise((res) => setTimeout(res, 50));
+    r.seccionTrasElLogo = document.querySelector(".seccion:not(.oculta)")?.dataset.seccion;
+    r.scrollTrasElLogo = Math.round(window.scrollY);
+    r.siguePintada = !!document.querySelector("#lista-rutinas .tarjeta");
     return r;
   });
 
@@ -162,6 +183,14 @@ async function correrSmoke(navegador) {
     problemas.push("el selector de Progreso ya no es un campo de busqueda");
   if (estado.progresoSinLista)
     problemas.push("falta la lista de coincidencias de Progreso");
+  if (!logo.alAbrir) problemas.push("recien abierta, la app no se considera 'en el inicio'");
+  if (logo.enOtraPestana) problemas.push("en otra pestana no deberia considerarse 'en el inicio'");
+  if (logo.seccionTrasElLogo !== "entrenar")
+    problemas.push("el logo no lleva a Entrenar, deja " + logo.seccionTrasElLogo);
+  if (logo.scrollTrasElLogo !== 0) problemas.push("el logo no sube arriba del todo");
+  if (!logo.siguePintada)
+    problemas.push("tras el logo no hay rutinas pintadas: ¿se recargo la pagina?");
+
   if (progreso.enBlanco !== progreso.ejercicios)
     problemas.push(`el filtro de Progreso en blanco ensena ${progreso.enBlanco} de ` +
                    `${progreso.ejercicios} ejercicios: no deberia llevar tope`);

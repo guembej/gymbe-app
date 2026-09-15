@@ -57,7 +57,8 @@
   --t-m: 15px;     /* texto normal, campos, botones */
   --t-l: 18px;     /* titulos de bloque */
   --t-xl: 22px;    /* titulo de pantalla */
-  --t-crono: 54px; /* solo el cronometro */
+  --t-crono: 54px;  /* solo el cronometro */
+  --t-splash: 30px; /* solo el nombre en la pantalla de inicio */
 
   /* Espacio: 6 pasos. Los valores de 2-3px que quedan sueltos son ajustes
      opticos de un sitio concreto, no huecos de la maquetacion. */
@@ -144,8 +145,7 @@ h1, h2, h3, .tarjeta-titulo, .tiempo-display, #temp-fase { line-height: 1.2; }
 :root[data-splash="anima"] #splash .splash-der {
   animation: disco-der 380ms cubic-bezier(.2, .8, .3, 1.2) both;
 }
-:root[data-splash="anima"] #splash .lockup-texto,
-:root[data-splash="anima"] #splash .splash-nota {
+:root[data-splash="anima"] #splash .lockup-texto {
   animation: splash-texto 320ms ease-out both;
   animation-delay: 200ms;
 }
@@ -161,11 +161,11 @@ h1, h2, h3, .tarjeta-titulo, .tiempo-display, #temp-fase { line-height: 1.2; }
   from { transform: translateY(6px); opacity: 0; }
   to   { transform: translateY(0);   opacity: 1; }
 }
-#splash .iso { width: 68px; height: 26px; color: #f2f4f7; }
-#splash .lockup-texto { font-size: var(--t-xl); letter-spacing: 0.5px; color: #f2f4f7; }
+/* Mas grandes que en el resto de la app: aqui no compiten con nada. */
+#splash .iso { width: 130px; height: 50px; color: #f2f4f7; }
+#splash .lockup-texto { font-size: var(--t-splash); letter-spacing: 0.5px; color: #f2f4f7; }
 #splash .lockup-texto b { font-weight: 600; }
 #splash .lockup-texto span { color: #f97043; } /* el splash siempre es marino */
-#splash .splash-nota { font-size: var(--t-s); color: #9ca3af; margin-top: 2px; }
 
 /* ---- Cabecera ---- */
 .cabecera {

@@ -178,6 +178,9 @@ detras de otra.
   `app.js`: tiene que estar antes del primer pintado o la animacion arrancaria
   tarde. Marca `gym.splash.dia` en localStorage y pone `data-splash="anima"`.
 - `app.js` espera 650 ms en vez de 150 cuando hay animacion.
+- Solo salen el logo (130x50) y el nombre (`--t-splash`, 30px). Son tamanos de
+  "display", fuera de la escala de la interfaz, igual que `--t-crono`: aqui no
+  compiten con nada. El ancho del logo se eligio para que iguale al del texto.
 
 **Por que el logo esta partido en piezas:** desde fuera no se puede mover una
 parte de un `<use>`, solo el `<use>` entero. Asi que el logo se define en tres

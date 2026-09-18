@@ -91,6 +91,21 @@ a tamaño 1x se veía una imagen pequeña ampliada, con los bordes blandos.
   no tiene `tabular-nums` (el CSS del cronómetro sí), y según la letra que
   resuelva el móvil el número se movería solo cada segundo.
 
+**La ventana sirve para las dos pantallas (v1.16.0+).** El temporizador de series
+y el cronómetro tienen cada uno su botón, pero **la ventana es una sola**: el
+navegador solo deja un Picture-in-Picture abierto a la vez. `_modoPiP`
+(`"temp"` / `"crono"`) dice qué se está mirando y lo fija el botón que la abrió.
+Con la ventana ya abierta, el botón de la **otra** pantalla no la cierra: le
+**cambia el contenido**. Cerrarla y volver a abrirla sería el gesto equivocado —
+y además `requestPictureInPicture()` exige un toque reciente, así que reabrir no
+siempre saldría bien.
+- El botón del cronómetro (`#crono-flotante`) **aparece al pulsar "Empezar"** y
+  se esconde al "Reiniciar": con el cronómetro a cero, la ventanita sería un
+  00:00 clavado.
+- En la ventanita el cronómetro va **sin décimas** aunque las tengas puestas en
+  la pantalla: el vídeo del PiP va a 8 imágenes por segundo y las décimas
+  saldrían a trompicones. El rótulo de arriba pone CRONÓMETRO o EN PAUSA.
+
 ## Buscador de ejercicios
 `conectarBuscadorEjercicios()` en `js/buscador-ejercicios.js`. Lo usan **tres**
 sitios: el editor de rutinas, elegir/añadir ejercicio en el entreno, y el

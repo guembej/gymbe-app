@@ -10,6 +10,7 @@
 const cronoDisplay = document.getElementById("crono-display");
 const cronoToggle = document.getElementById("crono-toggle");
 const cronoReset = document.getElementById("crono-reset");
+const cronoFlotanteBtn = document.getElementById("crono-flotante");
 
 // ---- Temporizador de series ----
 const tempConfigEl = document.getElementById("temp-config");
@@ -155,6 +156,14 @@ function cronoMs() {
   return crono.acumuladoMs + (crono.corriendo ? Date.now() - crono.inicioMs : 0);
 }
 
+// El boton de ventana flotante del cronometro solo aparece cuando hay algo que
+// mirar, o sea en cuanto se ha pulsado "Empezar". Con el cronometro a cero no
+// tiene sentido sacar una ventanita que pone 00:00.
+function pintarCronoFlotante() {
+  if (!cronoFlotanteBtn) return;
+  cronoFlotanteBtn.hidden = !flotanteDisponible || (!crono.corriendo && crono.acumuladoMs === 0);
+}
+
 cronoToggle.addEventListener("click", () => {
   if (crono.corriendo) {
     crono.acumuladoMs = cronoMs();
@@ -166,12 +175,14 @@ cronoToggle.addEventListener("click", () => {
     cronoToggle.textContent = "Pausar";
   }
   guardarEstadoTiempo();
+  pintarCronoFlotante();
   ajustarBucle();
 });
 cronoReset.addEventListener("click", () => {
   crono = { corriendo: false, acumuladoMs: 0, inicioMs: 0 };
   cronoToggle.textContent = "Empezar";
   guardarEstadoTiempo();
+  pintarCronoFlotante();
   ajustarBucle();
 });
 
@@ -450,6 +461,12 @@ const pipVideo = document.getElementById("pip-video");
 let _pipCanvas = null;
 let _pipCtx = null;
 
+// Que se esta mirando en la ventanita: "temp" (cuenta atras de series) o
+// "crono" (cronometro). La ventana es UNA, compartida por las dos pantallas:
+// solo puede haber un Picture-in-Picture abierto a la vez, asi que el modo lo
+// fija el boton que la abrio.
+let _modoPiP = "temp";
+
 // Colores de la ventana flotante. El texto siempre va en blanco encima, asi que
 // cada uno tiene que dar 4,5:1 con el blanco: la ventanita se mira de lejos y
 // con el movil apoyado. Los de antes (#e2551f y #c2740c) daban 3,8 y 3,6.
@@ -503,24 +520,45 @@ function _numeroTabular(c, texto, cx, cy) {
 // Se pinta sobre el color de la fase, en dos alturas: la fase arriba (versalitas
 // espaciadas, algo translúcida) y el tiempo abajo, grande. Android redondea las
 // esquinas -> queda como una pastilla.
-function dibujarPiP() {
-  if (!_pipCtx) return;
+// Fondo + rotulo de arriba. Lo comparten las dos vistas de la ventanita.
+function _fondoPiP(fase, etiqueta, familia) {
   const c = _pipCtx;
-  const k = ESCALA_PIP;
+  const conLS = "letterSpacing" in c;
+  c.setTransform(ESCALA_PIP, 0, 0, ESCALA_PIP, 0, 0);
+  c.fillStyle = COLOR_FASE_PIP[fase] || "#17222e";
+  c.fillRect(0, 0, ANCHO_PIP, ALTO_PIP);
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  if (!etiqueta) return;
+  c.fillStyle = "rgba(255, 255, 255, 0.82)";
+  c.font = `600 18px ${familia}`;
+  if (conLS) c.letterSpacing = "3px";
+  c.fillText(etiqueta, ANCHO_PIP / 2 + (conLS ? 1.5 : 0), ALTO_PIP * 0.30);
+  if (conLS) c.letterSpacing = "0px";
+}
+
+// El cronometro en la ventanita va SIN decimas aunque las tengas puestas en la
+// pantalla: el video de la ventana flotante va a 8 imagenes por segundo, asi que
+// las decimas saldrian a trompicones. Los segundos, en cambio, llegan enteros.
+function dibujarCronoPiP() {
+  const c = _pipCtx;
+  const familia = _familiaPiP();
+  _fondoPiP("", crono.corriendo ? "CRONÓMETRO" : "EN PAUSA", familia);
+  c.fillStyle = "#fff";
+  c.font = `700 60px ${familia}`;
+  _numeroTabular(c, formatearCronometro(cronoMs(), false), ANCHO_PIP / 2, ALTO_PIP * 0.66);
+}
+
+function dibujarTempPiP() {
+  const c = _pipCtx;
   const w = ANCHO_PIP;
   const h = ALTO_PIP;
   const familia = _familiaPiP();
   const tramo = temp.segmentos[temp.indice];
   const fase = temp.terminadoEn ? "fin" : (tramo ? tramo.fase : "");
-  const conLS = "letterSpacing" in c;
-
-  c.setTransform(k, 0, 0, k, 0, 0);
-  c.fillStyle = COLOR_FASE_PIP[fase] || "#17222e";
-  c.fillRect(0, 0, w, h);
-  c.textAlign = "center";
-  c.textBaseline = "middle";
 
   if (temp.terminadoEn) {
+    _fondoPiP(fase, "", familia);
     c.fillStyle = "#fff";
     c.font = `700 40px ${familia}`;
     c.fillText("¡hecho!", w / 2, h / 2 + 1);
@@ -529,19 +567,22 @@ function dibujarPiP() {
 
   let etiqueta = (NOMBRE_FASE[fase] || "").toUpperCase();
   if (fase === "serie" && tramo) etiqueta = `SERIE ${tramo.serie} / ${temp.numSeries}`;
-  c.fillStyle = "rgba(255, 255, 255, 0.82)";
-  c.font = `600 18px ${familia}`;
-  if (conLS) c.letterSpacing = "3px";
-  c.fillText(etiqueta, w / 2 + (conLS ? 1.5 : 0), h * 0.30);
-  if (conLS) c.letterSpacing = "0px";
+  _fondoPiP(fase, etiqueta, familia);
 
   c.fillStyle = "#fff";
   c.font = `700 60px ${familia}`;
   _numeroTabular(c, formatearCuentaAtras(segRestantes()), w / 2, h * 0.66);
 }
 
-async function abrirFlotante() {
+function dibujarPiP() {
+  if (!_pipCtx) return;
+  if (_modoPiP === "crono") dibujarCronoPiP();
+  else dibujarTempPiP();
+}
+
+async function abrirFlotante(modo) {
   if (!flotanteDisponible) return;
+  _modoPiP = modo === "crono" ? "crono" : "temp";
   try {
     if (!_pipCanvas) {
       _pipCanvas = document.createElement("canvas");
@@ -564,14 +605,25 @@ function cerrarFlotante() {
   } catch (e) { /* nada */ }
 }
 
-async function alternarFlotante() {
-  if (document.pictureInPictureElement) cerrarFlotante();
-  else await abrirFlotante();
+// Con la ventana ya abierta, el boton la cierra... salvo que la hayas pulsado
+// desde la OTRA pantalla: entonces lo que quieres es cambiar lo que muestra, no
+// quedarte sin ventana.
+async function alternarFlotante(modo) {
+  const quiero = modo === "crono" ? "crono" : "temp";
+  if (document.pictureInPictureElement) {
+    if (_modoPiP === quiero) { cerrarFlotante(); return; }
+    _modoPiP = quiero;
+    _ultimoSegundoPiP = null;
+    dibujarPiP();
+    return;
+  }
+  await abrirFlotante(quiero);
 }
 
 if (flotanteDisponible) {
   flotanteBtn.hidden = false;
-  flotanteBtn.addEventListener("click", alternarFlotante);
+  flotanteBtn.addEventListener("click", () => alternarFlotante("temp"));
+  if (cronoFlotanteBtn) cronoFlotanteBtn.addEventListener("click", () => alternarFlotante("crono"));
 }
 
 // ==========================================================
@@ -637,7 +689,9 @@ function tick() {
   // La ventana flotante solo se redibuja cuando cambia el segundo que muestra,
   // no diez veces por segundo.
   if (document.pictureInPictureElement) {
-    const ahora = temp.terminadoEn ? "fin" : formatearCuentaAtras(segRestantes());
+    const ahora = _modoPiP === "crono"
+      ? (crono.corriendo ? "" : "P") + formatearCronometro(cronoMs(), false)
+      : (temp.terminadoEn ? "fin" : formatearCuentaAtras(segRestantes()));
     if (ahora !== _ultimoSegundoPiP) { _ultimoSegundoPiP = ahora; dibujarPiP(); }
   } else {
     _ultimoSegundoPiP = null;
@@ -648,6 +702,7 @@ function tick() {
 
 // Arranque
 restaurarEstadoTiempo();
+pintarCronoFlotante();
 pintarConfig();
 pintarEtiquetaTemp();
 ajustarBucle();   // arranca el bucle solo si hace falta

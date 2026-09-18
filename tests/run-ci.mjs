@@ -181,6 +181,21 @@ async function correrSmoke(navegador) {
     return { enBlanco, ejercicios: listarEjercicios().length };
   });
 
+  // El boton de ventana flotante del cronometro sale SOLO tras pulsar "Empezar".
+  // Si se pintara siempre, sacaria una ventanita con 00:00 clavado; si no se
+  // pintara nunca, la funcion no existiria para nadie y nadie lo notaria.
+  const cronoPip = await pagina.evaluate(() => {
+    const boton = document.getElementById("crono-flotante");
+    if (!boton) return { falta: true };
+    document.getElementById("crono-reset").click();
+    const alPrincipio = boton.hidden;
+    document.getElementById("crono-toggle").click();
+    const alEmpezar = boton.hidden;
+    const dibuja = typeof dibujarCronoPiP === "function";
+    document.getElementById("crono-reset").click();
+    return { falta: false, alPrincipio, alEmpezar, alReiniciar: boton.hidden, dibuja };
+  });
+
   if (!estado.version) problemas.push("la app no ha cargado (APP_VERSION no existe)");
   if (estado.pestanas !== 4) problemas.push("esperaba 4 pestañas y hay " + estado.pestanas);
   if (!estado.seccionVisible) problemas.push("no hay ninguna sección visible");
@@ -216,6 +231,14 @@ async function correrSmoke(navegador) {
     problemas.push("faltan elementos de elegir/anadir ejercicio: " + estado.cambioSuelto.join(", "));
   if (estado.casillasDeSerie > 0)
     problemas.push("han vuelto las casillas de serie hecha: " + estado.casillasDeSerie);
+
+  if (cronoPip.falta) problemas.push("falta el boton de ventana flotante del cronometro");
+  else {
+    if (!cronoPip.alPrincipio) problemas.push("la ventana flotante del cronometro se ofrece con el cronometro a cero");
+    if (cronoPip.alEmpezar) problemas.push("tras 'Empezar' no aparece la ventana flotante del cronometro");
+    if (!cronoPip.alReiniciar) problemas.push("tras 'Reiniciar' sigue el boton de ventana flotante del cronometro");
+    if (!cronoPip.dibuja) problemas.push("no existe dibujarCronoPiP(): la ventanita pintaria el temporizador");
+  }
 
   if (entreno.bloques === 0) problemas.push("el panel del entreno no pinta ningun ejercicio");
   if (entreno.sinBotonCambiar > 0)
